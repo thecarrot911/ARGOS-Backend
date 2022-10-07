@@ -1,5 +1,6 @@
 # Sistema-gestion-turno-backend
-Sistema de gestión de turno, utilizando inteligencia artificial para la asignación de turnos.
+Sistema de gestión de turno, utilizando inteligencia artificial para la asignación de turnos. En desarrollo...
+
 
 ## Requisitos
 - Python 3.9.13^
