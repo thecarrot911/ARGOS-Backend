@@ -14,7 +14,7 @@ app.use(morgan("dev"))
 app.use(express.json()); 
 
 /**Rutas*/ 
-app.use("/itinerario_de_vuelo", require("./routes/itinerario"));
+app.use("/itinerario_de_vuelo", require("./routes/planificacion"));
 
 /**Levantar el servidor */
 app.listen(app.get("port"), () => {

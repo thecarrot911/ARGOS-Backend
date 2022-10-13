@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { spawn } = require("child_process");
+const { stringify } = require("querystring");
 
 /*const {
     CalcularTurnoEmpleado,
@@ -11,19 +12,24 @@ const { spawn } = require("child_process");
 
 router.post("/generar-planificacion-semanal", (req, res) => {
     var dataToSend;
-    var dia=2
+    var dia=3
     var turno=3
     var empleado=5
+    var jsonsend;
+    var obj;
     const python = spawn('python', ['pipe/script.py',dia,turno,empleado]);    
     python.stdout.on('data', function (data) {
-        console.log("child process on");
+        //console.log("child process on");
         dataToSend = data.toString();
-        console.log(dataToSend);
     });
     
     python.on("close", (code) => {
-        console.log('child process off');
-        return res.send(dataToSend);
+        //console.log('child process off');
+        //console.log(dataToSend)
+        obj = dataToSend.replace(/'/g,"\"");
+        jsonsend = JSON.parse(obj);
+        return res.send(jsonsend);
+
     });
 });
 

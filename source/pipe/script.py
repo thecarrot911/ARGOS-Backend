@@ -1,4 +1,5 @@
 import sys
+from numpy import append
 from ortools.sat.python import cp_model
 
 # Sistema de turno operacionales
@@ -6,6 +7,8 @@ from ortools.sat.python import cp_model
 # Restricciones
 #-1.    Cada trabajador durante la semana tiene 1 día libre.
 #-2.    Los trabajadores durante el mes de trabajo deben tener 2 domingos libres.
+
+
 #-3.    En caso de que dos o más aviones de las líneas áreas SKY, LATAM y JETSMART lleguen a la misma hora o con una diferencia de menos de 20 minutos 
 #       a reabastecerse de combustible, es necesario tener la misma cantidad de empleados que de aviones para ese turno.
 #       _________________________
@@ -30,12 +33,18 @@ def main():
     num_dias = int(sys.argv[1])
     num_turno = int(sys.argv[2])
     num_employee = int(sys.argv[3])
-
-    #num_freeday = 1 # On week
  
     all_employee = range(num_employee)
     all_turno = range(num_turno)
     all_dias = range(num_dias)
+
+    #shift_requests = [  [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
+    #                    
+    #                    [[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+    #
+    #                    [[0, 1, 0], [1, 0, 0], [1, 0, 0]],
+    #                    
+    #                    [[0, 1, 0], [0, 1, 0], [0, 1, 0]]]
 
     # CREACIÓN DEL MODELO.
     model = cp_model.CpModel()
@@ -49,6 +58,8 @@ def main():
                 shifts[(n, d,
                         s)] = model.NewBoolVar('shift_n%id%is%i' % (n, d, s))
 
+
+
     # Cada turno es asignado a solo un empleado por día.  
     # (Esta restricción debe depender según la cantidad de aviones que llegue a ese turno con al menos una diferencia de 20 minutos.)    
     for d in all_dias:
@@ -59,10 +70,7 @@ def main():
     for n in all_employee:
         for d in all_dias:
             model.AddAtMostOne(shifts[(n, d, s)] for s in all_turno)
-    
-    
         
-    
     # Distribuye los turno de maneraz uniforme para cada empleado
     min_shifts_per_employee = (num_turno * num_dias) // num_employee
     if num_turno * num_dias % num_employee == 0:
@@ -77,6 +85,11 @@ def main():
         model.Add(min_shifts_per_employee <= sum(num_turno_worked))
         model.Add(sum(num_turno_worked) <= max_shifts_per_employee)
 
+    #model.Maximize(
+    #    sum(shift_requests[n][d][s] * shifts[(n, d, s)] for n in all_employee
+    #        for d in all_dias for s in all_turno))
+
+    
     # Crea el solver y la solución
     solver = cp_model.CpSolver()
     solver.parameters.linearization_level = 0
@@ -98,19 +111,27 @@ def main():
 
         def on_solution_callback(self):
             self._solution_count += 1
-            print('Solution %i' % self._solution_count)
+
+            array=[]
+            json_grande={}
+            json = {}
+ 
             for d in range(self._num_dias):
-                print('Day %i' % d)
+                json={}
                 for n in range(self._num_employee):
                     is_working = False
                     for s in range(self._num_turno):
                         if self.Value(self._shifts[(n, d, s)]):
                             is_working = True
-                            print('  employee %i works shift %i' % (n, s))         
+                            json["empleado-"+str(int(n)+1)] = s
                     if not is_working:
-                        print('  employee {} does not work'.format(n))
+                        json["empleado-"+str(int(n)+1)] = s
+                array.append(json)
+            
+            json_grande["planificacion"] = array
+            print(json_grande)
+
             if self._solution_count >= self._solution_limit:
-                #print('Stop search after %i solutions' % self._solution_limit)
                 self.StopSearch()
 
         def solution_count(self):
