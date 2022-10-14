@@ -1,6 +1,7 @@
 import sys
 from numpy import append
 from ortools.sat.python import cp_model
+import random
 
 # Sistema de turno operacionales
 #
@@ -93,6 +94,7 @@ def main():
     # Crea el solver y la solución
     solver = cp_model.CpSolver()
     solver.parameters.linearization_level = 0
+
     # Enumera todas las soluciones encontradas
     solver.parameters.enumerate_all_solutions = True
 
@@ -100,8 +102,9 @@ def main():
     class NursesPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
         """Print intermediate solutions."""
 
-        def __init__(self, shifts, num_employee, num_dias, num_turno, limit):
+        def __init__(self, number ,shifts, num_employee, num_dias, num_turno, limit):
             cp_model.CpSolverSolutionCallback.__init__(self)
+            self._number = number
             self._shifts = shifts
             self._num_employee = num_employee
             self._num_dias = num_dias
@@ -112,36 +115,40 @@ def main():
         def on_solution_callback(self):
             self._solution_count += 1
 
-            array=[]
-            json_grande={}
-            json = {}
- 
-            for d in range(self._num_dias):
-                json={}
-                for n in range(self._num_employee):
-                    is_working = False
-                    for s in range(self._num_turno):
-                        if self.Value(self._shifts[(n, d, s)]):
-                            is_working = True
-                            json["empleado-"+str(int(n)+1)] = s
-                    if not is_working:
-                        json["empleado-"+str(int(n)+1)] = s
-                array.append(json)
+            if(self._solution_count == self._number):
+                array=[]
+                json_grande={}
+                json = {}
+    
+                for d in range(self._num_dias):
+                    json={}
+                    for n in range(self._num_employee):
+                        is_working = False
+                        for s in range(self._num_turno):
+                            if self.Value(self._shifts[(n, d, s)]):
+                                is_working = True
+                                json["empleado_"+str(int(n)+1)] = s+1
+                        if not is_working:
+                            json["empleado_"+str(int(n)+1)] = 0
+                    array.append(json)
+                
+                json_grande = array
+                print(json_grande)
             
-            json_grande["planificacion"] = array
-            print(json_grande)
-
             if self._solution_count >= self._solution_limit:
-                self.StopSearch()
+                self.StopSearch()    
 
         def solution_count(self):
             return self._solution_count
 
-    # Display the first five solutions.
-    solution_limit = 1
-    solution_printer = NursesPartialSolutionPrinter(shifts, num_employee,
+    # Límite de cantidad de soluciones
+    solution_limit = 100
+    solution_number = random.randint(1,solution_limit)
+    solution_printer = NursesPartialSolutionPrinter(solution_number,shifts, num_employee,
                                                     num_dias, num_turno,
                                                     solution_limit)
+
+        
 
     solver.Solve(model, solution_printer)
 

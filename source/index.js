@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 
 require("dotenv").config({path:__dirname+'/../.env'});
 
@@ -11,6 +12,7 @@ app.set("port", process.env.PORT_SERVER || 5000);
 
 /**Middlewares */
 app.use(morgan("dev")) 
+app.use(cors());
 app.use(express.json()); 
 
 /**Rutas*/ 
