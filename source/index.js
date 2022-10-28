@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json()); 
 
 /**Rutas*/ 
-app.use("/itinerario_de_vuelo", require("./routes/planificacion"));
+app.use(require("./routes"));
 
 /**Levantar el servidor */
 app.listen(app.get("port"), () => {

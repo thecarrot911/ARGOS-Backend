@@ -8,9 +8,10 @@ import random
 # Restricciones
 #-1.    Cada trabajador durante la semana tiene 1 día libre.
 #-2.    Los trabajadores durante el mes de trabajo deben tener 2 domingos libres.
+#-[3] .   El turno abre con 2 personas(turno de la mañana)
+#-4.    Las personas no pueden tener 2 turnos seguidos(turnos de 12 horas)
 
-
-#-3.    En caso de que dos o más aviones de las líneas áreas SKY, LATAM y JETSMART lleguen a la misma hora o con una diferencia de menos de 20 minutos 
+#-5.    En caso de que dos o más aviones de las líneas áreas SKY, LATAM y JETSMART lleguen a la misma hora o con una diferencia de menos de 20 minutos 
 #       a reabastecerse de combustible, es necesario tener la misma cantidad de empleados que de aviones para ese turno.
 #       _________________________
 #      | Turno 1: 7:00 - 15:00;  |
@@ -18,22 +19,22 @@ import random
 #      | Turno 3: 23:00 - 07:00; |
 #      |_________________________|
 #
-#-4.    En la empresa hay 5 empleados para la distribución de los turnos.
-#-5.    La carga de trabajo de los empleados debe ser equilibrada en base a: 
-#-5.1.      Cantidad de aviones que atiende.  
-#-5.2.      Cantidad de turnos que tiene. 
+#-[6].    En la empresa hay 5 empleados para la distribución de los turnos.
+#-[7].    La carga de trabajo de los empleados debe ser equilibrada en base a: 
+#-7.1.      Cantidad de aviones que atiende.  
+#-[7.2].      Cantidad de turnos que tiene. 
 
 # Restricciones incorporadas
-#-4.   En la empresa hay 5 empleados para la distribución de los turnos.
-#-5.   La carga de trabajo de los empleados debe ser equilibrada en base a: 
-#-5.2.      Cantidad de turnos que tiene. 
+#-6.   En la empresa hay 5 empleados para la distribución de los turnos.
+#-7.   La carga de trabajo de los empleados debe ser equilibrada en base a: 
+#-7.2.      Cantidad de turnos que tiene. 
 
 
 def main():
     # Data.
     num_dias = int(sys.argv[1])
-    num_turno = int(sys.argv[2])
-    num_employee = int(sys.argv[3])
+    num_employee = int(sys.argv[2])
+    num_turno = 3
  
     all_employee = range(num_employee)
     all_turno = range(num_turno)
@@ -41,7 +42,7 @@ def main():
 
     #shift_requests = [  [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
     #                    
-    #                    [[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+    #                    [[LUNES , 0..3]], [1, 0, 0], [1, 0, 0]],
     #
     #                    [[0, 1, 0], [1, 0, 0], [1, 0, 0]],
     #                    
@@ -56,24 +57,24 @@ def main():
     for n in all_employee:
         for d in all_dias:
             for s in all_turno:
-                shifts[(n, d,
-                        s)] = model.NewBoolVar('shift_n%id%is%i' % (n, d, s))
-
-
+                shifts[(n, d, s)] = model.NewBoolVar('shift_n%id%is%i' % (n, d, s))
 
     # Cada turno es asignado a solo un empleado por día.  
     # (Esta restricción debe depender según la cantidad de aviones que llegue a ese turno con al menos una diferencia de 20 minutos.)    
     for d in all_dias:
-        for s in all_turno:
-            model.AddExactlyOne(shifts[(n, d, s)] for n in all_employee)
+        model.Add(sum(shifts[(n, d, 0)] for n in all_employee)>=2)
+        model.Add(sum(shifts[(n, d, 1)] for n in all_employee)>=1)
+        model.Add(sum(shifts[(n, d, 2)] for n in all_employee)>=1)
 
     # Cada empleado trabaja como máximo un turno por día. (Puede ser 0 porque puede tener el día libre al ser solo 3 turnos)
     for n in all_employee:
         for d in all_dias:
-            model.AddAtMostOne(shifts[(n, d, s)] for s in all_turno)
+            for s in all_turno:
+                #print(shifts[(n,d,s)])
+                model.AddAtMostOne(shifts[(n, d, s)] for s in all_turno)
         
     # Distribuye los turno de maneraz uniforme para cada empleado
-    min_shifts_per_employee = (num_turno * num_dias) // num_employee
+    min_shifts_per_employee = ((num_turno+1) * num_dias) // num_employee
     if num_turno * num_dias % num_employee == 0:
         max_shifts_per_employee = min_shifts_per_employee
     else:
@@ -122,18 +123,23 @@ def main():
     
                 for d in range(self._num_dias):
                     json={}
+                    print("Día %i" % (d+1))
                     for n in range(self._num_employee):
                         is_working = False
                         for s in range(self._num_turno):
                             if self.Value(self._shifts[(n, d, s)]):
                                 is_working = True
                                 json["empleado_"+str(int(n)+1)] = s+1
+                                print('  Nurse %i works shift %i' % (n, s))
+
                         if not is_working:
                             json["empleado_"+str(int(n)+1)] = 0
+                            print('  Nurse {} does not work'.format(n))
+
                     array.append(json)
                 
                 json_grande = array
-                print(json_grande)
+                #print(json_grande)
             
             if self._solution_count >= self._solution_limit:
                 self.StopSearch()    
@@ -153,10 +159,10 @@ def main():
     solver.Solve(model, solution_printer)
 
     # Statistics.
-    #print('\nStatistics')
-    #print('  - conflicts      : %i' % solver.NumConflicts())
-    #print('  - branches       : %i' % solver.NumBranches())
-    #print('  - wall time      : %f s' % solver.WallTime())
-    #print('  - solutions found: %i' % solution_printer.solution_count())
+    print('\nStatistics')
+    print('  - conflicts      : %i' % solver.NumConflicts())
+    print('  - branches       : %i' % solver.NumBranches())
+    print('  - wall time      : %f s' % solver.WallTime())
+    print('  - solutions found: %i' % solution_printer.solution_count())
 
 main()

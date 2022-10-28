@@ -2,5 +2,9 @@ input-json/
 output-json/
 node_modules/
 controllers/
+source/app/planificacion/python/aux_code.py
+source/app/planificacion/python/aux_code2.py
+source/app/planificacion/python/diames.py
+source/app/planificacion/python/test2.py
 .gitignore
 .env
