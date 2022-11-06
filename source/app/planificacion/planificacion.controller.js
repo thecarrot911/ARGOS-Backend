@@ -10,7 +10,7 @@ const generarplanificacion = (req, res)=>{
         let jsonsend;
         let obj;
         let dataToSend;
-
+        console.log(req.body)
         const python = spawn('python', ['source/app/planificacion/python/test.py',anio,mes,cant_empleados]);    
         python.stdout.on('data', function (data) {
             dataToSend = data.toString();
@@ -23,7 +23,7 @@ const generarplanificacion = (req, res)=>{
             //jsonsend = JSON.parse(turno_empleado);
             //jsonsend = JSON.parse(dataToSend)
             //Se envía el JSON al front-end
-            return res.send(dataToSend);
+            return res.send({"asd":"asd"});
         });
     }catch(e){
         return res.send("error - xd")

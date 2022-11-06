@@ -6,13 +6,18 @@ import random
 # Sistema de turno operacionales
 #
 # Restricciones
-#-1.    Cada trabajador durante la semana tiene 1 día libre.
-#-2.    Los trabajadores durante el mes de trabajo deben tener 2 domingos libres.
-#-[3] .   El turno abre con 2 personas(turno de la mañana)
-#-4.    Las personas no pueden tener 2 turnos seguidos(turnos de 12 horas)
+#- 1    Cada trabajador durante la semana tiene 1 día libre. (Faltan las semanas iniciales y finales)
+#       (Solucionarlo con agregar las semanas de los otro meses..)
 
-#-5.    En caso de que dos o más aviones de las líneas áreas SKY, LATAM y JETSMART lleguen a la misma hora o con una diferencia de menos de 20 minutos 
-#       a reabastecerse de combustible, es necesario tener la misma cantidad de empleados que de aviones para ese turno.
+#-[2]   Los trabajadores durante el mes de trabajo deben tener 2 domingos libres.
+#       (Funciona pero solo para 1 empleado y no para 5)
+
+#- 3    El turno abre con 2 personas(turno de la mañana).(Falta implementar)
+
+#-[4]   Las personas no pueden tener 2 turnos seguidos.
+#       (No olvidar consultar por la planifiación anterior para que no asigne de una planifiación a otro el mismo empleado en turnos seguidos)
+
+#- 5.    En caso de que dos o más aviones de las líneas áreas SKY, LATAM y JETSMART lleguen a la misma hora o con una diferencia de menos de 20 minutos a reabastecerse de combustible, es necesario tener la misma cantidad de empleados que de aviones para ese turno.
 #       _________________________
 #      | Turno 1: 7:00 - 15:00;  |
 #      | Turno 2: 15:00 - 23:00; | 
@@ -20,9 +25,8 @@ import random
 #      |_________________________|
 #
 #-[6].    En la empresa hay 5 empleados para la distribución de los turnos.
-#-[7].    La carga de trabajo de los empleados debe ser equilibrada en base a: 
-#-7.1.      Cantidad de aviones que atiende.  
-#-[7.2].      Cantidad de turnos que tiene. 
+#- 7.    La carga de trabajo de los empleados debe ser equilibrada en base a la cantidad de turnos que tiene. (código listo, pero se debe terminar las demás restricciones para hacerlo)
+
 
 # Restricciones incorporadas
 #-6.   En la empresa hay 5 empleados para la distribución de los turnos.
@@ -62,7 +66,7 @@ def main():
     # Cada turno es asignado a solo un empleado por día.  
     # (Esta restricción debe depender según la cantidad de aviones que llegue a ese turno con al menos una diferencia de 20 minutos.)    
     for d in all_dias:
-        model.Add(sum(shifts[(n, d, 0)] for n in all_employee)>=2)
+        model.Add(sum(shifts[(n, d, 0)] for n in all_employee)>=1)
         model.Add(sum(shifts[(n, d, 1)] for n in all_employee)>=1)
         model.Add(sum(shifts[(n, d, 2)] for n in all_employee)>=1)
 
@@ -74,7 +78,7 @@ def main():
                 model.AddAtMostOne(shifts[(n, d, s)] for s in all_turno)
         
     # Distribuye los turno de maneraz uniforme para cada empleado
-    min_shifts_per_employee = ((num_turno+1) * num_dias) // num_employee
+    min_shifts_per_employee = ((num_turno) * num_dias) // num_employee
     if num_turno * num_dias % num_employee == 0:
         max_shifts_per_employee = min_shifts_per_employee
     else:
