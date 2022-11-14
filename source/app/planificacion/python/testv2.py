@@ -1,3 +1,4 @@
+from pickle import FALSE
 from sklearn.utils import shuffle
 import sys
 import random
@@ -188,6 +189,7 @@ for num_semana in range(len(cont_semana)):
     for i in range(cont_semana[indice]):
         if mes[num_semana][i][2] == 'Domingo' and mes[num_semana][i][0] == meses_anio[month-1]: 
             domingos.append([i, num_semana]) 
+    i +=1
     indice = indice + 1
 
 if(len(domingos)==5):
@@ -206,77 +208,33 @@ else:
         model.Add(sum(lista_domingo_suma) == len(domingos) - 2) 
 
 # Restricción de Itinerario
-# 5 DOMINGOS - 1 EMPLEADO PARA CADA TURNO. (3 EMPLEADO TRABAJANDO MÁXIMO)
-# 4 DOMINGOS - 1 TURNO SIN OCUPAR. (2 EMPLEADO TRABAJANDO MÁXIMO)
-# POR AHORA NOS E CONSDIERA 2 CHOQUES DE VUELO EN UN MISMO DIA :'V
-#TURNOS:
-#Turno 1: 07:00 – 15:00
-#Turno 2: 15:00 – 23:00
-#Turno 3: 23:00 – 07:00
+            
             #dia,turno,empleado
 itinerario=[[3,2,2],
-            [8,1,2],
-            [11,2,3],
-            [18,2,2],
-            [25,2,2]]
-# SI HAY OTRO CHOQUE QUE MANDE ARREGLO IGUAL
+            [8,2,2],
+            [11,3,3],
+            [18,1,2],
+            [25,1,2]]
 
-def ItinerarioFunction(dia,itinerario):
+def ItinerarioFunction(d):
     for i in range(len(itinerario)):
-        #print("%i|%i" % (d,itinerario[i][0]))
-        if(itinerario[i][0]==dia):
+        if(itinerario[i][0]==d):
             return i
     return None
 
+lista_empleados_turno = []
 lista_alarma_turno = []
+# 5 DOMINGOS - 1 EMPLEADO PARA CADA TURNO. (3 EMPLEADO TRABAJANDO MÁXIMO)
+# 4 DOMINGOS - 1 TURNO SIN OCUPAR. (2 EMPLEADO TRABAJANDO MÁXIMO)
+# DURANTE LA SEMANA PUEDE HABER COMO MÍN 3 EMPLEADOS TRABAJADOS Y MÁXIMO 5
+indice = 0
 lista_domingos_four_week = [[1,1,0],[1,1,0],[1,1,1],[1,1,1]]
-
-dias_libre_semana = num_empleado
-turnos_extra = 6*num_empleado-dias_libre_semana-6*cant_turno # 30-5-18 = 23 empleados
 
 lista_domingos_four_week[0] = shuffle(lista_domingos_four_week[0])
 lista_domingos_four_week[1] = shuffle(lista_domingos_four_week[1])
+
 lista_domingos_four_week = shuffle(lista_domingos_four_week)
 
-list_itinerario = []
-indice = 0
-for num_semana in range(len(cont_semana)):
-    semana_work=[]
-    work_extra = turnos_extra
-    for i in range(cont_semana[indice]):
-        dia_work = []
-        index_itinerario = ItinerarioFunction(mes[num_semana][i][1],itinerario) 
-        if(i!=6):
-            if(index_itinerario != None):
-                if((itinerario[index_itinerario][2]+cant_turno-1<=5) and (work_extra>= itinerario[index_itinerario][2])):
-                    work_extra = work_extra+1 - itinerario[index_itinerario][2]
-                    for t in range(cant_turno):
-                        if(itinerario[index_itinerario][1]==(t+1)):
-                            dia_work.append(itinerario[index_itinerario][2])
-                        else:
-                            dia_work.append(1)
-                    semana_work.append(dia_work)
-                else:
-                    semana_work.append([1,1,1])
-            else:
-                semana_work.append([1,1,1])
-    if(work_extra>=1):
-        for w_e in range(len(semana_work)):
-            if((work_extra-1>=0) and (semana_work[w_e][0]==1)):
-                semana_work[w_e][0]=semana_work[w_e][0]+1
-                work_extra = work_extra-1
-            elif(work_extra-1>=0):
-                work_extra = work_extra
-            else:
-                break
-        if(work_extra-1==0): 
-            dia_random = random.randint(0,len(semana_work)-1)
-            semana_work[dia_random][1]=semana_work[dia_random][1]+1
-            work_extra = work_extra-1
-    list_itinerario.append(semana_work)
-    indice = indice + 1
-
-indice = 0
 for num_semana in range(len(cont_semana)):
     for i in range(cont_semana[indice]):
         if(len(domingos)==5): # 5 DOMINGOS
@@ -285,15 +243,16 @@ for num_semana in range(len(cont_semana)):
                 turno_dia = []
                 if(index_itinerario != None): # Dias CON itinerario
                     for t in range(cant_turno): # FOR DE TURNOS
-                        if(itinerario[index_itinerario][1]== t+1):
-                            turno_dia.append(
-                                model.NewIntVar(itinerario[index_itinerario][2], itinerario[index_itinerario][2],'turno %i' % (t+1))
-                            )
-                        else:
-                            turno_dia.append(
-                                model.NewIntVar(1,num_empleado-itinerario[index_itinerario][2],'turno %i' % (t+1))
-                            )
-                    model.Add(turno_dia[0] + turno_dia[1] + turno_dia[2] == num_empleado) # x+y+z=5
+                        for e in all_empleado:
+                            if(itinerario[index_itinerario][1]== t+1):
+                                turno_dia.append(
+                                    model.NewIntVar(itinerario[index_itinerario][2], itinerario[index_itinerario][2],'turno %i' % (t+1))
+                                )
+                            else:
+                                turno_dia.append(
+                                    model.NewIntVar(1,num_empleado-itinerario[index_itinerario][2],'turno %i' % (t+1))
+                                )
+                    #model.Add(turno_dia[0] + turno_dia[1] + turno_dia[2] == num_empleado) # x+y+z=5
                 else: # DIAS SIN  ITINERARIO
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=1)
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=1)
@@ -302,29 +261,46 @@ for num_semana in range(len(cont_semana)):
                 model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=2)
                 model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=1)
                 model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=1)
+        
         else: # 4 DOMINGOS
+            turno_dia = []
             # DOS TRABAJADORES
-            if(mes[num_semana][i][2]=="Domingo" and mes[num_semana][i][0] == meses_anio[month-1]): #Domingo y mes actual
-                print("no alcanza nunca xd")
+            index_itinerario = ItinerarioFunction(mes[num_semana][i][1]) 
+            if(mes[num_semana][i][2]=="Domingo" and mes[num_semana][i][0] == meses_anio[month-1]):
                 if(index_itinerario != None): # ITINERARIO
+                    print("NO alcanza nunca xd")
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=lista_domingos_four_week[num_semana][0])
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=lista_domingos_four_week[num_semana][1])
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=lista_domingos_four_week[num_semana][2])
-                else: # NO ITINERARIO
+                else:
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=lista_domingos_four_week[num_semana][0])
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=lista_domingos_four_week[num_semana][1])
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=lista_domingos_four_week[num_semana][2])
-            elif(mes[num_semana][i][2]=="Domingo" and mes[num_semana][i][0] != meses_anio[month-1]): #Domingo y otro mes
-                print("NO CONSIDERAR XD|asignacion normal %i" % mes[num_semana][i][1])
-                model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=0)
-                model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=0)
-                model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=0)
             else: #NO ES DOMINGO .                
-                print("%i %i %i"% (list_itinerario[num_semana][i][0],list_itinerario[num_semana][i][1],list_itinerario[num_semana][i][2]))
-
-                model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=list_itinerario[num_semana][i][0])
-                model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=list_itinerario[num_semana][i][1])
-                model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=list_itinerario[num_semana][i][2])
+                if(index_itinerario != None): # ITINERARIO
+                    empleado_disponible = num_empleado-itinerario[index_itinerario][2]-cant_turno
+                    if(empleado_disponible>=0): # ALCANZA
+                        for t in range(cant_turno):
+                            for e in all_empleado:
+                                if(itinerario[index_itinerario][1]== t+1):
+                                    turno_dia.append(# 2. 2
+                                        model.NewIntVar(itinerario[index_itinerario][2], itinerario[index_itinerario][2],'turno %i' % (t+1))
+                                    )
+                                    #model.Add(mes[num_semana][i][3][e][t]==turno_dia[t])
+                                else:
+                                    turno_dia.append( # sobran 3 - 2 trabajan y 1 libre o trabaja
+                                        model.NewIntVar(1,1,'turno %i' % (j+1))
+                                    )
+                                model.Add(mes[num_semana][i][3][e][t]>=turno_dia[t])
+                        #model.Add(turno_dia[0] + turno_dia[1] + turno_dia[2] <= num_empleado) # x+y+z=5
+                    else:   # NO ALCANZA
+                        print("no alcanza %i" % mes[num_semana][i][1])
+                        print("xDDDDD")
+                else: # NO ITINERARIO
+                    #print("asignacion normal %i" % mes[num_semana][i][1])
+                    model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=1)
+                    model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=1)
+                    model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=1)
     indice = indice + 1
 
 

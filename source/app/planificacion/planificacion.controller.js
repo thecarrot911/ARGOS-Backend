@@ -1,29 +1,33 @@
 const { spawn } = require("child_process");
 const { planificacionModel } = require("../../model/planificacionModel");
 
-const generarplanificacion = (req, res)=>{
+const generarplanificacion = async (req, res)=>{
     try{
-        let mes = req.body.mes;
-        let anio = req.body.anio;
-        let empleados = req.body.empleados;
-        let cant_empleados = Object.keys(empleados[0]).length
+        //let mes = req.body.mes;
+        //let anio = req.body.anio;
+        //let empleados = req.body.empleados;
+        //let cant_empleados = empleados.length
         let jsonsend;
         let obj;
         let dataToSend;
-        console.log(req.body)
-        const python = spawn('python', ['source/app/planificacion/python/test.py',anio,mes,cant_empleados]);    
+        const python = spawn('python', ['source/app/planificacion/python/script_constraint.py',dia,mes,cant_empleados]);
         python.stdout.on('data', function (data) {
+            console.log('child process on');
+
             dataToSend = data.toString();
+            //dataToSend =  JSON.stringify(data);
         });
         
-        python.on("close", (code) => {
+        python.on("close", function (code) {
+            console.log('child process off');
             //obj = dataToSend.replace(/'/g,"\"");  
+            console.log(dataToSend)
+
             //turno_empleado = planificacionModel.asignar_turno_empleado(obj,empleados);
             //Convertir la variable obj en JSON
-            //jsonsend = JSON.parse(turno_empleado);
             //jsonsend = JSON.parse(dataToSend)
             //Se envía el JSON al front-end
-            return res.send({"asd":"asd"});
+            return await res.send("xd tabien");
         });
     }catch(e){
         return res.send("error - xd")

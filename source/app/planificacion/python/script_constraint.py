@@ -1,37 +1,33 @@
 import sys
 from numpy import append
 from ortools.sat.python import cp_model
+from calendar import monthrange
+
 import random
 
 # Sistema de turno operacionales
 #
 # Restricciones
-#- 1    Cada trabajador durante la semana tiene 1 día libre. (Faltan las semanas iniciales y finales)
-#       (Solucionarlo con agregar las semanas de los otro meses..)
+#-[1]    Cada trabajador durante la semana tiene 1 día libre. (Utilizar la última semana de planificación para el siguiente)
 
 #-[2]   Los trabajadores durante el mes de trabajo deben tener 2 domingos libres.
-#       (Funciona pero solo para 1 empleado y no para 5)
+#       (LISTO)
 
-#- 3    El turno abre con 2 personas(turno de la mañana).(Falta implementar)
+#-[3]    El turno abre con 2 personas(turno de la mañana).(Listo. ¡¡Cuidado al agruparla con las demás restricciones!!)
 
 #-[4]   Las personas no pueden tener 2 turnos seguidos.
-#       (No olvidar consultar por la planifiación anterior para que no asigne de una planifiación a otro el mismo empleado en turnos seguidos)
+#       (LISTO, pero no olvidar consultar por la planificación anterior para que no asigne de una planifiación a otro el mismo empleado en turnos seguidos)
 
-#- 5.    En caso de que dos o más aviones de las líneas áreas SKY, LATAM y JETSMART lleguen a la misma hora o con una diferencia de menos de 20 minutos a reabastecerse de combustible, es necesario tener la misma cantidad de empleados que de aviones para ese turno.
+#- 5.    En caso de que dos o más aviones de las líneas áreas SKY, LATAM y JETSMART lleguen a la misma hora o con una diferencia de menos de 20 minutos a reabastecerse de combustible, es necesario tener la misma cantidad de empleados que de aviones para ese turno.(FALTA)
+#        Agregar alertas a las horas que requieran dos trabajadores (POR HACER)
 #       _________________________
 #      | Turno 1: 7:00 - 15:00;  |
 #      | Turno 2: 15:00 - 23:00; | 
 #      | Turno 3: 23:00 - 07:00; |
 #      |_________________________|
 #
-#-[6].    En la empresa hay 5 empleados para la distribución de los turnos.
-#- 7.    La carga de trabajo de los empleados debe ser equilibrada en base a la cantidad de turnos que tiene. (código listo, pero se debe terminar las demás restricciones para hacerlo)
-
-
-# Restricciones incorporadas
-#-6.   En la empresa hay 5 empleados para la distribución de los turnos.
-#-7.   La carga de trabajo de los empleados debe ser equilibrada en base a: 
-#-7.2.      Cantidad de turnos que tiene. 
+#-[6].    En la empresa hay 5 empleados para la distribución de los turnos. (LISTO)
+#-[7].    La carga de trabajo de los empleados debe ser equilibrada en base a la cantidad de turnos que tiene. (Código Listo, pero se debe terminar las demás restricciones para integrarlo)
 
 
 def main():
@@ -127,23 +123,23 @@ def main():
     
                 for d in range(self._num_dias):
                     json={}
-                    print("Día %i" % (d+1))
+                    #print("Día %i" % (d+1))
                     for n in range(self._num_employee):
                         is_working = False
                         for s in range(self._num_turno):
                             if self.Value(self._shifts[(n, d, s)]):
                                 is_working = True
                                 json["empleado_"+str(int(n)+1)] = s+1
-                                print('  Nurse %i works shift %i' % (n, s))
+                                #print('  Nurse %i works shift %i' % (n, s))
 
                         if not is_working:
                             json["empleado_"+str(int(n)+1)] = 0
-                            print('  Nurse {} does not work'.format(n))
+                            #print('  Nurse {} does not work'.format(n))
 
                     array.append(json)
                 
                 json_grande = array
-                #print(json_grande)
+                print(json_grande)
             
             if self._solution_count >= self._solution_limit:
                 self.StopSearch()    
@@ -163,10 +159,10 @@ def main():
     solver.Solve(model, solution_printer)
 
     # Statistics.
-    print('\nStatistics')
-    print('  - conflicts      : %i' % solver.NumConflicts())
-    print('  - branches       : %i' % solver.NumBranches())
-    print('  - wall time      : %f s' % solver.WallTime())
-    print('  - solutions found: %i' % solution_printer.solution_count())
+    #print('\nStatistics')
+    #print('  - conflicts      : %i' % solver.NumConflicts())
+    #print('  - branches       : %i' % solver.NumBranches())
+    #print('  - wall time      : %f s' % solver.WallTime())
+    #print('  - solutions found: %i' % solution_printer.solution_count())
 
 main()

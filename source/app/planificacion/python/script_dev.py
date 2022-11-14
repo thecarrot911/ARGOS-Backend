@@ -1,8 +1,14 @@
-from statistics import mode
+from sklearn.utils import shuffle
 import sys
 import random
 from calendar import monthrange
 from ortools.sat.python import cp_model
+#Restricciones
+#mes[num_semana][i][0] -> Mes
+#mes[num_semana][i][1] -> Dia del mes
+#mes[num_semana][i][2] -> Dia de semana
+#mes[num_semana][i][3] -> Array de Empleado
+
 
 def main():
     
@@ -51,10 +57,35 @@ def main():
     month = int(sys.argv[2])
     num_empleado = int(sys.argv[3])
 
-    dias_mes  = monthrange(year,month)
+    if(month==12):
+        month_next = 1
+        year_next = year+1
+        year_prev = year
+        month_prev = month-1
+    elif(month==1):
+        month_prev = 12
+        year_prev = year-1
+        year_next = year
+        month_next = month+1
+    else:
+        year_prev = year
+        month_prev = month-1
+        year_next = year
+        month_next = month+1
+    
+    dias_mes_prev = monthrange(year_prev, month_prev)
+    dias_mes_actual  = monthrange(year,month)
+    dias_mes_next = monthrange(year_next, month_next)
+    
+    indice_semana_prev = dias_mes_prev[0]
+    cantidad_dias_prev = dias_mes_prev[1]
 
-    indice_semana = dias_mes[0]
-    cantidad_dias = dias_mes[1]
+    indice_semana = dias_mes_actual[0]
+    cantidad_dias = dias_mes_actual[1]
+
+    indice_semana_next = dias_mes_next[0]
+    cantidad_dias_next = dias_mes_next[1]
+
     dias_semana = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
     cant_turno = 3 
 
@@ -103,14 +134,13 @@ def main():
     # For para contar la cantidad de semanas
     for i in mes:
         cont_semana.append(len(i))
-    
     indice = 0
     # For para imprimir
-    for num_semana in range(len(cont_semana)):
+    """for num_semana in range(len(cont_semana)):
         print("semana n° %i" % num_semana)
         for i in range(cont_semana[indice]):
             print("dia n°: %i %s" % (mes[num_semana][i][0],mes[num_semana][i][1]))
-        indice = indice + 1
+        indice = indice + 1"""
     
      ## Restricciones
     # Cada empleado trabaja como máximo un turno por día. (Puede ser 0 porque puede tener el día libre al ser solo 3 turnos)
@@ -121,19 +151,6 @@ def main():
                 model.AddAtMostOne(mes[num_semana][i][2][e][t] for t in range(cant_turno))
             indice = indice + 1
 
-    # Cada turno es asignado a solo un empleado por día.
-    # (Esta restricción debe depender según la cantidad de aviones que llegue a ese turno con al menos una diferencia de 20 minutos.)   
-    indice = 0
-    for num_semana in range(len(cont_semana)):
-        for i in range(cont_semana[indice]):
-                #El turno de la mañana tiene como mínimo 2 empleados.
-                model.Add(sum(mes[num_semana][i][2][e][0] for e in all_empleado)>=1)
-                #El turno de la tarde tiene como mínimo 1 empleado.
-                model.Add(sum(mes[num_semana][i][2][e][1] for e in all_empleado)>=1)
-                #El turno de la noche tiene comom mínimo 1 empleado.
-                model.Add(sum(mes[num_semana][i][2][e][2] for e in all_empleado)>=1)
-
-        indice = indice + 1
     # Cada empleado tiene 1 día libre por semana [PREGUNTAR] BD
     for e in all_empleado:
         indice = 0
@@ -152,7 +169,8 @@ def main():
             indice = indice + 1
 
 
-    # Los empleados tienen 2 domingos libres durante el mes [FUNCIONA, PERO CON 5 SEMANAS CON 4 ES IMPOSIBLE]
+    
+    # Los empleados tienen 2 domingos libres durante el mes 
     domingos = []
     indice = 0
     for num_semana in range(len(cont_semana)):
@@ -161,17 +179,75 @@ def main():
                 domingos.append([i, num_semana]) # i: índice del día (0..6) // num_semana: 0..cant_semana
         i +=1
         indice = indice + 1
-
-    for e in all_empleado: #4
-        lista_domingo_suma = []
-        for domingo, num_semana in domingos:
-            for t in range(cant_turno):
-                lista_domingo_suma.append(mes[num_semana][domingo][2][e][t])
-        model.Add(sum(lista_domingo_suma) == len(domingos) - 2)
-            
-
-    # Las personas no pueden tener 2 turnos seguidos [FALTA VER QUE NO SEA SEGUIDO EN LA SIGUIENTE PLANIFIACION]
     
+    if(len(domingos)==5):
+        for e in all_empleado: #4
+            lista_domingo_suma = []
+            for domingo, num_semana in domingos:
+                for t in range(cant_turno):
+                    lista_domingo_suma.append(mes[num_semana][domingo][2][e][t])
+            model.Add(sum(lista_domingo_suma) == len(domingos) - 2) # 5 - 2 
+    else:
+        for e in all_empleado: #4
+            lista_domingo_suma = []
+            for domingo, num_semana in domingos:
+                for t in range(cant_turno):
+                    lista_domingo_suma.append(mes[num_semana][domingo][2][e][t])
+            model.Add(sum(lista_domingo_suma) == len(domingos) - 2) # 4 - 2
+
+    
+    # Cada turno es asignado a solo un empleado por día.
+    # (Esta restricción debe depender según la cantidad de aviones que llegue a ese turno con al menos una diferencia de 20 minutos.)   
+    indice = 0
+    list_four_mana = [[1,1,0],[1,1,0],[1,1,1],[1,1,1]]
+    
+    list_four_mana[0] = shuffle(list_four_mana[0])
+    list_four_mana[1] = shuffle(list_four_mana[1])
+    
+    list_four_mana = shuffle(list_four_mana)
+
+
+    for num_semana in range(len(cont_semana)):
+        for i in range(cont_semana[indice]):
+            if(len(domingos)==5):
+                if(mes[num_semana][i][1]=="Domingo"):
+                    #El turno de la mañana tiene como mínimo 2 empleados.
+                    model.Add(sum(mes[num_semana][i][2][e][0] for e in all_empleado)>=1)
+                    #El turno de la tarde tiene como mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][1] for e in all_empleado)>=1)
+                    #El turno de la noche tiene comom mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][2] for e in all_empleado)>=1)
+                else:
+                    #El turno de la mañana tiene como mínimo 2 empleados.
+                    model.Add(sum(mes[num_semana][i][2][e][0] for e in all_empleado)>=2)
+                    #El turno de la tarde tiene como mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][1] for e in all_empleado)>=1)
+                    #El turno de la noche tiene comom mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][2] for e in all_empleado)>=1)
+            else:
+                if(mes[num_semana][i][1]=="Domingo"): #(PREGUNTAR COMO SE VA DESARROLLAR LOS DOMINGOS)
+                    #El turno de la mañana tiene como mínimo 2 empleados.
+                    model.Add(sum(mes[num_semana][i][2][e][0] for e in all_empleado)>=list_four_mana[num_semana][0])
+                    
+                    #El turno de la tarde tiene como mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][1] for e in all_empleado)>=list_four_mana[num_semana][1])
+                    
+                    #El turno de la noche tiene comom mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][2] for e in all_empleado)>=list_four_mana[num_semana][2])
+                    #Tienen que haber 2 trabajadores trabajando como mínimo ese día
+                else:
+                    #El turno de la mañana tiene como mínimo 2 empleados.
+                    model.Add(sum(mes[num_semana][i][2][e][0] for e in all_empleado)>=2)
+                    #El turno de la tarde tiene como mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][1] for e in all_empleado)>=1)
+                    #El turno de la noche tiene comom mínimo 1 empleado.
+                    model.Add(sum(mes[num_semana][i][2][e][2] for e in all_empleado)>=1)
+
+        indice = indice + 1
+    
+    
+    
+    # Las personas no pueden tener 2 turnos seguidos [FALTA VER QUE NO SEA SEGUIDO EN LA SIGUIENTE PLANIFIACION]
     for e in all_empleado:
         indice = 0
         for num_semana in range(len(cont_semana)):
@@ -211,13 +287,13 @@ def main():
     solver.parameters.enumerate_all_solutions = True
     solution_limit = 100
     solution_number = random.randint(1,solution_limit)
-    """solution_printer = SolutionPrinter(solution_number,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit)
+    solution_printer = SolutionPrinter(solution_number,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit)
     solver.Solve(model, solution_printer)
     # Statistics.
     print('\nStatistics')
     print('  - conflicts      : %i' % solver.NumConflicts())
     print('  - branches       : %i' % solver.NumBranches())
     print('  - wall time      : %f s' % solver.WallTime())
-    print('  - solutions found: %i' % solution_printer.solution_count())"""
+    print('  - solutions found: %i' % solution_printer.solution_count())
 
 main()
