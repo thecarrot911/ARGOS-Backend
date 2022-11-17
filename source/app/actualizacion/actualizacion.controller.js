@@ -1,7 +1,11 @@
 const crear_actualizacion = (req, res)=>{
-    console.log(req.body)
+    try{
+        console.log(req)
+        return res.send({"nice":"nice"})
+    }catch(e){
+        return res.send(e);
+    }
 
-    return res.send("nice");
 };
 
 module.exports.actualizacion_controller = {

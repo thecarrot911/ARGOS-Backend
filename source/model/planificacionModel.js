@@ -1,29 +1,27 @@
 const conexion = require("../database");
 
 const asignar_turno_empleado = (obj, empleados)=>{
-    let array_empleados = Object.values(empleados[0]);
-    let turno = [':"Libre"',':"07:00 a 15:00"',':"15:00 a 23:00"',':"23:00 a 07:00"'];
+    let turno = ['"Libre"','"07:00 a 15:00"','"15:00 a 23:00"','"23:00 a 07:00"'];
+    let array_empleados = new Array(5);
+    array_empleados[0] = empleados[0].empleado_1 
+    array_empleados[1] = empleados[1].empleado_2
+    array_empleados[2] = empleados[2].empleado_3
+    array_empleados[3] = empleados[3].empleado_4
+    array_empleados[4] = empleados[4].empleado_5 
 
-    //Ordenamiento de turno al azar
-    for (i = array_empleados.length;i; i-- ){
-        j = Math.floor(Math.random()*i);
-        k = array_empleados[i-1];;
-        array_empleados[i-1]=array_empleados[j];
-        array_empleados[j] = k;
-    }
-
+    array_empleados = array_empleados.sort(function() {return Math.random() - 0.5});
+    
     //Asignación de turno
     for (i = 1;i<=array_empleados.length;i++){
-        obj = obj.replaceAll('empleado_'+i,array_empleados[i-1]);
+        obj = obj.replaceAll('"nombre": '+i,'"nombre": "'+array_empleados[i-1]+'"');
     }
     
     //Reemplazo de los numeros por horas
     for (i=0; i<=3;i++){
-        obj = obj.replaceAll(": "+i+"",turno[i]);
+        obj = obj.replaceAll('"turno": '+i,'"turno": '+turno[i]);
     }
     return obj;
 };
-
 
 const guardar = async(nombre,planificacion)=>{ 
     let string_sql = "INSERT INTO mydb.planificacion(nombre) values('"+nombre+"');";

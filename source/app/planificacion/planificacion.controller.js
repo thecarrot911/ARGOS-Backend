@@ -1,39 +1,38 @@
 const { spawn } = require("child_process");
 const { planificacionModel } = require("../../model/planificacionModel");
 
-const generarplanificacion = (req, res)=>{
+const generarplanificacion = async(req, res) =>{
     try{
-        //let mes = req.body.mes;
-        //let anio = req.body.anio;
-        //let cant_empleados = empleados.length
-        let dia = 31
-        let cant_empleado = 5
-        let empleados = [{"empleado_1": "A. MONTANER",
-        "empleado_2": "C. VEIRA",
-        "empleado_3": "D. TRONCOSO",
-        "empleado_4": "R. ZAVALA",
-        "empleado_5": "R. ZUÑIGA"}]
-        let jsonsend;
-        let obj;
-        let dataToSend;
-        const python = spawn('python', ['source/app/planificacion/python/script_constraint.py',dia,cant_empleado]);
-        python.stdout.on('data', function (data) {
-            console.log('child process on');
-
-            dataToSend = data.toString();
-            //dataToSend =  JSON.stringify(data);
-        });
+        let anio = req.body.anio;
+        let mes = req.body.mes;
+        let empleados = req.body.empleados;
+        let cant_empleados = empleados.length
         
-        python.on("close", function (code) {
-            //console.log('child process off');
-            obj = dataToSend.replace(/'/g,"\"");  
-            //console.log(dataToSend)
-
+        let spawn = require('child_process').spawn;
+        let command = spawn('python', ['source/app/planificacion/python/scriptbeta.py',anio,mes,cant_empleados])
+        let dataToSend;
+        let obj;
+        
+        command.stdout.on ('data', function (data){
+            console.log('child process on');
+            dataToSend = data.toString();
+        });
+        command.stderr.on ('data', function (data){
+            console.log('child process on');
+            dataToSend = data.toString();
+        });
+        command.on('close', function(code){
+            console.log('child process close')
+            obj = dataToSend.replace(/'/g,"\""); 
             turno_empleado = planificacionModel.asignar_turno_empleado(obj,empleados);
-            //Convertir la variable obj en JSON
-            jsonsend = JSON.parse(turno_empleado)
-            //Se envía el JSON al front-end
-            return res.send(jsonsend);
+            jsonsend = JSON.parse(turno_empleado);
+            //jsonsend = JSON.parse(obj)
+            return res.send(jsonsend)
+        });
+        command.on('error', function(err){
+            console.log('child process error')
+            console.log(err);
+            reject(err);
         });
     }catch(e){
         return res.send("error - xd")

@@ -44,21 +44,16 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                     is_working = True
                                     emp_turn["turno"] = t+1
                                     emp_turn["nombre"] = j+1
-                                    emp_turn["apellido"] = j+1
                                     #print('Empleado %i trabaja en el turno %i' % ((j+1), (t+1)))
                             if not is_working:
                                 emp_turn["turno"] = 0
                                 emp_turn["nombre"] = j+1
-                                emp_turn["apellido"] = j+1
                                 #print('Empleado {} no trabaja en el turno'.format(j+1))
                             empleados.append(emp_turn)
                         dia["empleados"] = empleados
+                        #print(dia)
                         json.append(dia)
-                #print("_____________________________")
                 indice = indice + 1
-                #json["semana_"+str(int(num_semana)+1)] = semana
-                #json_grande.append(json)
-            #print("xd")
             print(json)
         if self._solution_count >= self._solution_limit:
             self.StopSearch()
@@ -100,7 +95,7 @@ indice_semana_next = dias_mes_next[0]
 cantidad_dias_next = dias_mes_next[1]
 
 meses_anio = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
-dias_semana = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
+dias_semana = ["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"]
 cant_turno = 3 
 
 all_empleado = range(num_empleado) # 0..3

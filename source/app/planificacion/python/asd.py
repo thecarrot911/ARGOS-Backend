@@ -197,7 +197,7 @@ for num_semana in range(len(cont_semana)):
         index_itinerario = ItinerarioFunction(mes[num_semana][i][1],itinerario) 
         if(i!=6):
             if(index_itinerario != None):
-                    # No alcanza                                     and dias extras 
+                    # No alcanza    and dias extras 
                 if((itinerario[index_itinerario][2]+cant_turno-1<=5) and (work_extra>=itinerario[index_itinerario][2])): 
                     # RESTA DE LOS DIAS EXTRAS PEDIDOS POR ITINERARIO
                     # WORK_EXTRA+1 ??
@@ -253,7 +253,7 @@ for num_semana in range(len(cont_semana)):
                     #un for del i xd? para que sea random...
                     model.Add(list_itinerario[num_semana][i][0]==2)
                     work_extra = work_extra - 1
-            elif((i==6) and (work_extra>=1)):
+            elif((i==6) and (work_extra>=1)): # ver turno tarde
                 for k in range(list_turno_extra[indice]):
                     if(k!=6):
                         index_itinerario = ItinerarioFunction(mes[num_semana][k][1],itinerario)
