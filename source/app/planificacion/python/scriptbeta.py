@@ -240,13 +240,11 @@ lista_alarma_turno = []
 
 # Cada turno es asignado a solo un empleado por día.
 # (Esta restricción debe depender según la cantidad de aviones que llegue a ese turno con al menos una diferencia de 20 minutos.)
-indice = 0
 list_four_mana = [[1,1,0],[1,1,0],[1,1,1],[1,1,1]]
 list_four_mana[0] = shuffle(list_four_mana[0])
 list_four_mana[1] = shuffle(list_four_mana[1])
 list_four_mana = shuffle(list_four_mana)
-
-
+indice = 0
 for num_semana in range(len(cont_semana)):
     for i in range(cont_semana[indice]):
         if(len(domingos)==5): # 5 DOMINGOS

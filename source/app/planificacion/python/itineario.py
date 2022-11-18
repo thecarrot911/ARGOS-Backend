@@ -8,8 +8,9 @@ from ortools.sat.python import cp_model
 class SolutionPrinter(cp_model.CpSolverSolutionCallback):
     """Clase para imprimir la solución."""
 
-    def __init__(self,solution_number,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,list_itinerario):
+    def __init__(self,lista_alarma_turno,solution_number,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,list_itinerario):
         cp_model.CpSolverSolutionCallback.__init__(self)
+        self._lista_alarma_turno = lista_alarma_turno
         self._solution_number = solution_number
         self._mes = mes
         self._cont_semana = cont_semana
@@ -26,7 +27,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
             indice = 0
             itinerario_final = []
             for num_semana in range(len(self._cont_semana)):
-                print("Semana %i"% (indice+1))
+                print("Semana %i"% (num_semana+1))
                 iti_week = []
                 for i in range(self._cont_semana[indice]):
                     if(self._mes[num_semana][i][2]!="Domingo"):
@@ -36,11 +37,15 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                         c = self.Value(self._list_itinerario[num_semana][i][2])
                         #d = self._mes[num_semana][i][2]
                         e = self._mes[num_semana][i][1]
+                        #f = self._mes[num_semana][i][0]
+
                         iti_week.append([a,b,c,e])
                         #print("%i %i %i" % (a,b,c))
                 itinerario_final.append(iti_week)
                 print(iti_week)
                 indice = indice + 1
+            print("_________________")
+            print(lista_alarma_turno)
         if self._solution_count >= self._solution_limit:
             self.StopSearch()
     
@@ -157,52 +162,51 @@ indice = 0
 #Turno 2: 15:00 – 23:00
 #Turno 3: 23:00 – 07:00
             #dia,turno,empleado
-itinerario=[[1,3,2],
+"""itinerario=[[1,3,2],
             [5,3,2],
             [12,3,2],
             [12,1,2],
-            [16,2,2],
+            [15,2,2],
             [19,3,3],
             [5,2,2],
-            [25,2,2]]
+            [26,2,2]]"""
 
-"""itinerario=[[5,2,3],
-            [7,1,3],
-            [12,2,2],
-            [14,2,2],
-            [15,2,2]]"""
+itinerario=[[5,1,3],
+            #[5,2,3],
+            #[5,3,3],
+            [12,1,4],
+            [19,2,2],
+            [26,2,2]]
+
+#itinerario=[]
+
 def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
     lista = []
     if(a>b and b>c):
         lista.append(ind_c)
         lista.append(ind_b)
         lista.append(ind_a)
-        return lista
     elif(b>a and a>c):
         lista.append(ind_c)
         lista.append(ind_a)
         lista.append(ind_b)
-        return lista
     elif(c>a and a>b):
         lista.append(ind_b)
         lista.append(ind_a)
         lista.append(ind_c)
-        return lista
     elif(c>b and b>a):
         lista.append(ind_a)
         lista.append(ind_b)
         lista.append(ind_c)
-        return lista
     elif(a>c and c>b):
         lista.append(ind_b)
         lista.append(ind_c)
         lista.append(ind_a)
-        return lista
     elif(b>c and c>a):
         lista.append(ind_a)
         lista.append(ind_c)
         lista.append(ind_b)
-        return lista
+    return lista
 
 
 def ItinerarioFunction(dia,itinerario):
@@ -215,6 +219,7 @@ def ItinerarioFunction(dia,itinerario):
         a = itinerario[lista[0]][1]
         b = itinerario[lista[1]][1]
         c = 6-itinerario[lista[0]][1]-itinerario[lista[1]][1]
+        #print(OrdenarLista(a,b,c,lista[0],lista[1],-1))
         return OrdenarLista(a,b,c,lista[0],lista[1],-1)
     elif(len(lista)==3):
         a = itinerario[lista[0]][1]
@@ -223,8 +228,9 @@ def ItinerarioFunction(dia,itinerario):
         return OrdenarLista(a,b,c,lista[0],lista[1],lista[2])
     else:
         return lista
-
+                    #dia,turno,emp,falta
 lista_alarma_turno = []
+lista_comodin = []
 dias_libre_semana = num_empleado
 turnos_extra = 6*num_empleado-dias_libre_semana-6*cant_turno # 30-5-18 = 23 empleados
 
@@ -237,50 +243,96 @@ for num_semana in range(len(cont_semana)):
     semana_work = []
     work_extra = turnos_extra
     for i in range(cont_semana[indice]):
-        list_index_itinerario = ItinerarioFunction(mes[num_semana][i][1],itinerario)
-        if(i!=6):
-            if(len(list_index_itinerario)>1):
-                dia_work = [] 
-                for j in range(3):
-                    index_iti = list_index_itinerario[j]
-                    if(index_iti != -1):
-                        if((itinerario[index_iti][2]+cant_turno-1<=5)and(work_extra>=itinerario[index_iti][2])):
-                            work_extra = work_extra+1 - itinerario[index_iti][2]
-                            dia_work.append(
-                                model.NewIntVar(itinerario[index_iti][2],itinerario[index_iti][2],"turno %i" % (j+1))
-                            )
+        if(mes[num_semana][i][0]==meses_anio[month-1]):
+            list_index_itinerario = ItinerarioFunction(mes[num_semana][i][1],itinerario)
+            if(i!=6):
+                if(len(list_index_itinerario)>1): # falta resolver este caso :4
+                    dia_work = []
+                    acumulador = 0
+                    for j in range(cant_turno):
+                        index_iti = list_index_itinerario[j]
+                        if(index_iti != -1):
+                            if((num_empleado-itinerario[index_iti][2]-acumulador<=num_empleado)and(work_extra>=itinerario[index_iti][2])):
+                                work_extra = work_extra+1 - itinerario[index_iti][2]
+                                dia_work.append(
+                                    model.NewIntVar(itinerario[index_iti][2],itinerario[index_iti][2],"turno %i" % (j+1))
+                                )
+                                if(mes[num_semana][i][1]==5):
+                                    print(dia_work)
+                            else:
+                                number = 0
+                                falta = 0
+                                for num in range(1,itinerario[index_iti][2]+1):
+                                    if(num_empleado-cant_turno-num==0):
+                                        number=num
+                                        falta=itinerario[index_iti][2]-number
+                                        break
+                                dia_work.append(
+                                    model.NewIntVar(number,number,"turno %i" % (j+1))
+                                )
+                                if(mes[num_semana][i][1]==5):
+                                    print("-")
+                                    print(dia_work)
+                                lista_alarma_turno.append([itinerario[index_iti][0],itinerario[index_iti][1],itinerario[index_iti][2],falta])
                         else:
-                            print("no alcanza")
-                    else:
-                        dia_work.append(
-                            model.NewIntVar(1,1,"turno %i" % (j+1))
-                        )
-                semana_work.append(dia_work)
-            elif(len(list_index_itinerario)==1):
-                ind = list_index_itinerario[0]
-                dia_work = []
-                if((itinerario[ind][2]+cant_turno-1<=5)and(work_extra>=itinerario[ind][2])):
-                    work_extra = work_extra+1 - itinerario[ind][2]
-                    for t in range(cant_turno):
-                        if(itinerario[ind][1]==(t+1)):
+                            print("xdd")
                             dia_work.append(
-                                model.NewIntVar(itinerario[ind][2],itinerario[ind][2],"turno %i" % (t+1))
+                                model.NewIntVar(1,1,"turno %i" % (j+1))
                             )
-                        else:
-                            dia_work.append(
-                                model.NewIntVar(1,num_empleado-itinerario[ind][2],"turno %i" % (t+1))
-                            )
+                    
                     semana_work.append(dia_work)
+                    
+                elif(len(list_index_itinerario)==1):
+                    ind = list_index_itinerario[0]
+                    dia_work = []
+                    if((itinerario[ind][2]+cant_turno-1<=5)and(work_extra>=itinerario[ind][2])):
+                        work_extra = work_extra+1 - itinerario[ind][2]
+                        for t in range(cant_turno):
+                            if(itinerario[ind][1]==(t+1)):
+                                dia_work.append(
+                                    model.NewIntVar(itinerario[ind][2],itinerario[ind][2],"turno %i" % (t+1))
+                                )
+                            else:
+                                dia_work.append(
+                                    model.NewIntVar(1,num_empleado-itinerario[ind][2],"turno %i" % (t+1))
+                                )
+                        print([mes[num_semana][i][1],dia_work])
+                        semana_work.append(dia_work)
+                    else:
+                        number = 0
+                        falta = 0
+                        for num in range(1,itinerario[ind][2]+1):
+                            if(num_empleado-cant_turno+1-num==0):
+                                number=num
+                                falta=itinerario[ind][2]-number
+                                break
+                        
+                        for t in range(cant_turno):
+                            if(itinerario[ind][1]==(t+1)):
+                                dia_work.append(
+                                    model.NewIntVar(number,number,"turno %i" % (t+1))
+                                )
+                            else:
+                                dia_work.append(
+                                    model.NewIntVar(1,1,"turno %i" % (t+1))
+                                )
+                        semana_work.append(dia_work)
+                        lista_alarma_turno.append([itinerario[ind][0],itinerario[ind][1],itinerario[ind][2],falta])
+                        print([mes[num_semana][i][1],dia_work])
+                        # FALTA HACER LA LISTA EMERGENTE DE QUE NO ALCANZA A ENVIAR (LA WEA PAJA MANITO XD)
                 else:
-                    print("No alcanza")
-                    # FALTA HACER LA LISTA EMERGENTE DE QUE NO ALCANZA A ENVIAR (LA WEA PAJA MANITO XD)
-            else:
-                #print("NO HAY NADIE :d")
-                semana_work.append([
-                    model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
-                    model.NewIntVar(1,num_empleado-cant_turno+1,"turno 2"),
-                    model.NewIntVar(1,num_empleado-cant_turno+1,"turno 3")
-                ])
+                    #print("NO HAY NADIE :d")
+                    semana_work.append([
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 2"),
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 3")
+                    ])
+        else:
+            semana_work.append([
+                model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
+                model.NewIntVar(1,num_empleado-cant_turno+1,"turno 2"),
+                model.NewIntVar(1,num_empleado-cant_turno+1,"turno 3")
+            ])
     list_itinerario.append(semana_work)
     list_turno_extra.append(work_extra)
     indice = indice + 1
@@ -290,37 +342,46 @@ for num_semana in range(len(cont_semana)):
 # Turnos sobrantes por asignar en la mañana.
 indice = 0
 for num_semana in range(len(cont_semana)):
-    lista = []
     work_extra = list_turno_extra[num_semana]
     if(work_extra>=1):
-        for i in range(list_turno_extra[indice]):
-            if(i!=6): # ASIGNA 2 PERSONA EN TURNO MAÑANA
+        #print(list_turno_extra[indice])
+        for i in range(list_turno_extra[num_semana]):
+            if((i<=5) and (work_extra>=1)): # ASIGNA 2 PERSONA EN TURNO MAÑANA
                 lista_index = ItinerarioFunction(mes[num_semana][i][1],itinerario)
-                if((len(lista_index)==0) and (work_extra>=1)):
+                if(mes[num_semana][i][0]==meses_anio[month-1]):
+                    if((len(lista_index)==0) and (work_extra>=1)):
+                        model.Add(list_itinerario[num_semana][i][0]==2)
+                        work_extra = work_extra - 1
 
-                    model.Add(list_itinerario[num_semana][i][0]==2)
-                    work_extra = work_extra - 1
-                
-                elif((len(lista_index)==1) and (itinerario[lista_index[0]][1]!=1) and (num_empleado-cant_turno+1-itinerario[lista_index[0]][2]<=num_empleado) and (work_extra>=1)):
-
-                    model.Add(list_itinerario[num_semana][i][0]==2)
-                    work_extra = work_extra-1
-
-            elif((i==6) and (work_extra>=1)):
-                for k in range(list_turno_extra[indice]):
+                    elif((len(lista_index)==1) and (itinerario[lista_index[0]][1]!=1) and (itinerario[lista_index[0]][2]<=2) and (work_extra>=1)):
+                        model.Add(list_itinerario[num_semana][i][0]==2)
+                        work_extra = work_extra-1
+                else:
+                    if(work_extra>=1):
+                        model.Add(list_itinerario[num_semana][i][0]==2)
+                        work_extra = work_extra - 1
+                        
+            """elif((i==6) and (work_extra>=1)):
+                for k in range(list_turno_extra[num_semana]):
                     if(k!=6): #ASIGNA 2 PERSONA EN TURNO TARDE
                         lista_index = ItinerarioFunction(mes[num_semana][k][1],itinerario)
-
-                        if((len(lista_index)==0) and (work_extra>=1)):
-
-                            model.Add(list_itinerario[num_semana][k][1]>=2)
-                            work_extra = work_extra - 1
-                        
-                        elif((len(lista_index)==1) and (itinerario[lista_index[0]][1]!=2) and (num_empleado-cant_turno+1-itinerario[lista_index[0]][2]<=num_empleado) and (work_extra>=1)):
-
-                            model.Add(list_itinerario[num_semana][k][1]>=2)
-                            work_extra = work_extra -1
+                        if(mes[num_semana][k][0]==meses_anio[month-1]):
+                            if((len(lista_index)==0) and (work_extra>=1)):
+                                model.Add(list_itinerario[num_semana][k][1]==2)
+                                work_extra = work_extra - 1
+                            
+                            elif((len(lista_index)==1) and (itinerario[lista_index[0]][1]!=2) and (itinerario[lista_index[0]][2]<num_empleado) and (work_extra>=1)):
+                                model.Add(list_itinerario[num_semana][k][1]==2)
+                                work_extra = work_extra -1
+                        else:
+                            if(work_extra>=1):
+                                model.Add(list_itinerario[num_semana][k][1]==2)
+                                work_extra = work_extra - 1"""
         indice = indice + 1
+
+for num_semana in range(len(cont_semana)):
+    for i in range(cont_semana):
+        print("")
 
 # Máxima cantidad de turnos trabajados en 1 semana por dia
 indice = 0
@@ -354,7 +415,7 @@ solver.parameters.linearization_level = 0
 solver.parameters.enumerate_all_solutions = True
 solution_limit = 100
 solution_number = random.randint(1,solution_limit)
-solution_printer = SolutionPrinter(solution_number,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,list_itinerario)
+solution_printer = SolutionPrinter(lista_alarma_turno,solution_number,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,list_itinerario)
 solver.Solve(model, solution_printer)
 # Statistics.
 print('\nStatistics')

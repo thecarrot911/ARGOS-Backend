@@ -9,7 +9,7 @@ const generarplanificacion = async(req, res) =>{
         let cant_empleados = empleados.length
         
         let spawn = require('child_process').spawn;
-        let command = spawn('python', ['source/app/planificacion/python/scriptbeta.py',anio,mes,cant_empleados])
+        let command = spawn('python', ['source/app/planificacion/python/script_integrado.py',anio,mes,cant_empleados])
         let dataToSend;
         let obj;
         
