@@ -177,7 +177,6 @@ def GenerarPlanificacion(year,month,num_empleado):
     cont_semana = []
     for i in mes:
         cont_semana.append(len(i))
-    indice = 0
 
     #Restricciones
     #mes[num_semana][i][0] -> Mes
@@ -498,5 +497,3 @@ year = int(sys.argv[1])
 month = int(sys.argv[2])
 num_empleado = int(sys.argv[3])
 json = GenerarPlanificacion(year,month,num_empleado)
-
-

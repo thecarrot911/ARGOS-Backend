@@ -172,7 +172,7 @@ indice = 0
             [26,2,2]]"""
 
 itinerario=[[5,1,3],
-            #[5,2,3],
+            [5,2,3],
             #[5,3,3],
             [12,1,4],
             [19,2,2],
@@ -248,25 +248,31 @@ for num_semana in range(len(cont_semana)):
             if(i!=6):
                 if(len(list_index_itinerario)>1): # falta resolver este caso :4
                     dia_work = []
-                    acumulador = 0
+                    acumulador = 2
                     for j in range(cant_turno):
                         index_iti = list_index_itinerario[j]
                         if(index_iti != -1):
-                            if((num_empleado-itinerario[index_iti][2]-acumulador<=num_empleado)and(work_extra>=itinerario[index_iti][2])):
+                            if((acumulador>=itinerario[index_iti][2]-1)and(work_extra>=itinerario[index_iti][2]) and (acumulador>0)):
+                                
+                                acumulador =  acumulador- (itinerario[index_iti][2]-1)
                                 work_extra = work_extra+1 - itinerario[index_iti][2]
+                                
                                 dia_work.append(
                                     model.NewIntVar(itinerario[index_iti][2],itinerario[index_iti][2],"turno %i" % (j+1))
                                 )
                                 if(mes[num_semana][i][1]==5):
+                                    print("|-|")
                                     print(dia_work)
                             else:
                                 number = 0
                                 falta = 0
                                 for num in range(1,itinerario[index_iti][2]+1):
-                                    if(num_empleado-cant_turno-num==0):
+                                    if(acumulador-num==0 and acumulador>0):
                                         number=num
+                                        acumulador = 0
                                         falta=itinerario[index_iti][2]-number
                                         break
+
                                 dia_work.append(
                                     model.NewIntVar(number,number,"turno %i" % (j+1))
                                 )
@@ -275,13 +281,10 @@ for num_semana in range(len(cont_semana)):
                                     print(dia_work)
                                 lista_alarma_turno.append([itinerario[index_iti][0],itinerario[index_iti][1],itinerario[index_iti][2],falta])
                         else:
-                            print("xdd")
                             dia_work.append(
                                 model.NewIntVar(1,1,"turno %i" % (j+1))
                             )
-                    
                     semana_work.append(dia_work)
-                    
                 elif(len(list_index_itinerario)==1):
                     ind = list_index_itinerario[0]
                     dia_work = []
@@ -379,9 +382,6 @@ for num_semana in range(len(cont_semana)):
                                 work_extra = work_extra - 1"""
         indice = indice + 1
 
-for num_semana in range(len(cont_semana)):
-    for i in range(cont_semana):
-        print("")
 
 # Máxima cantidad de turnos trabajados en 1 semana por dia
 indice = 0
