@@ -3,11 +3,11 @@ const conexion = require("../database");
 const asignar_turno_empleado = (obj, empleados)=>{
     let turno = ['"Libre"','"07:00 a 15:00"','"15:00 a 23:00"','"23:00 a 07:00"'];
     let array_empleados = new Array(5);
-    array_empleados[0] = empleados[0].empleado_1 
-    array_empleados[1] = empleados[1].empleado_2
-    array_empleados[2] = empleados[2].empleado_3
-    array_empleados[3] = empleados[3].empleado_4
-    array_empleados[4] = empleados[4].empleado_5 
+    array_empleados[0] = empleados[0].nombre 
+    array_empleados[1] = empleados[1].nombre
+    array_empleados[2] = empleados[2].nombre
+    array_empleados[3] = empleados[3].nombre
+    array_empleados[4] = empleados[4].nombre 
 
     array_empleados = array_empleados.sort(function() {return Math.random() - 0.5});
     

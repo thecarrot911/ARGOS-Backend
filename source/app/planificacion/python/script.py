@@ -730,18 +730,20 @@ year = int(sys.argv[1])
 month = int(sys.argv[2])
 num_empleado = int(sys.argv[3])
 itinerario = str(sys.argv[4])
-
-nuevo_itinerario=[]
-array = []
-cont = 0
-for caracter in itinerario.split(','):
-    if(cont<2):
-        array.append(int(caracter))
-        cont = cont + 1
-    elif(cont==2):
-        array.append(int(caracter))
-        nuevo_itinerario.append(array)
-        cont = 0
-        array = []
+if(itinerario != '0'):
+    nuevo_itinerario=[]
+    array = []
+    cont = 0
+    for caracter in itinerario.split(','):
+        if(cont<2):
+            array.append(int(caracter))
+            cont = cont + 1
+        elif(cont==2):
+            array.append(int(caracter))
+            nuevo_itinerario.append(array)
+            cont = 0
+            array = []
+else: 
+    nuevo_itinerario = []
 
 json = GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)

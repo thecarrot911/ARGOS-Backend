@@ -8,31 +8,36 @@ const generarplanificacion = async(req, res) =>{
         let empleados = req.body.empleados;
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
-        let itinerario = new Array()
+        if((itinerario_json[0].dia=='')){
+            itinerario = 0
+        }
+        else if((itinerario_json[0].dia!='')){
+            itinerario = new Array()
 
-        for(i=0;i<itinerario_json.length;i++){
-            let itinerario_array = new Array()
-            itinerario_array.push(itinerario_json[i].dia)
-            itinerario_array.push(itinerario_json[i].aviones)
-            itinerario_array.push(itinerario_json[i].turno)
-            itinerario.push(itinerario_array)
+            for(i=0;i<itinerario_json.length;i++){
+                let itinerario_array = new Array()
+                itinerario_array.push(itinerario_json[i].dia)
+                itinerario_array.push(itinerario_json[i].aviones)
+                itinerario_array.push(itinerario_json[i].turno)
+                itinerario.push(itinerario_array)
+            } 
         }
         let spawn = require('child_process').spawn;
         let command = spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario])
         let dataToSend;
         
         command.stdout.on ('data', function (data){
-            console.log('child process on');
+            //console.log('child process on');
             dataToSend = data.toString();
-            console.log(dataToSend)
         });
         command.stderr.on ('data', function (data){
-            console.log('child process on');
+            //console.log('child process on');
             dataToSend = data.toString();
         });
         command.on('close', function(code){
-            console.log('child process close')
-            console.log(dataToSend)
+            //console.log('child process close')
+            //console.log(dataToSend)
+
             obj = dataToSend.replace(/'/g,"\""); 
             turno_empleado = planificacionModel.asignar_turno_empleado(obj,empleados);
             jsonsend = JSON.parse(turno_empleado);
@@ -45,8 +50,7 @@ const generarplanificacion = async(req, res) =>{
             reject(err);
         });
     }catch(e){
-        console.log(e)
-        return res.send("error - xd")
+        return res.send(e)
     }
 
 };
