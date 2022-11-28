@@ -1,11 +1,11 @@
-from operator import index
+from numpy import array
 from sklearn.utils import shuffle
 import sys
 import random
 from calendar import monthrange
 from ortools.sat.python import cp_model
 
-def GenerarPlanificacion(year,month,num_empleado):
+def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     class SolutionPrinter(cp_model.CpSolverSolutionCallback):
         """Clase para imprimir la solución."""
 
@@ -248,13 +248,13 @@ def GenerarPlanificacion(year,month,num_empleado):
             model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
     
                 #dia,turno,empleado
-    itinerario=[[6,2,2],#
-                [13,2,2],#
-                [19,1,3],#
-                [19,2,3],#2
-                [19,3,3]]#2->1
+    #itinerario=[[6,2,2]]#
+    #            [13,2,2],#
+    #            [19,1,3],#
+    #            [19,2,3],#2
+    #            [19,3,3]]#2->1
 
-    #itinerario =[]
+    itinerario = nuevo_itinerario
 
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
         lista = []
@@ -729,4 +729,19 @@ def GenerarPlanificacion(year,month,num_empleado):
 year = int(sys.argv[1]) 
 month = int(sys.argv[2])
 num_empleado = int(sys.argv[3])
-json = GenerarPlanificacion(year,month,num_empleado)
+itinerario = str(sys.argv[4])
+
+nuevo_itinerario=[]
+array = []
+cont = 0
+for caracter in itinerario.split(','):
+    if(cont<2):
+        array.append(int(caracter))
+        cont = cont + 1
+    elif(cont==2):
+        array.append(int(caracter))
+        nuevo_itinerario.append(array)
+        cont = 0
+        array = []
+
+json = GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)
