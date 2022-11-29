@@ -1,9 +1,18 @@
+const { actualizacionModel } = require("../../model/actualizacionModel");
+
 const crear_actualizacion = (req, res)=>{
     try{
-        console.log(req)
+        let permiso = req.body.tipo_permiso
+        let empleado = req.body.empleado
+        let descripcion = req.body.descripcion
+        let fecha = req.body.fecha
+        let planificacion_id = req.body.planificacion_id
         return res.send({"nice":"nice"})
-    }catch(e){
-        return res.send(e);
+    }catch(error){
+        return res.json({
+            error: true,
+            msg: ''+error
+        });
     }
 
 };

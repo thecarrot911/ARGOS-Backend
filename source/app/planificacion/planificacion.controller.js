@@ -13,7 +13,6 @@ const generarplanificacion = async(req, res) =>{
         }
         else if((itinerario_json[0].dia!='')){
             itinerario = new Array()
-
             for(i=0;i<itinerario_json.length;i++){
                 let itinerario_array = new Array()
                 itinerario_array.push(itinerario_json[i].dia)
@@ -37,18 +36,18 @@ const generarplanificacion = async(req, res) =>{
         command.on('close', function(code){
             //console.log('child process close')
             //console.log(dataToSend)
-
             obj = dataToSend.replace(/'/g,"\""); 
             turno_empleado = planificacionModel.asignar_turno_empleado(obj,empleados);
-            jsonsend = JSON.parse(turno_empleado);
+            jsonsend = JSON.parse(turno_empleado);           
             return res.send(jsonsend)
-            
         });
         command.on('error', function(err){
-            console.log('child process error')
+            //console.log('child process error')
             console.log(err);
             reject(err);
         });
+        //consulta_insercion = await planificacionModel.guardar();
+
     }catch(e){
         return res.send(e)
     }
