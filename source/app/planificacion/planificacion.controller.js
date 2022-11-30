@@ -19,35 +19,31 @@ const generarplanificacion = async(req, res) =>{
                 itinerario_array.push(itinerario_json[i].aviones)
                 itinerario_array.push(itinerario_json[i].turno)
                 itinerario.push(itinerario_array)
-            } 
+            }
+            console.log(itinerario)
         }
-        let spawn = require('child_process').spawn;
-        let command = spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario])
-        let dataToSend;
+        let command = spawn('python', ['source/app/planificacion/python/script_dev.py',anio,mes,cant_empleados,itinerario])
+        let dataToSend = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
         
         command.stdout.on ('data', function (data){
-            //console.log('child process on');
-            dataToSend = data.toString();
+            console.log("Child process on")
+            dataToSend.push(data.toString());
         });
         command.stderr.on ('data', function (data){
-            //console.log('child process on');
             dataToSend = data.toString();
         });
         command.on('close', function(code){
-            //console.log('child process close')
-            //console.log(dataToSend)
-            obj = dataToSend.replace(/'/g,"\""); 
+            console.log("Child process close")
+            obj = dataToSend[0].replace(/'/g,"\""); 
             turno_empleado = planificacionModel.asignar_turno_empleado(obj,empleados);
-            jsonsend = JSON.parse(turno_empleado);           
+            jsonsend = JSON.parse(turno_empleado);
             return res.send(jsonsend)
         });
         command.on('error', function(err){
-            //console.log('child process error')
+            console.log('child process error')
             console.log(err);
             reject(err);
         });
-        //consulta_insercion = await planificacionModel.guardar();
-
     }catch(e){
         return res.send(e)
     }
