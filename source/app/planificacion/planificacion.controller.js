@@ -1,4 +1,5 @@
 const { spawn } = require("child_process");
+const { resolve } = require("path");
 const { planificacionModel } = require("../../model/planificacionModel");
 
 const generarplanificacion = async(req, res) =>{
@@ -20,24 +21,30 @@ const generarplanificacion = async(req, res) =>{
                 itinerario_array.push(itinerario_json[i].turno)
                 itinerario.push(itinerario_array)
             }
-            console.log(itinerario)
         }
-        let command = spawn('python', ['source/app/planificacion/python/script_dev.py',anio,mes,cant_empleados,itinerario])
-        let dataToSend = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
+        let command = await spawn('python', ['source/app/planificacion/python/script_dev.py',anio,mes,cant_empleados,itinerario])
+        let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
         
         command.stdout.on ('data', function (data){
             console.log("Child process on")
-            dataToSend.push(data.toString());
+            planificacion.push(data.toString());
+            
         });
         command.stderr.on ('data', function (data){
-            dataToSend = data.toString();
+            planificacion = data.toString();
         });
-        command.on('close', function(code){
+        command.on('close', async function(code){
             console.log("Child process close")
-            obj = dataToSend[0].replace(/'/g,"\""); 
-            turno_empleado = planificacionModel.asignar_turno_empleado(obj,empleados);
+            obj = planificacion[0].replace(/'/g,"\""); 
+            turno_empleado = await planificacionModel.asignar_turno_empleado(obj,empleados);
             jsonsend = JSON.parse(turno_empleado);
-            return res.send(jsonsend)
+            planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
+            console.log(jsonsend);
+            let json = {}
+            json.planificacion_id = planificacion_id;
+            json.planificacion = jsonsend;
+            let json_send = JSON.stringify(json)
+            return res.send(json_send);
         });
         command.on('error', function(err){
             console.log('child process error')

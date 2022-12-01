@@ -23,47 +23,44 @@ const asignar_turno_empleado = (obj, empleados)=>{
     return obj;
 };
 
-const guardar = async(nombre,planificacion)=>{ 
-    let string_sql = "INSERT INTO mydb.planificacion(nombre) values('"+nombre+"');";
+const guardar = async(month, year, planificacion)=>{
+    let string_sql = "INSERT INTO "+process.env.NOMBRE_BD+".planificacion(month, year) VALUES('"+month+"','"+year+"');";
     //Inserción de la planificación
     let insert_planificacion = await conexion.query(string_sql);
-    let id_planificacion = insert_planificacion.insertId;
-    let id_dia = [];
-    let id_turno = [];
-    var k_indice = 0;
-    //Inserción del día 
-    for(i=1;i<=planificacion.length;i++){
-        let string_sql_dia = "INSERT INTO mydb.dia(numero_dia,id_planificacion) values('"+i+"','"+id_planificacion+"');";
-        let insert_dia = await conexion.query(string_sql_dia);   
-        id_dia.push(insert_dia.insertId);
-        
-        //Inserción del turno
-        rut_empleado = Object.keys(planificacion[i-1]);
-        numero_turno = Object.values(planificacion[i-1]);
+    let planificacion_id = insert_planificacion.insertId;
+    let dia_semana;
+    let numero_dia;
+    let comodin;
 
-        for(j=0;j<numero_turno.length;j++){
-            let string_sql_turno = "INSERT INTO mydb.turno(numero_turno,id_dia,id_planificacion) values('"+numero_turno[j]+"','"+id_dia[i-1]+"','"+id_planificacion+"');";
+    // Inserción del día 
+    for(i=0;i<planificacion.length;i++){
+        dia_semana = planificacion[i].dia_semana
+        numero_dia = planificacion[i].numero_dia
+        comodin = planificacion[i].comodin
+        let string_sql_dia = "INSERT INTO "+process.env.NOMBRE_BD+".dia(planificacion_id, dia_semana, dia_numero, comodin) VALUES('"+planificacion_id+"','"+dia_semana+"','"+numero_dia+"','"+comodin+"')";
 
-            let insert_turno = await conexion.query(string_sql_turno);
-            id_turno.push(insert_turno.insertId);
-            
-            //Inserción empleado_turno
-            let string_sql_empleado_turno = "INSERT INTO mydb.turno_empleado(id_turno, id_dia, id_planificacion, rut) values('"+id_turno[k_indice]+"','"+id_dia[i-1]+"','"+id_planificacion+"','"+rut_empleado[j]+"')";
+        let insert_dia = await conexion.query(string_sql_dia);
+        dia_id = insert_dia.insertId
 
-            let insert_turno_empleado = await conexion.query(string_sql_empleado_turno);
-            k_indice++;
+        // Inserción de empleados
+        for(j=0;j<planificacion[i].empleados.length;j++){
+            let nombre = planificacion[i].empleados[j].nombre
+            let turno = planificacion[i].empleados[j].turno
+            let string_sql_empleado = "INSERT INTO "+process.env.NOMBRE_BD+".empleado(dia_id, nombre, turno) VALUES('"+dia_id+"','"+nombre+"','"+turno+"')";
+            await conexion.query(string_sql_empleado);
+        }
+        // Inserción de itinerario
+        if(planificacion[i].itinerario !=0)
+        {
+            for(k=0;k<planificacion[i].itinerario.length;k++){
+                turno = planificacion[i].itinerario[k].turno_itinerario
+                empleado_faltante = planificacion[i].itinerario[k].falta
+                let string_sql_itinerario = "INSERT INTO "+process.env.NOMBRE_BD+".itinerario(dia_id, turno, empleado_faltante) VALUES('"+dia_id+"','"+turno+"','"+empleado_faltante+"')";
+                await conexion.query(string_sql_itinerario)
+            }
         }
     }
-    //Inserción empleado_turno
-    /*var k = 0;
-    for(i=0 ; i<id_dia.length ;i++){    
-        for(j=0;j<rut_empleado.length; j++){
-            let string_sql = "INSERT INTO mydb.turno_empleado(id_turno, id_dia, id_planificacion, rut) values('"+id_turno[k]+"','"+id_dia[i]+"','"+id_planificacion+"','"+rut_empleado[j]+"')";
-            let insert_turno_empleado = await conexion.query(string_sql);
-            k++;
-        }
-    }*/
-    return id_planificacion;
+    return planificacion_id;
 };
 const mostrar_todas = async()=>{
 
