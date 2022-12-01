@@ -4,8 +4,8 @@ const { planificacionModel } = require("../../model/planificacionModel");
 
 const generarplanificacion = async(req, res) =>{
     try{
-        let anio = req.body.anio;
-        let mes = req.body.mes;
+        let anio = parseInt(req.body.anio);
+        let mes = parseInt(req.body.mes);
         let empleados = req.body.empleados;
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
@@ -39,7 +39,6 @@ const generarplanificacion = async(req, res) =>{
             turno_empleado = await planificacionModel.asignar_turno_empleado(obj,empleados);
             jsonsend = JSON.parse(turno_empleado);
             planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
-            console.log(jsonsend);
             let json = {}
             json.planificacion_id = planificacion_id;
             json.planificacion = jsonsend;
