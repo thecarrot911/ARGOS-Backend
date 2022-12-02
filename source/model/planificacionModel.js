@@ -81,6 +81,23 @@ const mostrar_ultima = async()=>{
     ORDER BY dia.dia_id ASC`;
     let consulta_planificacion = await conexion.query(string_sql_planificacion);
     
+    let string_sql_itinerario =
+    `SELECT itinerario.turno, itinerario.empleado_faltante, dia.dia_id
+    FROM ${process.env.NOMBRE_BD}.itinerario itinerario, ${process.env.NOMBRE_BD}.dia dia, ${process.env.NOMBRE_BD}.planificacion planificacion
+    WHERE dia.dia_id = itinerario.dia_id 
+    AND  dia.planificacion_id = planificacion.planificacion_id 
+    AND planificacion.planificacion_id = ${id};
+    `
+    let consulta_itinerario = await conexion.query(string_sql_itinerario);
+    let array_itinerario = new Array()
+    for(k=0;k<consulta_itinerario.length;k++){
+        dic_itinerario={}
+        dic_itinerario.turno_itinerario = consulta_itinerario[k].turno;
+        dic_itinerario.empleado_faltante = consulta_itinerario[k].empleado_faltante;
+        dic_itinerario.dia_id = consulta_itinerario[k].dia_id;
+        array_itinerario.push(dic_itinerario);
+    }
+    console.log(array_itinerario[0]);
     let json={}
     let array_dia = new Array();
     for(i=0;i<consulta_planificacion.length; i=i+5){
@@ -103,14 +120,30 @@ const mostrar_ultima = async()=>{
             array_empleados.push(empleado)
             indice++;
         }
-        
-
         mini_json.empleados = array_empleados
+        let array_new_itinerario = new Array()
+        let control;
+        for(h=0;h<array_itinerario.length;h++){
+            if(array_itinerario[h].dia_id != consulta_planificacion[i].dia_id){
+                control = 0;
+            }else{
+                let dic_itinerario = {}
+                dic_itinerario.turno_itinerario = parseInt(array_itinerario[h].turno_itinerario)
+                dic_itinerario.falta = array_itinerario[h].empleado_faltante
+                array_new_itinerario.push(dic_itinerario)
+                contro = 1;
+            }
+        }
+        if(control == 0){
+            mini_json.itinerario = 0
+        }else{
+            mini_json.itinerario = array_new_itinerario
+        }
         mini_json.comodin = consulta_planificacion[i].comodin
         array_dia.push(mini_json)
     }
-    json.planificacion = array_dia
-    
+    json.actualizacion = 2;
+    json.planificacion = array_dia;
     return json;
 };
 
