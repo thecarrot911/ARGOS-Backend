@@ -56,14 +56,13 @@ const generarplanificacion = async(req, res) =>{
 
 };
 
-const guardar_planificacion = async(req, res)=>{
+const planificacion_mostrar_todo = async(req,res) =>{
     try{
-        let nombre = req.body[0].nombre;
-        let planificacion = req.body[0].planificacion
-        consulta_insercion = await planificacionModel.guardar(nombre,planificacion);
+        consulta_ultima_planificacion = await planificacionModel.mostrar_todo()
         return res.json({
             error: false,
-            msg: "Planificación guardada"
+            msg: "Mostrar planificación",
+            data: consulta_ultima_planificacion
         });
     }catch(error){
         return res.json({
@@ -71,15 +70,13 @@ const guardar_planificacion = async(req, res)=>{
             msg: ''+error
         });
     }
-};
-
-const mostrar_ultima_planificacion = async(req,res)=>{
+}
+const planificacion_mostrar_ultima = async(req,res)=>{
     try{
-        let id_planificacion = req.query.id_planificacion;
-        consulta_ultima_planificacion = await planificacionModel.mostrar_ultima(id_planificacion);
+        consulta_ultima_planificacion = await planificacionModel.mostrar_ultima();
         return res.json({
             error: false,
-            msg: "Planificación guardada",
+            msg: "Última planificación",
             data: consulta_ultima_planificacion
         });
     }catch(error){
@@ -92,7 +89,7 @@ const mostrar_ultima_planificacion = async(req,res)=>{
 
 module.exports.planificacion_controller={
     generarplanificacion, 
-    guardar_planificacion, 
-    mostrar_ultima_planificacion
+    planificacion_mostrar_ultima,
+    planificacion_mostrar_todo
 }
 

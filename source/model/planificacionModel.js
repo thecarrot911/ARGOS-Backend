@@ -1,3 +1,4 @@
+const { json } = require("express/lib/response");
 const conexion = require("../database");
 
 const asignar_turno_empleado = (obj, empleados)=>{
@@ -62,22 +63,60 @@ const guardar = async(month, year, planificacion)=>{
     }
     return planificacion_id;
 };
-const mostrar_todas = async()=>{
-
+const mostrar_todo = async()=>{
+    let string_sql_planificacion = "SELECT"
 };
-const mostrar_ultima = async(id_planificacion)=>{
-    let string_sql = "SELECT * FROM mydb.turno_empleado WHERE id_planificacion = ('"+id_planificacion+"')";
-    let consulta = await conexion.query(string_sql);
-    return consulta;
-};
-const mostrar = async(id_planificacion)=>{
+const mostrar_ultima = async()=>{
+    let string_sql_id_max_planificacion = "SELECT MAX("+process.env.NOMBRE_BD+".planificacion.planificacion_id) planificacion_id FROM mydb.planificacion";
+    let consulta_id = await conexion.query(string_sql_id_max_planificacion);
+    let id = consulta_id[0].planificacion_id
+    
+    let string_sql_planificacion = 
+    `SELECT planificacion.planificacion_id, planificacion.month mes, planificacion.year año, 
+    dia.dia_id, dia.dia_semana, dia.dia_numero, dia.comodin, 
+    empleado.nombre, empleado.turno, empleado.empleado_id 
+    FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.empleado empleado,${process.env.NOMBRE_BD}.dia dia 
+    WHERE planificacion.planificacion_id = ${id} and dia.planificacion_id = ${id}
+    and dia.dia_id = empleado.dia_id
+    ORDER BY dia.dia_id ASC`;
+    let consulta_planificacion = await conexion.query(string_sql_planificacion);
+    
+    let json={}
+    let array_dia = new Array();
+    for(i=0;i<consulta_planificacion.length; i=i+5){
+        if(i==0){
+            json.planificacion_id = consulta_planificacion[0].planificacion_id 
+            json.mes = consulta_planificacion[0].mes 
+            json.año = consulta_planificacion[0].año 
+        }
+        let mini_json={}
+        let array_empleados = new Array();
+        
+        mini_json.dia_semana = consulta_planificacion[i].dia_semana
+        mini_json.numero_dia = consulta_planificacion[i].dia_numero
 
+        let indice = 0
+        for(j=i;indice<5;j++){
+            let empleado = {}
+            empleado.nombre = consulta_planificacion[j].nombre
+            empleado.turno = consulta_planificacion[j].turno
+            array_empleados.push(empleado)
+            indice++;
+        }
+        
+
+        mini_json.empleados = array_empleados
+        mini_json.comodin = consulta_planificacion[i].comodin
+        array_dia.push(mini_json)
+    }
+    json.planificacion = array_dia
+    
+    return json;
 };
 
 module.exports.planificacionModel = {
     asignar_turno_empleado,
     guardar,
     mostrar_ultima,
-    mostrar_todas,
-    mostrar
+    mostrar_todo
 };
