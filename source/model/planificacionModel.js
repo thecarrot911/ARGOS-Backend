@@ -142,7 +142,17 @@ const mostrar_ultima = async()=>{
         mini_json.comodin = consulta_planificacion[i].comodin
         array_dia.push(mini_json)
     }
-    json.actualizacion = 2;
+
+    let string_sql_actualizacion = 
+    `SELECT actualizacion.actualizacion_id, actualizacion.tipo_permiso,
+    actualizacion.descripcion, actualizacion.empleado, actualizacion.fecha, 
+    actualizacion.planificacion_id
+    FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.actualizacion actualizacion
+    where ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${process.env.NOMBRE_BD}.actualizacion.planificacion_id and ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${id};
+    `
+
+    let consulta_actualizacion = await conexion.query(string_sql_actualizacion)
+    json.actualizacion = consulta_actualizacion
     json.planificacion = array_dia;
     return json;
 };
