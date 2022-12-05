@@ -1,7 +1,24 @@
 const { json } = require("express/lib/response");
 const conexion = require("../database");
 
-const asignar_turno_empleado = (obj, empleados)=>{
+const asignar_turno_empleado = async(obj, empleados)=>{
+    let string_sql_ultima_planificacion = 
+    `SELECT MAX(${process.env.NOMBRE_BD}.planificacion.planificacion_id) planificacion_id 
+    FROM ${process.env.NOMBRE_BD}.planificacion`
+    
+    consulta_ultima_planificacion = await conexion.query(string_sql_ultima_planificacion);
+    
+    //console.log(consulta_ultima_planificacion[0].planificacion_id)
+
+    /*let string_sql_ultimo_dia =
+    `SELECT MAX(${process.env.NOMBRE_BD}.dia.dia_id) dia_id 
+    FROM ${process.env.NOMBRE_BD}.dia
+    WEHRE dia.planificacion_id = ${consulta_ultima_planificacion[0].planificacion_id}
+    `
+
+    consulta_ultimo_dia = await conexion.query(string_sql_ultimo_dia);
+    console.log(consulta_ultimo_dia)*/
+
     let turno = ['"Libre"','"07:00 a 15:00"','"15:00 a 23:00"','"23:00 a 07:00"'];
     let array_empleados = new Array(5);
     array_empleados[0] = empleados[0].nombre 
@@ -104,7 +121,7 @@ const mostrar_ultima = async()=>{
         if(i==0){
             json.planificacion_id = consulta_planificacion[0].planificacion_id 
             json.mes = consulta_planificacion[0].mes 
-            json.año = consulta_planificacion[0].año 
+            json.anio = consulta_planificacion[0].año 
         }
         let mini_json={}
         let array_empleados = new Array();
