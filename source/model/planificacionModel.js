@@ -148,11 +148,11 @@ const mostrar_ultima = async()=>{
                 dic_itinerario.turno_itinerario = parseInt(array_itinerario[h].turno_itinerario)
                 dic_itinerario.falta = array_itinerario[h].empleado_faltante
                 array_new_itinerario.push(dic_itinerario)
-                contro = 1;
+                control = 1;
             }
         }
         if(control == 0){
-            mini_json.itinerario = 0
+            mini_json.itinerario = []
         }else{
             mini_json.itinerario = array_new_itinerario
         }
