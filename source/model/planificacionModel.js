@@ -42,7 +42,10 @@ const asignar_turno_empleado = async(obj, empleados)=>{
 };
 
 const guardar = async(month, year, planificacion)=>{
-    let string_sql = "INSERT INTO "+process.env.NOMBRE_BD+".planificacion(month, year) VALUES('"+month+"','"+year+"');";
+    let meses_anio = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
+    let mes = meses_anio[month]
+    let string_sql = "INSERT INTO "+process.env.NOMBRE_BD+".planificacion(month, year) VALUES('"+mes+"','"+year+"');";
+    
     //Inserción de la planificación
     let insert_planificacion = await conexion.query(string_sql);
     let planificacion_id = insert_planificacion.insertId;
