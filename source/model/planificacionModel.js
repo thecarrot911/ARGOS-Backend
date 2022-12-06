@@ -43,7 +43,7 @@ const asignar_turno_empleado = async(obj, empleados)=>{
 
 const guardar = async(month, year, planificacion)=>{
     let meses_anio = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
-    let mes = meses_anio[month]
+    let mes = meses_anio[month-1]
     let string_sql = "INSERT INTO "+process.env.NOMBRE_BD+".planificacion(month, year) VALUES('"+mes+"','"+year+"');";
     
     //Inserción de la planificación
