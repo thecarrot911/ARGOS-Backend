@@ -17,20 +17,20 @@ const generarplanificacion = async(req, res) =>{
             for(i=0;i<itinerario_json.length;i++){
                 let itinerario_array = new Array()
                 itinerario_array.push(itinerario_json[i].dia)
-                itinerario_array.push(itinerario_json[i].aviones)
                 itinerario_array.push(itinerario_json[i].turno)
+                itinerario_array.push(itinerario_json[i].aviones)
                 itinerario.push(itinerario_array)
             }
 
         }
-        console.log(itinerario_json)
-        //let ultimo_empleado = await planificacionModel.ultimo_empleado_planificacion_anterior()
+        let ultimo_empleado = await planificacionModel.ultimo_empleado_planificacion_anterior()
         //console.log(ultimo_empleado)
         let command = await spawn('python', ['source/app/planificacion/python/script_dev.py',anio,mes,cant_empleados,itinerario])
         let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
         
         command.stdout.on ('data', function (data){
             console.log("Child process on")
+            console.log(data.toString());
             planificacion.push(data.toString());
             
         });

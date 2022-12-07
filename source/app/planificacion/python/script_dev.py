@@ -58,15 +58,15 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                         
                         if(self._mes[num_semana][i][0] == self._meses_anio[month-1]):
                             itinerario_array = []
-                            itinerario_turno = {}
                             itinerario_var = 0
                             for k in range(len(self._lista_alarma_turno)):
                                 if(self._mes[num_semana][i][1]==self._lista_alarma_turno[k][0]):
+                                    itinerario_turno = {}
                                     itinerario_turno["turno_itinerario"] = self._lista_alarma_turno[k][1]
                                     itinerario_turno["falta"] = self._lista_alarma_turno[k][2]
                                     itinerario_array.append(itinerario_turno)
                                     itinerario_var = 1
-
+                                
                             if(itinerario_var == 0):
                                 dia["itinerario"] = itinerario_var
                             else:
@@ -92,7 +92,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
         def solution_count(self):
             #print(self._solution_count)
             return self._solution_count
-        
     if(month==12):
         month_next = 1
         year_next = year+1
@@ -253,14 +252,13 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
     
                 #dia,turno,empleado
-    itinerario=[[2,1,3],#
-                [2,2,2],#
-                [2,3,3]]#
+    #itinerario=[[2,1,3],[2,2,2],[2,3,3]]
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
-
-    #itinerario = nuevo_itinerario
-
+    
+    
+    itinerario = nuevo_itinerario
+    #print("?")
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
         lista = []
         if(a>b and b>c):
@@ -712,6 +710,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     
 
     #print(lista_alarma_turno)
+    #print("________")
     #print(lista_comodin_turno)
     # Crea el solver y la solución
     solver = cp_model.CpSolver()
@@ -751,4 +750,5 @@ if(itinerario != '0'):
 else: 
     nuevo_itinerario = []
 
-json_ = GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)
+GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)
+
