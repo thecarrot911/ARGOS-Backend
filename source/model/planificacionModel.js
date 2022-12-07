@@ -1,25 +1,31 @@
 const { json } = require("express/lib/response");
 const conexion = require("../database");
 
-const asignar_turno_empleado = async(obj, empleados)=>{
+const ultimo_empleado_planificacion_anterior = async()=>{
     let string_sql_ultima_planificacion = 
     `SELECT MAX(${process.env.NOMBRE_BD}.planificacion.planificacion_id) planificacion_id 
     FROM ${process.env.NOMBRE_BD}.planificacion`
     
     consulta_ultima_planificacion = await conexion.query(string_sql_ultima_planificacion);
     
-    //console.log(consulta_ultima_planificacion[0].planificacion_id)
-
-    /*let string_sql_ultimo_dia =
-    `SELECT MAX(${process.env.NOMBRE_BD}.dia.dia_id) dia_id 
-    FROM ${process.env.NOMBRE_BD}.dia
-    WEHRE dia.planificacion_id = ${consulta_ultima_planificacion[0].planificacion_id}
-    `
+    let string_sql_ultimo_dia =
+    `SELECT MAX(dia.dia_id) dia_id
+    FROM ${process.env.NOMBRE_BD}.dia dia WHERE dia.planificacion_id = ${consulta_ultima_planificacion[0].planificacion_id}`
 
     consulta_ultimo_dia = await conexion.query(string_sql_ultimo_dia);
-    console.log(consulta_ultimo_dia)*/
 
+    let string_sql_empleado = 
+    `SELECT empleado.nombre 
+    FROM ${process.env.NOMBRE_BD}.empleado empleado
+    WHERE empleado.dia_id = ${consulta_ultimo_dia[0].dia_id} and turno='23:00 a 07:00';
+    `
+    consulta_empleado_ultimo_dia = await conexion.query(string_sql_empleado)
+    return consulta_empleado_ultimo_dia
+}
+
+const asignar_turno_empleado = async(obj, empleados)=>{
     let turno = ['"Libre"','"07:00 a 15:00"','"15:00 a 23:00"','"23:00 a 07:00"'];
+
     let array_empleados = new Array(5);
     array_empleados[0] = empleados[0].nombre 
     array_empleados[1] = empleados[1].nombre
@@ -28,7 +34,7 @@ const asignar_turno_empleado = async(obj, empleados)=>{
     array_empleados[4] = empleados[4].nombre 
 
     array_empleados = array_empleados.sort(function() {return Math.random() - 0.5});
-    
+
     //Asignación de turno
     for (i = 1;i<=array_empleados.length;i++){
         obj = obj.replaceAll('"nombre": '+i,'"nombre": "'+array_empleados[i-1]+'"');
@@ -37,6 +43,7 @@ const asignar_turno_empleado = async(obj, empleados)=>{
     //Reemplazo de los numeros por horas
     for (i=0; i<=3;i++){
         obj = obj.replaceAll('"turno": '+i,'"turno": '+turno[i]);
+        obj = obj.replaceAll('"comodin": '+i,'"comodin": '+turno[i])
     }
     return obj;
 };
@@ -117,7 +124,7 @@ const mostrar_ultima = async()=>{
         dic_itinerario.dia_id = consulta_itinerario[k].dia_id;
         array_itinerario.push(dic_itinerario);
     }
-    console.log(array_itinerario[0]);
+   
     let json={}
     let array_dia = new Array();
     for(i=0;i<consulta_planificacion.length; i=i+5){
@@ -181,5 +188,6 @@ module.exports.planificacionModel = {
     asignar_turno_empleado,
     guardar,
     mostrar_ultima,
+    ultimo_empleado_planificacion_anterior,
     mostrar_todo
 };

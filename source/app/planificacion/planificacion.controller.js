@@ -21,7 +21,11 @@ const generarplanificacion = async(req, res) =>{
                 itinerario_array.push(itinerario_json[i].turno)
                 itinerario.push(itinerario_array)
             }
+
         }
+        console.log(itinerario_json)
+        //let ultimo_empleado = await planificacionModel.ultimo_empleado_planificacion_anterior()
+        //console.log(ultimo_empleado)
         let command = await spawn('python', ['source/app/planificacion/python/script_dev.py',anio,mes,cant_empleados,itinerario])
         let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
         
@@ -36,7 +40,7 @@ const generarplanificacion = async(req, res) =>{
         command.on('close', async function(code){
             console.log("Child process close")
             obj = planificacion[0].replace(/'/g,"\""); 
-            turno_empleado = await planificacionModel.asignar_turno_empleado(obj,empleados);
+            turno_empleado = await planificacionModel.asignar_turno_empleado(planificacion[0],empleados);
             jsonsend = JSON.parse(turno_empleado);
             planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
             let json = {}

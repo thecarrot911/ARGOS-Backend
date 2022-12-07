@@ -253,9 +253,9 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
     
                 #dia,turno,empleado
-    itinerario=[[4,3,4]]#
-    #            [13,2,2],#
-    #            [19,1,3],#
+    itinerario=[[2,1,3],#
+                [2,2,2],#
+                [2,3,3]]#
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
 
