@@ -5,8 +5,8 @@ const guardar = async(planificacion_id,tipo_permiso, descripcion, empleado, fech
     let insert_actualizacion = await conexion.query(string_sql);
     return insert_actualizacion.insertId;
 };
-const eliminar = async(planificacion_id, actualizacion_id)=>{
-    let string_sql = `DELETE FROM ${process.env.NOMBRE_BD}.actualizacion actualizacion where actualizacion.planificacion_id = ${planificacion_id} and actualizacion.actualizacion_id = ${actualizacion_id};`
+const eliminar = async(actualizacion_id)=>{
+    let string_sql = `DELETE FROM ${process.env.NOMBRE_BD}.actualizacion actualizacion where actualizacion.actualizacion_id = ${actualizacion_id};`
     let delete_actualizacion = await conexion.query(string_sql);
     return delete_actualizacion.insertId;
 }
