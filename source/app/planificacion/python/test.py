@@ -85,7 +85,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             dia["comodin"]=0
 
                         json_v.append(dia)
-                #print(json.dumps(json_v))
+                print(json.dumps(json_v))
             if self._solution_count >= self._solution_limit:
                 self.StopSearch()
         
@@ -202,7 +202,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                 model.AddAtMostOne(mes[num_semana][i][3][e][t] for t in range(cant_turno))
             indice = indice + 1
 
-    # Cada empleado tiene 1 día libre por semana [AGREGAR LO DE BD]
+    # Cada empleado tiene 1 día libre por semana 
     for e in all_empleado:
         indice = 0
         for num_semana in range(len(cont_semana)):
@@ -252,7 +252,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
     
                 #dia,turno,empleado
-    itinerario=[[1,2,4],[1,1,2],[1,3,4]]
+    itinerario=[[1,2,2],[2,1,4],[2,2,4],[2,3,4]]
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
     
@@ -325,18 +325,15 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                 if(i!=6):
                     if(len(list_index_itinerario)>1):
                         dia_work = [] 
-                        if(control_five_turnos==True):
-                            acumulador = num_empleado - cant_turno
-                        elif(control_five_turnos==False):
-                            acumulador = num_empleado-1 - cant_turno
+
+                        acumulador = num_empleado - cant_turno
 
                         for j in range(cant_turno):
                             index_itinerario = list_index_itinerario[j]
                             if(index_itinerario != -1):
                                 if((acumulador>=itinerario[index_itinerario][2]-1) and (work_extra>= itinerario[index_itinerario][2]-1) and (acumulador>0)):
                                     #TODO: Entra si esta dentro de lo permitido y lo asigna como preferencia
-                                    print("1")
-                                    acumulador = acumulador - (itinerario[index_itinerario][2])
+                                    acumulador = acumulador - (itinerario[index_itinerario][2])+1
                                     work_extra = work_extra - itinerario[index_itinerario][2]+1
                                     dia_work.append(
                                         model.NewIntVar(itinerario[index_itinerario][2], itinerario[index_itinerario][2],"turno %i" % (j+1))
@@ -345,30 +342,37 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                                     
                                 elif((acumulador<itinerario[index_itinerario][2]-1) and (acumulador>=0) and (work_extra>=itinerario[index_itinerario][2]-1)):
                                     #TODO: Entra si hay espacio pero no alcanza, por tanot, asigna un resto y lo demás a la lista
-                                    print("2 %i" % acumulador)
                                     for k in range(1, itinerario[index_itinerario][2]):
                                         if(acumulador-k==0):
-                                            print(acumulador-k)
-                                            print("---")
-                                            acumulador = acumulador - k
-                                            work_extra = work_extra - k+1
+                                            work_extra = work_extra - k
                                             break
-                                    print(" xD %i" % k)
-                                    dia_work.append(
-                                        model.NewIntVar(itinerario[index_itinerario][2]-k,itinerario[index_itinerario][2]-k,"turno %i" % (j+1))
-                                    )
-                                    cant_turnos_totales[j] = cant_turnos_totales[j] + itinerario[index_itinerario][2]-k
-                                    lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],k])
+                                    if(acumulador>0):
+                                        acumulador = acumulador - k
+                                        dia_work.append(#4-1
+                                            model.NewIntVar(itinerario[index_itinerario][2]-(itinerario[index_itinerario][2]-k-1),itinerario[index_itinerario][2]-(itinerario[index_itinerario][2]-k-1),"turno %i" % (j+1))
+                                        )
+                                        
+                                        cant_turnos_totales[j] = cant_turnos_totales[j] + itinerario[index_itinerario][2]-(itinerario[index_itinerario][2]-k-1)
+
+                                        lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],itinerario[index_itinerario][2]-k-1])
+
+
+                                    elif(acumulador==0):
+                                        dia_work.append(#4-0
+                                            model.NewIntVar(itinerario[index_itinerario][2]-k,itinerario[index_itinerario][2]-k,"turno %i" % (j+1))
+                                        )
+                                        cant_turnos_totales[j] = cant_turnos_totales[j] + itinerario[index_itinerario][2]-k
+                                        
+                                        lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],k])
+
+
                                 elif((acumulador==0) and (work_extra<=itinerario[index_itinerario][2]-1)):
                                     #TODO: Entra si ya no hay más espacio para aasignar
-                                    print("3")
                                     dia_work.append(
                                         model.NewIntVar(1,1,"turno %i" % (j+1))
                                     )
                                     cant_turnos_totales[j] = cant_turnos_totales[j] + 1
                                     lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],itinerario[index_itinerario][2]-1,])
-                                else:
-                                    print("4?")
                             else:
                                 dia_work.append(
                                     model.NewIntVar(1,1,"turno %i" % (j+1))
@@ -380,7 +384,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                         dia_work = []
                         if((itinerario[index_itinerario][2]+cant_turno-1==num_empleado)and(work_extra>=itinerario[index_itinerario][2]-1)and(control_five_turnos==False)):
                             work_extra = work_extra+1 - itinerario[index_itinerario][2]
-                            print("0.5")
                             for t in range(cant_turno):
                                 if(itinerario[index_itinerario][1]==(t+1)):
                                     dia_work.append(
@@ -398,7 +401,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                         elif((itinerario[index_itinerario][2]+cant_turno-1==num_empleado)and(work_extra>=itinerario[index_itinerario][2]-1)and(control_five_turnos==True)):
                             control_five_turnos = False
                             work_extra = work_extra+1 - itinerario[index_itinerario][2]
-                            print("1")
                             for t in range(cant_turno):
                                 if(itinerario[index_itinerario][1]==(t+1)):
                                     dia_work.append(
@@ -413,7 +415,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             semana_work.append(dia_work)
                         
                         elif((itinerario[index_itinerario][2]+cant_turno-1<num_empleado)and(work_extra>=itinerario[index_itinerario][2]-1)):
-                            print("1.5")
                             work_extra = work_extra+1 - itinerario[index_itinerario][2]
                             for t in range(cant_turno):
                                 if(itinerario[index_itinerario][1]==(t+1)):
@@ -430,7 +431,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             semana_work.append(dia_work)
 
                         elif((itinerario[index_itinerario][2]+cant_turno-1>num_empleado)and(work_extra>=itinerario[index_itinerario][2]-1)and(control_five_turnos==True)):
-                            print("2")
                             control_five_turnos = False
                             for t in range(cant_turno):
                                 if(itinerario[index_itinerario][1]==(t+1)):
@@ -450,7 +450,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             semana_work.append(dia_work)
                             lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1], itinerario[index_itinerario][2]-k])
                         elif((itinerario[index_itinerario][2]+cant_turno-1>num_empleado)and(work_extra>=itinerario[index_itinerario][2]-1)and(control_five_turnos==False)):
-                            print("2.5")
                             for t in range(cant_turno):
                                 if(itinerario[index_itinerario][1]==(t+1)):
                                     for k in range(1,itinerario[index_itinerario][2]):
@@ -469,7 +468,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             semana_work.append(dia_work)
                             lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1], itinerario[index_itinerario][2]-k])
                         elif((itinerario[index_itinerario][2]+cant_turno-1<=num_empleado) and (work_extra==0)):
-                            print("3")
                             semana_work.append([
                                 model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
                                 model.NewIntVar(1,num_empleado-cant_turno+1,"turno 2"),
@@ -481,7 +479,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
 
                             lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],itinerario[index_itinerario][2]-1])
                         elif(((itinerario[index_itinerario][2]+cant_turno-1<=num_empleado) and (work_extra>0) and (work_extra<itinerario[index_itinerario][2]-1))):
-                            print("4")
                             for t in range(cant_turno):
                                 if(itinerario[index_itinerario][1]==(t+1)):
                                     for k in range(1,itinerario[index_itinerario][2]):
@@ -499,8 +496,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                                     )
                                     cant_turnos_totales[t] = cant_turnos_totales[t] + 1
                             semana_work.append(dia_work)
-                        else:
-                            print("else 5")
                     else:
                         semana_work.append([
                             model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
@@ -731,7 +726,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     min_turno_tarde = cant_turnos_totales[1] // num_empleado
     # mínima cantidad de turnos de la noche
     min_turno_noche = cant_turnos_totales[2] // num_empleado
-    
+
     # MANANA
     if(cant_turnos_totales[0] % num_empleado == 0):
         max_turno_manana = min_turno_manana
@@ -786,8 +781,9 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
 
         model.Add(min_turno_totales <= sum(turno_totales_emp))
     
-    print(cant_turnos_totales[0]+cant_turnos_totales[1]+cant_turnos_totales[2])
-    print(lista_alarma_turno)
+    #print([cant_turnos_totales[0],cant_turnos_totales[1],cant_turnos_totales[2]])
+    #print(cant_turnos_totales[0]+cant_turnos_totales[1]+cant_turnos_totales[2])
+    #print(lista_alarma_turno)
     #print("________")
     #print(lista_comodin_turno)
     # Crea el solver y la solución
