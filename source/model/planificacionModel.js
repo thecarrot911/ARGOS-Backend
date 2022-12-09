@@ -44,6 +44,7 @@ const asignar_turno_empleado = async(obj, empleados)=>{
     for (i=0; i<=3;i++){
         obj = obj.replaceAll('"turno": '+i,'"turno": '+turno[i]);
         obj = obj.replaceAll('"comodin": '+i,'"comodin": '+turno[i])
+        obj = obj.replaceAll('"turno_itinerario": '+i,'"turno_itinerario": '+turno[i]);
     }
     return obj;
 };

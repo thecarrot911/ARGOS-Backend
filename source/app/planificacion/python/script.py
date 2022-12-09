@@ -4,6 +4,7 @@ import sys
 import random
 from calendar import monthrange
 from ortools.sat.python import cp_model
+import json
 
 def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     class SolutionPrinter(cp_model.CpSolverSolutionCallback):
@@ -28,7 +29,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             self._solution_count += 1
             #print(self._lista_comodin_turno)
             if(self._solution_count == self._solution_number):
-                json = []
+                json_v = []
                 #print(self._lista_alarma_turno)
 
                 contador = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
@@ -55,39 +56,42 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             empleados.append(emp_turn)
                         dia["empleados"] = empleados
                         
-                        itinerario_array = []
-                        itinerario_turno = {}
-                        itinerario_var = 0
-                        for k in range(len(self._lista_alarma_turno)):
-                            if(self._mes[num_semana][i][1]==self._lista_alarma_turno[k][0]):
-                                itinerario_turno["turno_itinerario"] = self._lista_alarma_turno[k][1]
-                                itinerario_turno["falta"] = self._lista_alarma_turno[k][2]
-                                itinerario_array.append(itinerario_turno)
-                                itinerario_var = 1
+                        if(self._mes[num_semana][i][0] == self._meses_anio[month-1]):
+                            itinerario_array = []
+                            itinerario_var = 0
+                            for k in range(len(self._lista_alarma_turno)):
+                                if(self._mes[num_semana][i][1]==self._lista_alarma_turno[k][0]):
+                                    itinerario_turno = {}
+                                    itinerario_turno["turno_itinerario"] = self._lista_alarma_turno[k][1]
+                                    itinerario_turno["falta"] = self._lista_alarma_turno[k][2]
+                                    itinerario_array.append(itinerario_turno)
+                                    itinerario_var = 1
+                                
+                            if(itinerario_var == 0):
+                                dia["itinerario"] = itinerario_var
+                            else:
+                                dia["itinerario"] = itinerario_array
+                            
+                            comodin = 0
+                            for c in range(len(self._lista_comodin_turno)):
+                                if((self._mes[num_semana][i][1]==self._lista_comodin_turno[c][0])):
+                                    comodin = self._lista_comodin_turno[c][1]
+                            if(comodin != 0):
+                                dia["comodin"] = comodin
+                            else:
+                                dia["comodin"] = 0
+                        else:
+                            dia["itinerario"]=0
+                            dia["comodin"]=0
 
-                        if(itinerario_var == 0):
-                            dia["itinerario"] = itinerario_var
-                        else:
-                            dia["itinerario"] = itinerario_array
-                        
-                        comodin = 0
-                        for c in range(len(self._lista_comodin_turno)):
-                            if((self._mes[num_semana][i][1]==self._lista_comodin_turno[c][0])):
-                                comodin = self._lista_comodin_turno[c][1]
-                        if(comodin != 0):
-                            dia["comodin"] = comodin
-                        else:
-                            dia["comodin"] = 0
-                        
-                        json.append(dia)
-                print(json)
+                        json_v.append(dia)
+                print(json.dumps(json_v))
             if self._solution_count >= self._solution_limit:
                 self.StopSearch()
         
         def solution_count(self):
-            print(self._solution_count)
+            #print(self._solution_count)
             return self._solution_count
-        
     if(month==12):
         month_next = 1
         year_next = year+1
@@ -248,14 +252,13 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
     
                 #dia,turno,empleado
-    #itinerario=[[6,2,2]]#
-    #            [13,2,2],#
-    #            [19,1,3],#
+    #itinerario=[[1,3,4],[2,1,4],[3,2,4]]
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
-
+    
+    
     itinerario = nuevo_itinerario
-
+    #print("?")
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
         lista = []
         if(a>b and b>c):
@@ -332,6 +335,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                                         model.NewIntVar(itinerario[index_itinerario][2], itinerario[index_itinerario][2],"turno %i" % (j+1))
                                     )
                                     cant_turnos_totales[j] = cant_turnos_totales[j] + itinerario[index_itinerario][2]
+                                    
                                 elif((acumulador<itinerario[index_itinerario][2]-1) and (acumulador>=0) and (work_extra>=itinerario[index_itinerario][2]-1)):
                                     for k in range(1, itinerario[index_itinerario][2]):
                                         if(acumulador-k==0):
@@ -707,6 +711,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     
 
     #print(lista_alarma_turno)
+    #print("________")
     #print(lista_comodin_turno)
     # Crea el solver y la solución
     solver = cp_model.CpSolver()
@@ -714,7 +719,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
 
     # Enumera todas las soluciones encontradas
     solver.parameters.enumerate_all_solutions = True
-    solution_limit = 100
+    solution_limit = 10
     solution_number = random.randint(1,solution_limit)
     solution_printer = SolutionPrinter(lista_alarma_turno, lista_comodin_turno,solution_number,list_itinerario,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,meses_anio)
     solver.Solve(model, solution_printer)
@@ -746,4 +751,5 @@ if(itinerario != '0'):
 else: 
     nuevo_itinerario = []
 
-json = GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)
+GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)
+

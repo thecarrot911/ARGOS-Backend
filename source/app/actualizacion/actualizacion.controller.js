@@ -10,7 +10,7 @@ const crear_actualizacion = async (req, res)=>{
         let planificacion_id = req.body.planificacion_id
         let json = {}
 
-        actualizacion_id = await actualizacionModel.guardar(planificacion_id,tipo_permiso, descripcion, empleado, fecha)
+        actualizacion_id = await actualizacionModel.guardar(planificacion_id,tipo_permiso, descripcion, empleado, fecha);
 
         json.tipo_permiso = tipo_permiso
         json.empleado = empleado
@@ -30,6 +30,26 @@ const crear_actualizacion = async (req, res)=>{
 
 };
 
+const eliminar_actualizacion = async (req,res) =>{
+    try{
+        console.log(req.body)
+        let planificacion_id = req.body.planificacion_id
+        let actualizacion_id = req.body.actualizacion_id
+        
+        await actualizacionModel.eliminar(planificacion_id, actualizacion_id)
+        return res.json({
+            error: false,
+            msg: "Empleado eliminado"
+        });
+    }catch(error){
+        return res.json({
+            error: true,
+            msg: ''+error
+        });
+    }
+}
+
 module.exports.actualizacion_controller = {
-    crear_actualizacion
+    crear_actualizacion,
+    eliminar_actualizacion
 }
