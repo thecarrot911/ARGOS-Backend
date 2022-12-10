@@ -252,12 +252,12 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
     
                 #dia,turno,empleado
-    itinerario=[[1,2,2],[2,1,4],[2,2,4],[2,3,4]]
+    #itinerario=[[1,1,3],[2,2,3]]
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
     
     
-    #itinerario = nuevo_itinerario
+    itinerario = nuevo_itinerario
 
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
         lista = []
@@ -802,7 +802,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     #print('  - conflicts      : %i' % solver.NumConflicts())
     #print('  - branches       : %i' % solver.NumBranches())
     #print('  - wall time      : %f s' % solver.WallTime())
-    print('  - solutions found: %i' % solution_printer.solution_count())
+    #print('  - solutions found: %i' % solution_printer.solution_count())
 
 year = int(sys.argv[1]) 
 month = int(sys.argv[2])
