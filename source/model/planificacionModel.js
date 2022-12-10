@@ -118,6 +118,7 @@ const mostrar_ultima = async()=>{
     `
     let consulta_itinerario = await conexion.query(string_sql_itinerario);
     let array_itinerario = new Array()
+    
     for(k=0;k<consulta_itinerario.length;k++){
         dic_itinerario={}
         dic_itinerario.turno_itinerario = consulta_itinerario[k].turno;
@@ -125,7 +126,7 @@ const mostrar_ultima = async()=>{
         dic_itinerario.dia_id = consulta_itinerario[k].dia_id;
         array_itinerario.push(dic_itinerario);
     }
-   
+    console.log(array_itinerario)
     let json={}
     let array_dia = new Array();
     for(i=0;i<consulta_planificacion.length; i=i+5){
@@ -139,7 +140,7 @@ const mostrar_ultima = async()=>{
         
         mini_json.dia_semana = consulta_planificacion[i].dia_semana
         mini_json.numero_dia = consulta_planificacion[i].dia_numero
-
+        
         let indice = 0
         for(j=i;indice<5;j++){
             let empleado = {}
@@ -156,10 +157,11 @@ const mostrar_ultima = async()=>{
                 control = 0;
             }else{
                 let dic_itinerario = {}
-                dic_itinerario.turno_itinerario = parseInt(array_itinerario[h].turno_itinerario)
+                dic_itinerario.turno_itinerario = array_itinerario[h].turno_itinerario
                 dic_itinerario.falta = array_itinerario[h].empleado_faltante
                 array_new_itinerario.push(dic_itinerario)
                 control = 1;
+                break;
             }
         }
         if(control == 0){
