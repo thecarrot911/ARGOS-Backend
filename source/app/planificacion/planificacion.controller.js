@@ -22,7 +22,6 @@ const generarplanificacion = async(req, res) =>{
                 itinerario.push(itinerario_array)
             }
         }
-        console.log(itinerario)
         //let ultimo_empleado = await planificacionModel.ultimo_empleado_planificacion_anterior()
         //console.log(ultimo_empleado)
         let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario])
