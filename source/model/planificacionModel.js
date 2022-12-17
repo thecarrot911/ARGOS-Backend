@@ -126,7 +126,6 @@ const mostrar_ultima = async()=>{
         dic_itinerario.dia_id = consulta_itinerario[k].dia_id;
         array_itinerario.push(dic_itinerario);
     }
-    console.log(array_itinerario)
     let json={}
     let array_dia = new Array();
     for(i=0;i<consulta_planificacion.length; i=i+5){
@@ -152,6 +151,7 @@ const mostrar_ultima = async()=>{
         mini_json.empleados = array_empleados
         let array_new_itinerario = new Array()
         let control;
+        
         for(h=0;h<array_itinerario.length;h++){
             if(array_itinerario[h].dia_id != consulta_planificacion[i].dia_id){
                 control = 0;
@@ -161,7 +161,6 @@ const mostrar_ultima = async()=>{
                 dic_itinerario.falta = array_itinerario[h].empleado_faltante
                 array_new_itinerario.push(dic_itinerario)
                 control = 1;
-                break;
             }
         }
         if(control == 0){

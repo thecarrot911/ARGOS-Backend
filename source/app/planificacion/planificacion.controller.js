@@ -9,6 +9,7 @@ const generarplanificacion = async(req, res) =>{
         let empleados = req.body.empleados;
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
+        console.log(empleados)
         if((itinerario_json[0].dia=='')){
             itinerario = 0
         }
