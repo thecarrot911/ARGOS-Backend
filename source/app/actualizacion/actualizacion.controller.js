@@ -32,12 +32,12 @@ const crear_actualizacion = async (req, res)=>{
 
 const eliminar_actualizacion = async (req,res) =>{
     try{
-        let actualizacion_id = req.params.actualizacion_id
-        console.log(actualizacion_id)
+        let actualizacion_id = req.params.actualizacion_id;
+        console.log(actualizacion_id);
         await actualizacionModel.eliminar(actualizacion_id)
         return res.json({
             error: false,
-            msg: "Empleado eliminado"
+            msg: "Actualización eliminada"
         });
     }catch(error){
         return res.json({
@@ -46,8 +46,25 @@ const eliminar_actualizacion = async (req,res) =>{
         });
     }
 }
+const modificar_actualizacion = async (req,res)=>{
+    try{
+        let actualizacion = req.params.actualizacion;
+        console.log(req,body);
+        //await actualizacionModel.modificar(actualizacion_id)
+        return res.json({
+            error: false,
+            msg: "Actualización modificado"
+        });
+    }catch(error){
+        return res.json({
+            error: true,
+            msg: ''+error
+        })
+    }
+}
 
 module.exports.actualizacion_controller = {
     crear_actualizacion,
+    modificar_actualizacion,
     eliminar_actualizacion
 }

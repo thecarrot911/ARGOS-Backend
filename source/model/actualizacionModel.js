@@ -10,8 +10,14 @@ const eliminar = async(actualizacion_id)=>{
     let delete_actualizacion = await conexion.query(string_sql);
     return delete_actualizacion.insertId;
 }
+const modificar = async(actualizacion)=>{
+    let string_sql = ``;
+    let modificar_actualizacion = await conexion.query(string_sql);
+    return modificar_actualizacion;
+}
 
 module.exports.actualizacionModel = {
     guardar,
+    modificar,
     eliminar
 }
