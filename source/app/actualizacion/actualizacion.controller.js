@@ -32,7 +32,7 @@ const crear_actualizacion = async (req, res)=>{
 
 const eliminar_actualizacion = async (req,res) =>{
     try{
-        let actualizacion_id = req.actualizacion_id;
+        let actualizacion_id = req.params.actualizacion_id;
         console.log(actualizacion_id);
         respuesta = await actualizacionModel.eliminar(actualizacion_id)
         return res.json({
