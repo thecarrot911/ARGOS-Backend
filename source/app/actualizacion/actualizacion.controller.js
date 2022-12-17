@@ -34,7 +34,7 @@ const eliminar_actualizacion = async (req,res) =>{
     try{
         let actualizacion_id = req.actualizacion_id;
         console.log(actualizacion_id);
-        await actualizacionModel.eliminar(actualizacion_id)
+        respuesta = await actualizacionModel.eliminar(actualizacion_id)
         return res.json({
             error: false,
             msg: "Actualización eliminada"
@@ -48,16 +48,20 @@ const eliminar_actualizacion = async (req,res) =>{
 }
 const modificar_actualizacion = async (req,res)=>{
     try{
-        console.log(req.body);
-        //await actualizacionModel.modificar(actualizacion_id)
+        let actualizacion = req.body;
+        console.log(actualizacion);
+        respuesta = await actualizacionModel.modificar(actualizacion)
         return res.json({
             error: false,
-            msg: "Actualización modificado"
+            msg: "Actualización modificado",
+            data: respuesta
+
         });
     }catch(error){
         return res.json({
             error: true,
-            msg: ''+error
+            msg: ''+error,
+            data: respuesta
         })
     }
 };

@@ -11,7 +11,14 @@ const eliminar = async(actualizacion_id)=>{
     return delete_actualizacion.insertId;
 }
 const modificar = async(actualizacion)=>{
-    let string_sql = ``;
+    let string_sql = 
+    `UPDATE ${process.env.NOMBRE_BD}.actualizacion 
+    SET tipo_permiso="${actualizacion.tipo_permiso}", 
+    descripcion="${actualizacion.descripcion}", 
+    empleado="${actualizacion.empleado}", 
+    fecha="${actualizacion.fecha}" 
+    WHERE ${process.env.NOMBRE_BD}.actualizacion.actualizacion_id = ${actualizacion.actualizacion_id};`
+
     let modificar_actualizacion = await conexion.query(string_sql);
     return modificar_actualizacion;
 }
