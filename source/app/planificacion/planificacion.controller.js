@@ -1,5 +1,4 @@
 const { spawn } = require("child_process");
-const { resolve } = require("path");
 const { planificacionModel } = require("../../model/planificacionModel");
 
 const generarplanificacion = async(req, res) =>{
@@ -9,12 +8,14 @@ const generarplanificacion = async(req, res) =>{
         let empleados = req.body.empleados;
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
-        console.log(empleados)
-        if((itinerario_json[0].dia=='')){
+        console.log(req.body.itinerario)
+        if(itinerario_json[0].dia== '' || ( itinerario_json[0].aviones == null && itinerario_json[0].dia == null )){
             itinerario = 0
+            console.log("x")
         }
-        else if((itinerario_json[0].dia!='')){
+        else if((itinerario_json[0].dia!='') || ( itinerario_json[0].aviones != null && itinerario_json[0].dia != null )){
             itinerario = new Array()
+            console.log("y")
             for(i=0;i<itinerario_json.length;i++){
                 let itinerario_array = new Array()
                 itinerario_array.push(String(itinerario_json[i].dia))
@@ -30,7 +31,6 @@ const generarplanificacion = async(req, res) =>{
         
         command.stdout.on ('data', function (data){
             console.log("Child process on")
-            console.log(data.toString())
             planificacion.push(data.toString());
             
         });
@@ -59,13 +59,13 @@ const generarplanificacion = async(req, res) =>{
     }
 
 };
-
 const planificacion_mostrar_todo = async(req,res) =>{
     try{
-        consulta_ultima_planificacion = await planificacionModel.mostrar_todo()
+        let anio = req.query.anio;
+        consulta_ultima_planificacion = await planificacionModel.mostrar_planificacion_anual(anio);
         return res.json({
             error: false,
-            msg: "Mostrar planificación",
+            msg: "Planificaciones del año "+anio,
             data: consulta_ultima_planificacion
         });
     }catch(error){
@@ -74,7 +74,7 @@ const planificacion_mostrar_todo = async(req,res) =>{
             msg: ''+error
         });
     }
-}
+};
 const planificacion_mostrar_ultima = async(req,res)=>{
     try{
         consulta_ultima_planificacion = await planificacionModel.mostrar_ultima();
@@ -89,7 +89,7 @@ const planificacion_mostrar_ultima = async(req,res)=>{
             msg: ''+error
         });
     }
-}
+};
 
 module.exports.planificacion_controller={
     generarplanificacion, 

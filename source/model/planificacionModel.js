@@ -91,9 +91,113 @@ const guardar = async(month, year, planificacion)=>{
     }
     return planificacion_id;
 };
-const mostrar_todo = async()=>{
-    let string_sql_planificacion = "SELECT"
+const mostrar_planificacion_anual = async(anio) =>{
+    try{
+        let string_sql_planificacion = `
+    SELECT planificacion_id, month 
+    FROM ${process.env.NOMBRE_BD}.planificacion 
+    WHERE year = ${anio};`;
+    let planificaciones = await conexion.query(string_sql_planificacion);
+    
+    let array_planificaciones = new Array();
+    for(let x = 0; x < planificaciones.length ;x++){
+        let json_planificacion = {};
+        
+        let string_sql_planificacion = 
+        `SELECT planificacion.planificacion_id, planificacion.month mes, planificacion.year año, 
+        dia.dia_id, dia.dia_semana, dia.dia_numero, dia.comodin, 
+        empleado.nombre, empleado.turno, empleado.empleado_id 
+        FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.empleado empleado,${process.env.NOMBRE_BD}.dia dia 
+        WHERE planificacion.planificacion_id = ${planificaciones[x].planificacion_id} and dia.planificacion_id = ${planificaciones[x].planificacion_id}
+        and dia.dia_id = empleado.dia_id
+        ORDER BY dia.dia_id ASC`;
+        
+        let consulta_planificacion = await conexion.query(string_sql_planificacion);
+
+        let string_sql_itinerario =
+        `SELECT itinerario.turno, itinerario.empleado_faltante, dia.dia_id
+        FROM ${process.env.NOMBRE_BD}.itinerario itinerario, ${process.env.NOMBRE_BD}.dia dia, ${process.env.NOMBRE_BD}.planificacion planificacion
+        WHERE dia.dia_id = itinerario.dia_id 
+        AND  dia.planificacion_id = planificacion.planificacion_id 
+        AND planificacion.planificacion_id = ${planificaciones[x].planificacion_id};`;
+
+        let consulta_itinerario = await conexion.query(string_sql_itinerario);
+        let array_itinerario = new Array()
+
+        for(k=0;k<consulta_itinerario.length;k++){
+            dic_itinerario={}
+            dic_itinerario.turno_itinerario = consulta_itinerario[k].turno;
+            dic_itinerario.empleado_faltante = consulta_itinerario[k].empleado_faltante;
+            dic_itinerario.dia_id = consulta_itinerario[k].dia_id;
+            array_itinerario.push(dic_itinerario);
+        }
+        let json={}
+        let array_dia = new Array();
+        for(i=0;i<consulta_planificacion.length; i=i+5){
+            if(i==0){
+                json.planificacion_id = consulta_planificacion[0].planificacion_id 
+                json.mes = consulta_planificacion[0].mes 
+                json.anio = consulta_planificacion[0].año 
+            }
+            let mini_json={}
+            let array_empleados = new Array();
+            
+            mini_json.dia_semana = consulta_planificacion[i].dia_semana
+            mini_json.numero_dia = consulta_planificacion[i].dia_numero
+            
+            let indice = 0
+            for(j=i;indice<5;j++){
+                let empleado = {}
+                empleado.nombre = consulta_planificacion[j].nombre
+                empleado.turno = consulta_planificacion[j].turno
+                array_empleados.push(empleado)
+                indice++;
+            }
+            mini_json.empleados = array_empleados
+            let array_new_itinerario = new Array()
+            let control;
+            
+            for(h=0;h<array_itinerario.length;h++){
+                if(array_itinerario[h].dia_id != consulta_planificacion[i].dia_id){
+                    control = 0;
+                }else{
+                    let dic_itinerario = {}
+                    dic_itinerario.turno_itinerario = array_itinerario[h].turno_itinerario
+                    dic_itinerario.falta = array_itinerario[h].empleado_faltante
+                    array_new_itinerario.push(dic_itinerario)
+                    control = 1;
+                }
+            }
+            if(control == 0){
+                mini_json.itinerario = []
+            }else{
+                mini_json.itinerario = array_new_itinerario
+            }
+            mini_json.comodin = consulta_planificacion[i].comodin
+            array_dia.push(mini_json)
+        }
+
+        let string_sql_actualizacion = 
+        `SELECT actualizacion.actualizacion_id, actualizacion.tipo_permiso,
+        actualizacion.descripcion, actualizacion.empleado, actualizacion.fecha, 
+        actualizacion.planificacion_id
+        FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.actualizacion actualizacion
+        where ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${process.env.NOMBRE_BD}.actualizacion.planificacion_id and ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${planificaciones[x].planificacion_id};
+        `
+    
+        let consulta_actualizacion = await conexion.query(string_sql_actualizacion)
+        json.actualizacion = consulta_actualizacion
+        json.planificacion = array_dia;
+        array_planificaciones.push(json);
+    }
+    return array_planificaciones;
+    }catch(error){
+        console.log(error)
+        return error;
+    }
 };
+
+
 const mostrar_ultima = async()=>{
     let string_sql_id_max_planificacion = "SELECT MAX("+process.env.NOMBRE_BD+".planificacion.planificacion_id) planificacion_id FROM mydb.planificacion";
     let consulta_id = await conexion.query(string_sql_id_max_planificacion);
@@ -191,5 +295,5 @@ module.exports.planificacionModel = {
     guardar,
     mostrar_ultima,
     ultimo_empleado_planificacion_anterior,
-    mostrar_todo
+    mostrar_planificacion_anual
 };
