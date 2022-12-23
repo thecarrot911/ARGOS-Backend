@@ -8,50 +8,60 @@ const generarplanificacion = async(req, res) =>{
         let empleados = req.body.empleados;
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
-        console.log(req.body.itinerario)
-        if(itinerario_json[0].dia== '' || ( itinerario_json[0].aviones == null && itinerario_json[0].dia == null )){
-            itinerario = 0
-        }
-        else if((itinerario_json[0].dia!='') || ( itinerario_json[0].aviones != null && itinerario_json[0].dia != null )){
-            itinerario = new Array()
-            for(i=0;i<itinerario_json.length;i++){
-                let itinerario_array = new Array()
-                itinerario_array.push(String(itinerario_json[i].dia))
-                itinerario_array.push(String(itinerario_json[i].turno))
-                itinerario_array.push(String(itinerario_json[i].aviones))
-                itinerario.push(itinerario_array)
+        let control = false;
+        //let control = await planificacionModel.dias_mes_anterior(mes);
+        if(control){
+            if(itinerario_json[0].dia== '' || ( itinerario_json[0].aviones == null && itinerario_json[0].dia == null )){
+                itinerario = 0
             }
-        }
-        //let ultimo_empleado = await planificacionModel.ultimo_empleado_planificacion_anterior()
-        //console.log(ultimo_empleado)
-        let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario])
-        let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
-        
-        command.stdout.on ('data', function (data){
-            console.log("Child process on")
-            planificacion.push(data.toString());
+            else if((itinerario_json[0].dia!='') || ( itinerario_json[0].aviones != null && itinerario_json[0].dia != null )){
+                itinerario = new Array()
+                for(i=0;i<itinerario_json.length;i++){
+                    let itinerario_array = new Array()
+                    itinerario_array.push(String(itinerario_json[i].dia))
+                    itinerario_array.push(String(itinerario_json[i].turno))
+                    itinerario_array.push(String(itinerario_json[i].aviones))
+                    itinerario.push(itinerario_array)
+                }
+            }
+            //let ultimo_empleado = await planificacionModel.ultimo_empleado_planificacion_anterior()
+            //console.log(ultimo_empleado)
+            let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario])
+            let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
             
-        });
-        command.stderr.on ('data', function (data){
-            planificacion = data.toString();
-        });
-        command.on('close', async function(code){
-            console.log("Child process close")
-            obj = planificacion[0].replace(/'/g,"\""); 
-            turno_empleado = await planificacionModel.asignar_turno_empleado(planificacion[0],empleados);
-            jsonsend = JSON.parse(turno_empleado);
-            planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
-            let json = {}
-            json.planificacion_id = planificacion_id;
-            json.planificacion = jsonsend;
-            let json_send = JSON.stringify(json)
-            return res.send(json_send);
-        });
-        command.on('error', function(err){
-            console.log('child process error')
-            console.log(err);
-            reject(err);
-        });
+            command.stdout.on ('data', function (data){
+                console.log("Child process on")
+                planificacion.push(data.toString());
+                
+            });
+            command.stderr.on ('data', function (data){
+                planificacion = data.toString();
+            });
+            command.on('close', async function(code){
+                console.log("Child process close")
+                obj = planificacion[0].replace(/'/g,"\""); 
+                turno_empleado = await planificacionModel.asignar_turno_empleado(planificacion[0],empleados);
+                jsonsend = JSON.parse(turno_empleado);
+                planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
+                let json = {}
+                json.planificacion_id = planificacion_id;
+                json.planificacion = jsonsend;
+                let json_send = JSON.stringify(json)
+                return res.send(json_send);
+            });
+            command.on('error', function(err){
+                console.log('child process error')
+                console.log(err);
+                reject(err);
+            });
+        }
+        else{
+            meses_anio = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
+            return res.json({
+                error: true,
+                msg: 'Ya existe una planificación para el mes de '+meses_anio[mes-1]
+            });
+        }
     }catch(e){
         return res.send(e)
     }

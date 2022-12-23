@@ -23,6 +23,13 @@ const ultimo_empleado_planificacion_anterior = async()=>{
     return consulta_empleado_ultimo_dia
 }
 
+const dias_mes_anterior = async(numero_mes)=>{
+    let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
+    let mes_planificacion = meses[mes[numero_mes]];
+    console.log(mes_planificacion)
+    return false;
+};
+
 const asignar_turno_empleado = async(obj, empleados)=>{
     let turno = ['"Libre"','"07:00 a 15:00"','"15:00 a 23:00"','"23:00 a 07:00"'];
 
@@ -197,7 +204,6 @@ const mostrar_planificacion_anual = async(anio) =>{
     }
 };
 
-
 const mostrar_ultima = async()=>{
     let string_sql_id_max_planificacion = "SELECT MAX("+process.env.NOMBRE_BD+".planificacion.planificacion_id) planificacion_id FROM mydb.planificacion";
     let consulta_id = await conexion.query(string_sql_id_max_planificacion);
@@ -295,5 +301,6 @@ module.exports.planificacionModel = {
     guardar,
     mostrar_ultima,
     ultimo_empleado_planificacion_anterior,
-    mostrar_planificacion_anual
+    mostrar_planificacion_anual,
+    dias_mes_anterior
 };
