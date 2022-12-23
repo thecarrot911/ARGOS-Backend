@@ -186,7 +186,8 @@ const mostrar_planificacion_anual = async(anio) =>{
 
         let string_sql_actualizacion = 
         `SELECT actualizacion.actualizacion_id, actualizacion.tipo_permiso,
-        actualizacion.descripcion, actualizacion.empleado, actualizacion.fecha, 
+        actualizacion.descripcion, actualizacion.empleado, 
+        DATE_FORMAT(actualizacion.fecha, '%Y-%m-%d') fecha, 
         actualizacion.planificacion_id
         FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.actualizacion actualizacion
         where ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${process.env.NOMBRE_BD}.actualizacion.planificacion_id and ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${planificaciones[x].planificacion_id};
@@ -284,12 +285,12 @@ const mostrar_ultima = async()=>{
 
     let string_sql_actualizacion = 
     `SELECT actualizacion.actualizacion_id, actualizacion.tipo_permiso,
-    actualizacion.descripcion, actualizacion.empleado, actualizacion.fecha, 
+    actualizacion.descripcion, actualizacion.empleado, 
+    DATE_FORMAT(actualizacion.fecha, '%Y-%m-%d') fecha, 
     actualizacion.planificacion_id
     FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.actualizacion actualizacion
     where ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${process.env.NOMBRE_BD}.actualizacion.planificacion_id and ${process.env.NOMBRE_BD}.planificacion.planificacion_id = ${id};
     `
-
     let consulta_actualizacion = await conexion.query(string_sql_actualizacion)
     json.actualizacion = consulta_actualizacion
     json.planificacion = array_dia;

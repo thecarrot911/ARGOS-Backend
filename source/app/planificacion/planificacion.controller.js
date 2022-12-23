@@ -8,7 +8,7 @@ const generarplanificacion = async(req, res) =>{
         let empleados = req.body.empleados;
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
-        let control = false;
+        let control = true;
         //let control = await planificacionModel.dias_mes_anterior(mes);
         if(control){
             if(itinerario_json[0].dia== '' || ( itinerario_json[0].aviones == null && itinerario_json[0].dia == null )){
