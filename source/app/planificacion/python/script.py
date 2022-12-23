@@ -10,7 +10,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     class SolutionPrinter(cp_model.CpSolverSolutionCallback):
         """Clase para imprimir la solución."""
 
-        def __init__(self,lista_alarma_turno, lista_comodin_turno,solution_number,list_itinerario,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,meses_anio):
+        def __init__(self,lista_alarma_turno, lista_comodin_turno,solution_number,list_itinerario,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,meses_anio,month, month_prev):
             cp_model.CpSolverSolutionCallback.__init__(self)
             self._lista_alarma_turno = lista_alarma_turno
             self._lista_comodin_turno = lista_comodin_turno
@@ -24,6 +24,9 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             self._solution_count = 0
             self._solution_limit = solution_limit
             self._meses_anio = meses_anio
+            self._month = month
+            self._month_prev = month_prev
+            
 
         def on_solution_callback(self):
             self._solution_count += 1
@@ -36,55 +39,56 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
 
                 for num_semana in range(len(self._cont_semana)):
                     for i in range(self._cont_semana[num_semana]):
-                        dia = {}
-                        dia["dia_semana"] = self._mes[num_semana][i][2]
-                        dia["numero_dia"] = self._mes[num_semana][i][1]
-                        empleados = []
-                        for j in all_empleado:
-                            emp_turn = {}
-                            is_working = False
-                            for t in range(cant_turno):
-                                if(self.Value(self._mes[num_semana][i][3][j][t])):
-                                    is_working = True
-                                    emp_turn["turno"] = t+1
+                        if(self._mes[num_semana][i][0] == self._meses_anio[month-1] or self._mes[num_semana][i][0] == self._meses_anio[month_prev-1]):
+                            dia = {}
+                            dia["dia_semana"] = self._mes[num_semana][i][2]
+                            dia["numero_dia"] = self._mes[num_semana][i][1]
+                            empleados = []
+                            for j in all_empleado:
+                                emp_turn = {}
+                                is_working = False
+                                for t in range(cant_turno):
+                                    if(self.Value(self._mes[num_semana][i][3][j][t])):
+                                        is_working = True
+                                        emp_turn["turno"] = t+1
+                                        emp_turn["nombre"] = j+1
+                                        contador[j][t+1] = contador[j][t+1] + 1 
+                                if not is_working:
+                                    emp_turn["turno"] = 0
                                     emp_turn["nombre"] = j+1
-                                    contador[j][t+1] = contador[j][t+1] + 1 
-                            if not is_working:
-                                emp_turn["turno"] = 0
-                                emp_turn["nombre"] = j+1
-                                contador[j][0] = contador[j][0] + 1
-                            empleados.append(emp_turn)
-                        dia["empleados"] = empleados
-                        
-                        if(self._mes[num_semana][i][0] == self._meses_anio[month-1]):
-                            itinerario_array = []
-                            itinerario_var = 0
-                            for k in range(len(self._lista_alarma_turno)):
-                                if(self._mes[num_semana][i][1]==self._lista_alarma_turno[k][0]):
-                                    itinerario_turno = {}
-                                    itinerario_turno["turno_itinerario"] = self._lista_alarma_turno[k][1]
-                                    itinerario_turno["falta"] = self._lista_alarma_turno[k][2]
-                                    itinerario_array.append(itinerario_turno)
-                                    itinerario_var = 1
-                                
-                            if(itinerario_var == 0):
-                                dia["itinerario"] = itinerario_var
-                            else:
-                                dia["itinerario"] = itinerario_array
+                                    contador[j][0] = contador[j][0] + 1
+                                empleados.append(emp_turn)
+                            dia["empleados"] = empleados
                             
-                            comodin = 0
-                            for c in range(len(self._lista_comodin_turno)):
-                                if((self._mes[num_semana][i][1]==self._lista_comodin_turno[c][0])):
-                                    comodin = self._lista_comodin_turno[c][1]
-                            if(comodin != 0):
-                                dia["comodin"] = comodin
+                            if(self._mes[num_semana][i][0] == self._meses_anio[month-1]):
+                                itinerario_array = []
+                                itinerario_var = 0
+                                for k in range(len(self._lista_alarma_turno)):
+                                    if(self._mes[num_semana][i][1]==self._lista_alarma_turno[k][0]):
+                                        itinerario_turno = {}
+                                        itinerario_turno["turno_itinerario"] = self._lista_alarma_turno[k][1]
+                                        itinerario_turno["falta"] = self._lista_alarma_turno[k][2]
+                                        itinerario_array.append(itinerario_turno)
+                                        itinerario_var = 1
+                                    
+                                if(itinerario_var == 0):
+                                    dia["itinerario"] = itinerario_var
+                                else:
+                                    dia["itinerario"] = itinerario_array
+                                
+                                comodin = 0
+                                for c in range(len(self._lista_comodin_turno)):
+                                    if((self._mes[num_semana][i][1]==self._lista_comodin_turno[c][0])):
+                                        comodin = self._lista_comodin_turno[c][1]
+                                if(comodin != 0):
+                                    dia["comodin"] = comodin
+                                else:
+                                    dia["comodin"] = 0
                             else:
-                                dia["comodin"] = 0
-                        else:
-                            dia["itinerario"]=0
-                            dia["comodin"]=0
+                                dia["itinerario"]=0
+                                dia["comodin"]=0
 
-                        json_v.append(dia)
+                            json_v.append(dia)
                 print(json.dumps(json_v))
             if self._solution_count >= self._solution_limit:
                 self.StopSearch()
@@ -794,7 +798,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     solver.parameters.enumerate_all_solutions = True
     solution_limit = 10
     solution_number = random.randint(1,solution_limit)
-    solution_printer = SolutionPrinter(lista_alarma_turno, lista_comodin_turno,solution_number,list_itinerario,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,meses_anio)
+    solution_printer = SolutionPrinter(lista_alarma_turno, lista_comodin_turno,solution_number,list_itinerario,mes,cont_semana,all_empleado,all_dias,cant_turno,solution_limit,meses_anio,month, month_prev)
     solver.Solve(model, solution_printer)
 
     # Statistics.

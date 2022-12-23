@@ -11,11 +11,9 @@ const generarplanificacion = async(req, res) =>{
         console.log(req.body.itinerario)
         if(itinerario_json[0].dia== '' || ( itinerario_json[0].aviones == null && itinerario_json[0].dia == null )){
             itinerario = 0
-            console.log("x")
         }
         else if((itinerario_json[0].dia!='') || ( itinerario_json[0].aviones != null && itinerario_json[0].dia != null )){
             itinerario = new Array()
-            console.log("y")
             for(i=0;i<itinerario_json.length;i++){
                 let itinerario_array = new Array()
                 itinerario_array.push(String(itinerario_json[i].dia))
