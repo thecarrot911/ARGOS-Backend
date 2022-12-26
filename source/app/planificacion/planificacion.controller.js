@@ -11,7 +11,8 @@ const generarplanificacion = async(req, res) =>{
         let itinerario_json = req.body.itinerario;
         let planificacionMes = await planificacionModel.dias_mes_anterior(anio,mes);
 
-        let control = planificacionMes.control;
+        let control = true;
+        //let control = planificacionMes.control;
         let planificacion = planificacionMes.consulta_planificacion;
 
         if(control){
@@ -28,7 +29,7 @@ const generarplanificacion = async(req, res) =>{
                     itinerario.push(itinerario_array)
                 }
             }
-
+            console.log(itinerario)
             let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario])
             let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
             
@@ -50,6 +51,11 @@ const generarplanificacion = async(req, res) =>{
                 json.planificacion_id = planificacion_id;
                 json.planificacion = jsonsend;
                 let json_send = JSON.stringify(json)
+                console.log(json.planificacion[6].itinerario)
+                console.log(json.planificacion[13].itinerario)
+                console.log(json.planificacion[20].itinerario)
+                console.log(json.planificacion[27].itinerario)
+
                 return res.send(json_send);
             });
             command.on('error', function(err){

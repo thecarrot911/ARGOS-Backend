@@ -294,10 +294,10 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             model.Add(sum(lista_minima_emp_domingo)>=2)
 
                 #TODO: dia,turno,empleado
-    itinerario=[[4,1,2],#[4,2,4],
-                [11,1,3],#,[11,2,3],
-                [18,1,3],#,[18,2,3],
-                [25,1,3]]#,[25,3,3]]
+    itinerario=[[4,1,4],#[4,2,4],
+                [11,1,4],#,[11,2,3],
+                [18,1,4],#,[18,2,3],
+                [25,1,4]]#,[25,3,3]]
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
     
