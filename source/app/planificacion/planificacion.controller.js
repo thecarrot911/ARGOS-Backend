@@ -1,4 +1,5 @@
 const { spawn } = require("child_process");
+const { json } = require("express/lib/response");
 const { planificacionModel } = require("../../model/planificacionModel");
 
 const generarplanificacion = async(req, res) =>{
@@ -8,8 +9,11 @@ const generarplanificacion = async(req, res) =>{
         let empleados = req.body.empleados;
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
-        let control = true;
-        //let control = await planificacionModel.dias_mes_anterior(mes);
+        let planificacionMes = await planificacionModel.dias_mes_anterior(anio,mes);
+
+        let control = planificacionMes.control;
+        let planificacion = planificacionMes.consulta_planificacion;
+
         if(control){
             if(itinerario_json[0].dia== '' || ( itinerario_json[0].aviones == null && itinerario_json[0].dia == null )){
                 itinerario = 0
@@ -24,8 +28,7 @@ const generarplanificacion = async(req, res) =>{
                     itinerario.push(itinerario_array)
                 }
             }
-            //let ultimo_empleado = await planificacionModel.ultimo_empleado_planificacion_anterior()
-            //console.log(ultimo_empleado)
+
             let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario])
             let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
             

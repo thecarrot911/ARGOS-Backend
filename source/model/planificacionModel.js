@@ -23,11 +23,23 @@ const ultimo_empleado_planificacion_anterior = async()=>{
     return consulta_empleado_ultimo_dia
 }
 
-const dias_mes_anterior = async(numero_mes)=>{
+const dias_mes_anterior = async(anio,numero_mes)=>{
     let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
-    let mes_planificacion = meses[mes[numero_mes]];
-    console.log(mes_planificacion)
-    return false;
+    let mes_planificacion = meses[numero_mes-1];
+    
+    let string_sql = 
+    `
+    SELECT * FROM  ${process.env.NOMBRE_BD}.planificacion 
+    WHERE month = '${mes_planificacion}' and year = ${anio};
+    `
+
+    let consulta_planificacion = await conexion.query(string_sql);
+    let control;
+
+    if(consulta_planificacion.length == 0) control = true;
+    else control = false
+
+    return {control , consulta_planificacion};
 };
 
 const asignar_turno_empleado = async(obj, empleados)=>{

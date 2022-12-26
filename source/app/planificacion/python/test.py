@@ -1,3 +1,4 @@
+from operator import index
 from numpy import array
 from sklearn.utils import shuffle
 import sys
@@ -225,6 +226,16 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                     lista_turno.append(mes[num_semana][i][3][e][2])
                     lista_turno.append(mes[num_semana][i+1][3][e][0])
                     model.Add(sum(lista_turno) <= 1)
+                else: 
+                    if((i+1)*(num_semana+1)< len(mes[num_semana])*len(mes)):
+                        lista_turno.append(mes[num_semana][i][3][e][2])
+                        lista_turno.append(mes[num_semana+1][0][3][e][0])
+                        model.Add(sum(lista_turno) <= 1)
+                    # 7 * 5
+                    #lista_turno.append(mes[num_semana][i][3][e][2])
+                    #lista_turno.append(mes[num_semana][i+1][3][e][0])
+
+
             indice = indice + 1
     
     # Los empleados tienen 2 domingos libres durante el mes 
@@ -251,12 +262,46 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                     lista_domingo_suma.append(mes[num_semana][domingo][3][e][t])
             model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
     
-                #dia,turno,empleado
-    itinerario=[[1,2,2],[2,1,4],[2,2,4],[2,3,4]]
+    # Cantidad de empleados en los Domingos
+    if(len(domingos)==5):
+        lista_domingos_empleados = []
+        for e in all_empleado: 
+            for domingo, num_semana in domingos:
+                for t in range(cant_turno):
+                    lista_domingos_empleados.append(mes[num_semana][domingo][3][e][t])
+        model.Add(sum(lista_domingos_empleados)==15)
+    else:
+        lista_domingos_empleados = []
+        for e in all_empleado: 
+            for domingo, num_semana in domingos:
+                for t in range(cant_turno):
+                    lista_domingos_empleados.append(mes[num_semana][domingo][3][e][t])
+        model.Add(sum(lista_domingos_empleados)>=10)
+        
+    if(len(domingos)==5):
+        lista_minima_emp_domingo = []
+        for domingo, num_semana in domingos:
+            for e in all_empleado: 
+                for t in range(cant_turno):
+                    lista_minima_emp_domingo.append(mes[num_semana][domingo][3][e][t])
+            model.Add(sum(lista_minima_emp_domingo)>=3)
+    else: 
+        lista_minima_emp_domingo = []
+        for domingo, num_semana in domingos:
+            for e in all_empleado: 
+                for t in range(cant_turno):
+                    lista_minima_emp_domingo.append(mes[num_semana][domingo][3][e][t])
+            model.Add(sum(lista_minima_emp_domingo)>=2)
+
+                #TODO: dia,turno,empleado
+    itinerario=[[4,1,2],#[4,2,4],
+                [11,1,3],#,[11,2,3],
+                [18,1,3],#,[18,2,3],
+                [25,1,3]]#,[25,3,3]]
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
     
-    
+    #itinerario = []
     #itinerario = nuevo_itinerario
 
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
@@ -288,6 +333,9 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
         return lista
 
     def ItinerarioFunction(dia,itinerario):
+        """
+        Entrega el indice del itinerario del día que corresponda
+        """
         lista = []
         for i in range(len(itinerario)):
             if(itinerario[i][0]==dia):
@@ -610,6 +658,8 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     
     list_complete_dom = [[1,1,1],[1,1,1]]
     list_incomplete_dom = [[1,1,0],[1,1,0]]
+    lista_domingos_completo = [3,3]
+    lista_domingos_incompleto = [2,2]
     list_complete = []
 
     if(len(domingos)==5):
@@ -624,17 +674,16 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                         for index_itinerario in list_index_domingo:
                             if(index_itinerario != -1):
                                 lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],itinerario[index_itinerario][2]-1])
-                
-
-    elif(len(domingos)==4):
+    else:
         for num_semana in range(len(cont_semana)):
             for i in range(cont_semana[num_semana]):
                 if(mes[num_semana][i][2]=="Domingo" and mes[num_semana][i][0] == meses_anio[month-1]):
                     list_index_domingo = ItinerarioFunction(mes[num_semana][i][1],itinerario)
-                    if(len(list_index_domingo)!=0): # HAY ITINERARIO 
+                    if(len(list_index_domingo)!=0): #TODO: HAY ITINERARIO 
                         for index_itinerario in list_index_domingo:
                             if(index_itinerario != -1):
                                 if(len(list_complete_dom)>0):
+                                    print("a")
                                     list_complete.append(list_complete_dom.pop())
                                     lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],itinerario[index_itinerario][2]-1])
                                     cant_turnos_totales[0] = cant_turnos_totales[0] + 1
@@ -642,7 +691,8 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                                     cant_turnos_totales[2] = cant_turnos_totales[2] + 1
                                     #print(cant_turnos_totales)
 
-                                else:
+                                else: 
+                                    print("a2")
                                     list_aux = list_incomplete_dom.pop()
                                     list_aux = shuffle(list_aux)
                                     indice_min = list_aux.index(min(list_aux))
@@ -678,6 +728,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                                         
                                     list_complete.append(list_aux)
                     else: # NO HAY ITINERARIO EN ESTE DOMINGO
+                        print("b")
                         if(len(list_incomplete_dom)>0):
                             list_aux = shuffle(list_incomplete_dom.pop())
                             list_complete.append(list_aux)
@@ -696,6 +747,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             #print(cant_turnos_totales)
 
 
+
     indice = 0
     for num_semana in range(len(cont_semana)):
         for i in range(cont_semana[indice]):
@@ -710,9 +762,15 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)==list_itinerario[num_semana][i][2])
             else: # 4 DOMINGOS - ASIGNA LOS VALORES DE LIST FOUR PARA QUE HAYA COMO MÍNIMO 2 TRABAJADORES
                 if(mes[num_semana][i][2]=="Domingo" and mes[num_semana][i][0] == meses_anio[month-1]):
-                    model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=list_complete[num_semana][0])
-                    model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=list_complete[num_semana][1])
-                    model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=list_complete[num_semana][2])
+                    # Mayor o igual a 0
+                    model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_complete[num_semana][0])
+                    model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_complete[num_semana][1])
+                    model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)==list_complete[num_semana][2])
+                    # Menor o igual a 1
+                    model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)<=1)
+                    model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)<=1)
+                    model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)<=1)
+
                 else:
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_itinerario[num_semana][i][0])
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_itinerario[num_semana][i][1])
