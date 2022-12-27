@@ -48,6 +48,8 @@ const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
 
     let consultaPlanificacion = await conexion.query(string_sql_planificacion);
     let planificacionAnterior;
+    let copyPlanificacion;
+
     if(consultaPlanificacion.length!=0){ 
         let planificacion_id = consultaPlanificacion[0].planificacion_id;
 
@@ -58,10 +60,13 @@ const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
         FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.empleado empleado,${process.env.NOMBRE_BD}.dia dia 
         WHERE planificacion.planificacion_id = ${planificacion_id} and dia.planificacion_id = ${planificacion_id}
         and dia.dia_id = empleado.dia_id
-        ORDER BY dia.dia_id DESC`;
-
+        ORDER BY dia.dia_id DESC;`;
+        
         let consulta_planificacion = await conexion.query(string_sql_planificacionDia);
+        copyPlanificacion = consulta_planificacion;
         planificacionAnterior = new Array();
+
+
         for(let i = 0;i<30;i=i+5){
             if(consulta_planificacion[i].dia_semana == 'Lunes'){
                 let empleados = new Array()
@@ -96,7 +101,7 @@ const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
     }else{
         planificacionAnterior = 0
     }
-    return planificacionAnterior;
+    return { planificacionAnterior,copyPlanificacion} ;
 };
 const existe_planificacion = async(anio,numero_mes)=>{
     let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
@@ -118,6 +123,7 @@ const existe_planificacion = async(anio,numero_mes)=>{
 };
 
 const asignar_turno_empleado = async(obj, empleados)=>{
+    
     let turno = ['"Libre"','"07:00 a 15:00"','"15:00 a 23:00"','"23:00 a 07:00"'];
 
     let array_empleados = new Array(5);
@@ -141,6 +147,37 @@ const asignar_turno_empleado = async(obj, empleados)=>{
         obj = obj.replaceAll('"turno_itinerario": '+i,'"turno_itinerario": '+turno[i]);
     }
     return obj;
+};
+
+const asignar_nombre_ultima_semana = async(jsonsend,planificacionUltimaSemana,cant_empleados)=>{
+    console.log(planificacionUltimaSemana[0])
+    console.log(planificacionUltimaSemana[1])
+    console.log(planificacionUltimaSemana[2])
+    console.log(planificacionUltimaSemana[3])
+    console.log(planificacionUltimaSemana[4])
+    console.log(planificacionUltimaSemana[5])
+
+    console.log("-asdasd")
+    console.log(jsonsend[0].empleados)
+    console.log(jsonsend[1].empleados)
+    console.log(jsonsend[2].empleados)
+    console.log(jsonsend[3].empleados)
+    console.log(jsonsend[4].empleados)
+    console.log(jsonsend[5].empleados)
+
+    for(let i = 0;i<30;i=i+5){
+        if(consulta_planificacion[i].dia_semana == 'Lunes'){
+
+            break;
+        }
+        
+        let k = 0;
+        for(let j=i;j<cant_empleados;j++){
+            jsonsend[j].empleados[k].nombre = planificacionUltimaSemana[j].nombre
+            k++;
+        }
+    }
+    return jsonsend
 };
 
 const guardar = async(month, year, planificacion)=>{
@@ -320,8 +357,6 @@ const mostrar_ultima = async()=>{
         dic_itinerario.dia_id = consulta_itinerario[k].dia_id;
         array_itinerario.push(dic_itinerario);
     }
-    console.log(array_itinerario)
-    console.log("_______________")
     let json={}
     let array_dia = new Array();
     for(i=0;i<consulta_planificacion.length; i=i+5){
@@ -383,5 +418,6 @@ module.exports.planificacionModel = {
     ultimo_empleado_planificacion_anterior,
     mostrar_planificacion_anual,
     existe_planificacion,
+    asignar_nombre_ultima_semana,
     existe_mes_anterior
 };

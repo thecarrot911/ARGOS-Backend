@@ -11,12 +11,10 @@ const generarplanificacion = async(req, res) =>{
         let itinerario_json = req.body.itinerario;
         // Variable que controla que las planificaciones no se repitan
         let planificacionMes = await planificacionModel.existe_planificacion(anio,mes);
-        let control = true;
-        
-        //let control = planificacionMes.control;
-        let planificacion = planificacionMes.consulta_planificacion;
+        //let control = true;
+        let control = planificacionMes.control;
+        //let planificacion = planificacionMes.consulta_planificacion;
 
-        console.log(itinerario_json)
         if(control){
             if(itinerario_json[0].dia== '' || ( itinerario_json[0].aviones == null && itinerario_json[0].dia == null )){
                 itinerario = 0
@@ -31,8 +29,16 @@ const generarplanificacion = async(req, res) =>{
                     itinerario.push(itinerario_array)
                 }
             }
-            let planificacionAnterior = await planificacionModel.existe_mes_anterior(anio,mes,cant_empleados);
-            console.log(planificacionAnterior)
+
+            let mesAnterior = await planificacionModel.existe_mes_anterior(anio,mes,cant_empleados);
+
+            var planificacionAnterior = mesAnterior.planificacionAnterior
+            var planificacionUltimaSemana;
+            if(planificacionAnterior!=0){
+                planificacionUltimaSemana = mesAnterior.copyPlanificacion
+            }else{
+                planificacionUltimaSemana = []
+            }
             let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario,planificacionAnterior])
             let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
             
@@ -50,13 +56,14 @@ const generarplanificacion = async(req, res) =>{
                 //console.log(planificacion)
                 turno_empleado = await planificacionModel.asignar_turno_empleado(planificacion[0],empleados);
                 jsonsend = JSON.parse(turno_empleado);
+                if(planificacionUltimaSemana.length != 0){
+                    jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados)
+                }
                 planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
                 let json = {}
                 json.planificacion_id = planificacion_id;
                 json.planificacion = jsonsend;
                 let json_send = JSON.stringify(json)
-
-
                 return res.send(json_send);
             });
             command.on('error', function(err){
