@@ -7,7 +7,7 @@ from calendar import monthrange
 from ortools.sat.python import cp_model
 import json
 
-def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
+def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion):
     class SolutionPrinter(cp_model.CpSolverSolutionCallback):
         """Clase para imprimir la solución."""
 
@@ -86,7 +86,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             dia["comodin"]=0
 
                         json_v.append(dia)
-                print(json.dumps(json_v))
+                #print(json.dumps(json_v))
             if self._solution_count >= self._solution_limit:
                 self.StopSearch()
         
@@ -294,7 +294,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
             model.Add(sum(lista_minima_emp_domingo)>=2)
 
                 #TODO: dia,turno,empleado
-    itinerario=[[4,1,4],#[4,2,4],
+    itinerario=[#[4,1,4],#[4,2,4],
                 [11,1,4],#,[11,2,3],
                 [18,1,4],#,[18,2,3],
                 [25,1,4]]#,[25,3,3]]
@@ -683,7 +683,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                         for index_itinerario in list_index_domingo:
                             if(index_itinerario != -1):
                                 if(len(list_complete_dom)>0):
-                                    print("a")
+                                    #print("a")
                                     list_complete.append(list_complete_dom.pop())
                                     lista_alarma_turno.append([itinerario[index_itinerario][0],itinerario[index_itinerario][1],itinerario[index_itinerario][2]-1])
                                     cant_turnos_totales[0] = cant_turnos_totales[0] + 1
@@ -692,7 +692,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                                     #print(cant_turnos_totales)
 
                                 else: 
-                                    print("a2")
+                                    #print("a2")
                                     list_aux = list_incomplete_dom.pop()
                                     list_aux = shuffle(list_aux)
                                     indice_min = list_aux.index(min(list_aux))
@@ -728,7 +728,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                                         
                                     list_complete.append(list_aux)
                     else: # NO HAY ITINERARIO EN ESTE DOMINGO
-                        print("b")
                         if(len(list_incomplete_dom)>0):
                             list_aux = shuffle(list_incomplete_dom.pop())
                             list_complete.append(list_aux)
@@ -746,35 +745,81 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             cant_turnos_totales[2] = cant_turnos_totales[2] + 1
                             #print(cant_turnos_totales)
 
-
+    #Planificación anterior     #[turno,empleado]
+    """ planificacionAnterior = [
+                            [28,[[2,1],[3,2],[1,3],[2,4],[1,5]]],
+                            [29,[[2,1],[0,2],[1,3],[3,4],[1,5]]],
+                            [30,[[1,1],[1,2],[3,3],[0,4],[2,5]]]
+                            ]
+                                [
+                            [28,[[2,1],[3,2],[1,3],[2,4],[1,5]]], 
+                            [29,[[2,1],[0,2],[1,3],[3,4],[1,5]]], 
+                            [30,[[1,1],[1,2],[3,3],[0,4],[2,5]]]
+                            ]
+                            """
+    planificacionAnterior = nueva_planificacionAnterior
+                                 #[1] => EMPLEADO
+    #print(planificacionAnterior[0][1][0])
+    #print(planificacionAnterior[1][1][0])
+    #print(planificacionAnterior[2][1][0])
 
     indice = 0
     for num_semana in range(len(cont_semana)):
         for i in range(cont_semana[indice]):
             if(len(domingos)==5): # 5 DOMINGOS
                 if(mes[num_semana][i][2]=="Domingo" and mes[num_semana][i][0] == meses_anio[month-1]):
+                    
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=1)
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=1)
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=1)
+                
+                elif((mes[num_semana][i][0] == meses_anio[month_prev-1]) and (primeraPlanificacion==False)):
+                    #print(mes[num_semana][i][1])
+                    for e in all_empleado:
+                        for t in range(cant_turno):
+                            if(t+1==planificacionAnterior[i][1][e][0]):
+                                #print(mes[num_semana][i][3][e][0])
+                                #print(planificacionAnterior[i][1][e][0])
+                                #print(str(mes[num_semana][i][3][e][t])+" SE :D")
+                                model.Add(mes[num_semana][i][3][e][t]==1)
+                            else:
+                                model.Add(mes[num_semana][i][3][e][t]==0)
+                                #lista_zero.append(mes[num_semana][i][3][e][t])
+                                #print(str(mes[num_semana][i][3][e][t])+" NO D:")
                 else:
+                    #print(mes[num_semana][i][1])
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_itinerario[num_semana][i][0])
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_itinerario[num_semana][i][1])
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)==list_itinerario[num_semana][i][2])
-            else: # 4 DOMINGOS - ASIGNA LOS VALORES DE LIST FOUR PARA QUE HAYA COMO MÍNIMO 2 TRABAJADORES
-                if(mes[num_semana][i][2]=="Domingo" and mes[num_semana][i][0] == meses_anio[month-1]):
-                    # Mayor o igual a 0
-                    model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_complete[num_semana][0])
-                    model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_complete[num_semana][1])
-                    model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)==list_complete[num_semana][2])
-                    # Menor o igual a 1
-                    model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)<=1)
-                    model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)<=1)
-                    model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)<=1)
 
+            else: # 4 DOMINGOS - ASIGNA LOS VALORES DE LIST FOUR PARA QUE HAYA COMO MÍNIMO 2 TRABAJADORES
+                if(mes[num_semana][i][0] == meses_anio[month-1] and mes[num_semana][i][2]=="Domingo"):
+                        # Mayor o igual a 0
+                        model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_complete[num_semana][0])
+                        model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_complete[num_semana][1])
+                        model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)==list_complete[num_semana][2])
+                        # Menor o igual a 1
+                        model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)<=1)
+                        model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)<=1)
+                        model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)<=1)
+                #TODO: PRIMERA PLANIFICACION NEGATIVE ENTRA
+                elif((mes[num_semana][i][0] == meses_anio[month_prev-1]) and (primeraPlanificacion==False)):
+                    for e in all_empleado:
+                        for t in range(cant_turno):
+                            if(t+1==planificacionAnterior[i][1][e][0]):
+                                model.Add(mes[num_semana][i][3][e][t]==1)
+                                #print(mes[num_semana][i][3][e][0])
+                                #print(planificacionAnterior[i][1][e][0])
+                                #print(str(mes[num_semana][i][3][e][t])+" SE :D")
+                            else:
+                                model.Add(mes[num_semana][i][3][e][t]==0)
+                                #lista_zero.append(mes[num_semana][i][3][e][t])
+                                #print(str(mes[num_semana][i][3][e][t])+" NO D:")
                 else:
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_itinerario[num_semana][i][0])
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_itinerario[num_semana][i][1])
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)==list_itinerario[num_semana][i][2])
+
         indice = indice + 1
     
     #Distribuye los turno de maneraz uniforme para cada empleado
@@ -860,12 +905,14 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
     #print('  - conflicts      : %i' % solver.NumConflicts())
     #print('  - branches       : %i' % solver.NumBranches())
     #print('  - wall time      : %f s' % solver.WallTime())
-    print('  - solutions found: %i' % solution_printer.solution_count())
+    #print('  - solutions found: %i' % solution_printer.solution_count())
 
 year = int(sys.argv[1]) 
 month = int(sys.argv[2])
 num_empleado = int(sys.argv[3])
 itinerario = str(sys.argv[4])
+planificacionAnterior = str(sys.argv[5])
+
 if(itinerario != '0'):
     nuevo_itinerario=[]
     array = []
@@ -882,5 +929,38 @@ if(itinerario != '0'):
 else: 
     nuevo_itinerario = []
 
-GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)
+if(planificacionAnterior != '0'):
+    nueva_planificacionAnterior = []
+    empleados = []
+    emp = []
+    cont = 0
+    cont_general = 0
+    aux = 0
+    for plan in planificacionAnterior.split(','):
+        if(int(plan)>20):
+                aux = int(plan)
+        elif(cont_general<10):
+            cont_general = cont_general + 1
+            if(cont==0):
+                emp.append(int(plan))
+                cont = cont + 1
+            else:
+                emp.append(int(plan))
+                empleados.append(emp)
+                emp = []
+                cont = 0
+                if(len(empleados)==5):
+                    nueva_planificacionAnterior.append([aux,empleados])
+                    cont_general=0
+                    empleados = []
+
+    primeraPlanificacion = False
+else:
+    nueva_planificacionAnterior = []
+    primeraPlanificacion = True
+#if()
+#primeraPlanificacion = 2
+#nueva_planificacionAnterior = []
+
+GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion)
 

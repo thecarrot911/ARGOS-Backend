@@ -21,9 +21,84 @@ const ultimo_empleado_planificacion_anterior = async()=>{
     `
     consulta_empleado_ultimo_dia = await conexion.query(string_sql_empleado)
     return consulta_empleado_ultimo_dia
-}
+};
+const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
+    let turno = ['Libre','07:00 a 15:00','15:00 a 23:00','23:00 a 07:00'];
+    
+    let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
+    let mes = meses[numero_mes-1]
 
-const dias_mes_anterior = async(anio,numero_mes)=>{
+    let planificacionAnterior_anio;
+    let planificacionAnterior_mes;
+
+    if(mes == "Enero"){
+        planificacionAnterior_anio  = anio - 1
+        planificacionAnterior_mes   = 'Diciembre'
+    }
+    else{
+        planificacionAnterior_anio  = anio
+        planificacionAnterior_mes   = meses[numero_mes-2]
+    }
+
+    let string_sql_planificacion = 
+    `SELECT * 
+    FROM ${process.env.NOMBRE_BD}.planificacion 
+    where month = '${planificacionAnterior_mes}' and year = ${planificacionAnterior_anio};
+    `
+
+    let consultaPlanificacion = await conexion.query(string_sql_planificacion);
+    let planificacionAnterior;
+    if(consultaPlanificacion.length!=0){ 
+        let planificacion_id = consultaPlanificacion[0].planificacion_id;
+
+        let string_sql_planificacionDia = 
+        `SELECT planificacion.planificacion_id, planificacion.month mes, planificacion.year año, 
+        dia.dia_id, dia.dia_semana, dia.dia_numero, dia.comodin, 
+        empleado.nombre, empleado.turno, empleado.empleado_id 
+        FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.empleado empleado,${process.env.NOMBRE_BD}.dia dia 
+        WHERE planificacion.planificacion_id = ${planificacion_id} and dia.planificacion_id = ${planificacion_id}
+        and dia.dia_id = empleado.dia_id
+        ORDER BY dia.dia_id DESC`;
+
+        let consulta_planificacion = await conexion.query(string_sql_planificacionDia);
+        planificacionAnterior = new Array();
+        for(let i = 0;i<30;i=i+5){
+            if(consulta_planificacion[i].dia_semana == 'Lunes'){
+                let empleados = new Array()
+                let cont_emp = 1;
+                for(let j = i; j<i+cant_empleados ;j++){
+                    for(let t = 0 ; t<turno.length; t++){
+                        if(consulta_planificacion[j].turno == turno[t]){
+                            empleados.push([t,cont_emp])
+                            cont_emp++;
+                            break;
+                        }
+                    }
+                }
+                planificacionAnterior.unshift([consulta_planificacion[i].dia_numero,empleados])
+                break;
+            }
+            else{
+                let empleados = new Array()
+                let cont_emp = 1;
+                for(let j = i; j<i+cant_empleados ;j++){
+                    for(let t = 0 ; t<turno.length; t++){
+                        if(consulta_planificacion[j].turno == turno[t]){
+                            empleados.push([t,cont_emp])
+                            cont_emp++;
+                            break;
+                        }
+                    }
+                }
+                planificacionAnterior.unshift([consulta_planificacion[i].dia_numero,empleados])
+            }
+        }
+    }else{
+        planificacionAnterior = 0
+    }
+    return planificacionAnterior;
+};
+const existe_planificacion = async(anio,numero_mes)=>{
     let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"]
     let mes_planificacion = meses[numero_mes-1];
     
@@ -110,6 +185,7 @@ const guardar = async(month, year, planificacion)=>{
     }
     return planificacion_id;
 };
+
 const mostrar_planificacion_anual = async(anio) =>{
     try{
         let string_sql_planificacion = `
@@ -299,11 +375,13 @@ const mostrar_ultima = async()=>{
     return json;
 };
 
+
 module.exports.planificacionModel = {
     asignar_turno_empleado,
     guardar,
     mostrar_ultima,
     ultimo_empleado_planificacion_anterior,
     mostrar_planificacion_anual,
-    dias_mes_anterior
+    existe_planificacion,
+    existe_mes_anterior
 };

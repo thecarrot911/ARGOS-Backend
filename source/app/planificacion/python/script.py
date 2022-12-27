@@ -6,7 +6,7 @@ from calendar import monthrange
 from ortools.sat.python import cp_model
 import json
 
-def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
+def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion):
     class SolutionPrinter(cp_model.CpSolverSolutionCallback):
         """Clase para imprimir la solución."""
 
@@ -731,6 +731,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                             cant_turnos_totales[2] = cant_turnos_totales[2] + 1
                             #print(cant_turnos_totales)
 
+    planificacionAnterior = nueva_planificacionAnterior
 
     indice = 0
     for num_semana in range(len(cont_semana)):
@@ -740,6 +741,13 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)>=1)
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)>=1)
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)>=1)
+                elif((mes[num_semana][i][0] == meses_anio[month_prev-1]) and (primeraPlanificacion==False)):
+                    for e in all_empleado:
+                        for t in range(cant_turno):
+                            if(t+1==planificacionAnterior[i][1][e][0]):
+                                model.Add(mes[num_semana][i][3][e][t]==1)
+                            else:
+                                model.Add(mes[num_semana][i][3][e][t]==0)
                 else:
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_itinerario[num_semana][i][0])
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_itinerario[num_semana][i][1])
@@ -754,6 +762,13 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario):
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)<=1)
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)<=1)
                     model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)<=1)
+                elif((mes[num_semana][i][0] == meses_anio[month_prev-1]) and (primeraPlanificacion==False)):
+                    for e in all_empleado:
+                        for t in range(cant_turno):
+                            if(t+1==planificacionAnterior[i][1][e][0]):
+                                model.Add(mes[num_semana][i][3][e][t]==1)
+                            else:
+                                model.Add(mes[num_semana][i][3][e][t]==0)
                 else:
                     model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)==list_itinerario[num_semana][i][0])
                     model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)==list_itinerario[num_semana][i][1])
@@ -849,6 +864,8 @@ year = int(sys.argv[1])
 month = int(sys.argv[2])
 num_empleado = int(sys.argv[3])
 itinerario = str(sys.argv[4])
+planificacionAnterior = str(sys.argv[5])
+
 if(itinerario != '0'):
     nuevo_itinerario=[]
     array = []
@@ -865,5 +882,35 @@ if(itinerario != '0'):
 else: 
     nuevo_itinerario = []
 
-GenerarPlanificacion(year,month,num_empleado, nuevo_itinerario)
+if(planificacionAnterior != '0'):
+    nueva_planificacionAnterior = []
+    empleados = []
+    emp = []
+    cont = 0
+    cont_general = 0
+    aux = 0
+    for plan in planificacionAnterior.split(','):
+        if(int(plan)>20):
+                aux = int(plan)
+        elif(cont_general<10):
+            cont_general = cont_general + 1
+            if(cont==0):
+                emp.append(int(plan))
+                cont = cont + 1
+            else:
+                emp.append(int(plan))
+                empleados.append(emp)
+                emp = []
+                cont = 0
+                if(len(empleados)==5):
+                    nueva_planificacionAnterior.append([aux,empleados])
+                    cont_general=0
+                    empleados = []
+
+    primeraPlanificacion = False
+else:
+    nueva_planificacionAnterior = []
+    primeraPlanificacion = True
+
+GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion)
 
