@@ -150,24 +150,14 @@ const asignar_turno_empleado = async(obj, empleados)=>{
 };
 
 const asignar_nombre_ultima_semana = async(jsonsend,planificacionUltimaSemana,cant_empleados)=>{
-    console.log(planificacionUltimaSemana[0])
-    console.log(planificacionUltimaSemana[1])
-    console.log(planificacionUltimaSemana[2])
-    console.log(planificacionUltimaSemana[3])
-    console.log(planificacionUltimaSemana[4])
-    console.log(planificacionUltimaSemana[5])
-
-    console.log("-asdasd")
-    console.log(jsonsend[0].empleados)
-    console.log(jsonsend[1].empleados)
-    console.log(jsonsend[2].empleados)
-    console.log(jsonsend[3].empleados)
-    console.log(jsonsend[4].empleados)
-    console.log(jsonsend[5].empleados)
 
     for(let i = 0;i<30;i=i+5){
-        if(consulta_planificacion[i].dia_semana == 'Lunes'){
-
+        if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
+            let k = 0;
+            for(let j=i;j<cant_empleados;j++){
+                jsonsend[j].empleados[k].nombre = planificacionUltimaSemana[j].nombre
+                k++;
+            }
             break;
         }
         
