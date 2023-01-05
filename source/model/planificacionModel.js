@@ -134,7 +134,7 @@ const asignar_turno_empleado = async(obj, empleados)=>{
     array_empleados[4] = empleados[4].nombre 
 
     array_empleados = array_empleados.sort(function() {return Math.random() - 0.5});
-
+    console.log(obj)
     //Asignación de turno
     for (i = 1;i<=array_empleados.length;i++){
         obj = obj.replaceAll('"nombre": '+i,'"nombre": "'+array_empleados[i-1]+'"');
@@ -400,10 +400,49 @@ const mostrar_ultima = async()=>{
     return json;
 };
 
+const eliminar = async(planificacion_id)=>{
+    let string_sql = 
+    `
+    SELECT * FROM ${process.env.NOMBRE_BD}.dia 
+    where planificacion_id = ${planificacion_id};
+    `
+    let consultaDias = await conexion.query(string_sql);
+    
+    for(let i=0;i<consultaDias.length;i++){
+        let string_sql_itinerario = 
+        `DELETE FROM ${process.env.NOMBRE_BD}.empleado 
+        where dia_id = ${consultaDias[i].dia_id};
+        `
+        let consultaItinerario = await conexion.query(string_sql_itinerario);
+        
+
+        let string_sql_empleado = 
+        `DELETE FROM ${process.env.NOMBRE_BD}.itinerario 
+        where dia_id = ${consultaDias[i].dia_id};
+        `
+        let consultaEmpleado = await conexion.query(string_sql_empleado);
+    }
+    let string_sql_dia = 
+    `DELETE FROM ${process.env.NOMBRE_BD}.dia 
+    where planificacion_id = ${planificacion_id};`
+    let delete_dia = await conexion.query(string_sql_dia);
+
+    let string_sql_actualizacion = 
+    `DELETE FROM ${process.env.NOMBRE_BD}.actualizacion 
+    where planificacion_id = ${planificacion_id};`
+    let delete_actualizacion = await conexion.query(string_sql_actualizacion);
+
+    let string_sql_planificacion =
+    `DELETE FROM ${process.env.NOMBRE_BD}.planificacion 
+    where planificacion_id = ${planificacion_id};`
+    let delete_planificacion = await conexion.query(string_sql_planificacion);
+    return delete_planificacion;
+};
 
 module.exports.planificacionModel = {
     asignar_turno_empleado,
     guardar,
+    eliminar,
     mostrar_ultima,
     ultimo_empleado_planificacion_anterior,
     mostrar_planificacion_anual,

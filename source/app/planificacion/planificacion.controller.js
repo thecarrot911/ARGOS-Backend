@@ -40,21 +40,26 @@ const generarplanificacion = async(req, res) =>{
                 planificacionUltimaSemana = []
             }
             let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario,planificacionAnterior])
-            let planificacion = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
+            let planificacionMensual; //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
             
             command.stdout.on ('data', function (data){
                 console.log("Child process on")
-                planificacion.push(data.toString());
-                
+                if(data.toString()!=undefined){
+                    
+                    planificacionMensual = data.toString()
+                    console.log("entre xd")
+                }
+                //planificacion.push(data.toString());
             });
             command.stderr.on ('data', function (data){
-                planificacion = data.toString();
+                console.log("stderr");
+                console.log(data.toString());
             });
             command.on('close', async function(code){
                 console.log("Child process close")
-                obj = planificacion[0].replace(/'/g,"\""); 
+                //obj = planificacion[0].replace(/'/g,"\""); 
                 //console.log(planificacion)
-                turno_empleado = await planificacionModel.asignar_turno_empleado(planificacion[0],empleados);
+                turno_empleado = await planificacionModel.asignar_turno_empleado(planificacionMensual,empleados);
                 jsonsend = JSON.parse(turno_empleado);
                 if(planificacionUltimaSemana.length != 0){
                     jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados)
@@ -116,9 +121,26 @@ const planificacion_mostrar_ultima = async(req,res)=>{
     }
 };
 
+const eliminarPlanificacion = async (req, res) =>{
+    try{
+        let planificacion_id = req.params.planificacion_id
+        consulta_planificacion = await planificacionModel.eliminar(planificacion_id);
+        return res.json({
+            error: false,
+            msg: "Planificación Eliminada"
+        });
+    }catch(error){
+        return res.json({
+            error: true,
+            msg: ''+error
+        });
+    }
+};
+
 module.exports.planificacion_controller={
     generarplanificacion, 
     planificacion_mostrar_ultima,
+    eliminarPlanificacion,
     planificacion_mostrar_todo
 }
 

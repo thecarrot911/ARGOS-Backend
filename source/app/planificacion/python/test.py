@@ -8,6 +8,7 @@ from ortools.sat.python import cp_model
 import json
 
 def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion):
+    
     class SolutionPrinter(cp_model.CpSolverSolutionCallback):
         """Clase para imprimir la solución."""
 
@@ -86,13 +87,17 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                             dia["comodin"]=0
 
                         json_v.append(dia)
-                #print(json.dumps(json_v))
+                print(json.dumps(json_v))
             if self._solution_count >= self._solution_limit:
                 self.StopSearch()
         
         def solution_count(self):
             #print(self._solution_count)
             return self._solution_count
+    
+    print(nueva_planificacionAnterior)
+    print(nuevo_itinerario)
+
     if(month==12):
         month_next = 1
         year_next = year+1
@@ -294,15 +299,14 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
             model.Add(sum(lista_minima_emp_domingo)>=2)
 
                 #TODO: dia,turno,empleado
-    itinerario=[#[4,1,4],#[4,2,4],
-                [11,1,4],#,[11,2,3],
-                [18,1,4],#,[18,2,3],
-                [25,1,4]]#,[25,3,3]]
+    #itinerario=[#[4,1,4],#[4,2,4],
+    #            [11,1,4],#,[11,2,3],
+    #            [18,1,4],#,[18,2,3],
+    #            [25,1,4]]#,[25,3,3]]
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
     
-    #itinerario = []
-    #itinerario = nuevo_itinerario
+    itinerario = nuevo_itinerario
 
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
         lista = []
@@ -758,6 +762,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                             ]
                             """
     planificacionAnterior = nueva_planificacionAnterior
+
                                  #[1] => EMPLEADO
     #print(planificacionAnterior[0][1][0])
     #print(planificacionAnterior[1][1][0])
@@ -960,7 +965,16 @@ else:
     primeraPlanificacion = True
 #if()
 #primeraPlanificacion = 2
-#nueva_planificacionAnterior = []
+#nueva_planificacionAnterior = [[30, [[1, 1], [2, 2], [1, 3], [2, 4], [3, 5]]], [31, [[1, 1], [1, 2], [2, 3], [0, 4], [3, 5]]]]
+
+#nuevo_itinerario = [[4, 2, 5]]
+#nueva_planificacionAnterior = [] 
+#primeraPlanificacion = True
+#
+#nuevo_itinerario = []
+nuevo_itinerario = [[4,2,3]]
+nueva_planificacionAnterior = [[30, [[1, 1], [2, 2], [1, 3], [2, 4], [3, 5]]], [31, [[1, 1], [1, 2], [2, 3], [0, 4], [3, 5]]]] 
+primeraPlanificacion = False
 
 GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion)
 
