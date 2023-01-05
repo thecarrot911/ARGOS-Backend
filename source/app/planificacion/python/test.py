@@ -971,8 +971,8 @@ else:
 #nueva_planificacionAnterior = [] 
 #primeraPlanificacion = True
 #
-#nuevo_itinerario = []
-nuevo_itinerario = [[4,2,3]]
+nuevo_itinerario = []
+#nuevo_itinerario = [[4,2,3]]
 nueva_planificacionAnterior = [[30, [[1, 1], [2, 2], [1, 3], [2, 4], [3, 5]]], [31, [[1, 1], [1, 2], [2, 3], [0, 4], [3, 5]]]] 
 primeraPlanificacion = False
 

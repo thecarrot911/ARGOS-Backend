@@ -912,8 +912,8 @@ else:
     nueva_planificacionAnterior = []
     primeraPlanificacion = True
 
-print(nueva_planificacionAnterior)
-print("--")
-print(nuevo_itinerario)
+#print(nueva_planificacionAnterior)
+#print("--")
+#print(nuevo_itinerario)
 GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion)
 

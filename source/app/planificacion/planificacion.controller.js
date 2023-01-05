@@ -40,15 +40,14 @@ const generarplanificacion = async(req, res) =>{
                 planificacionUltimaSemana = []
             }
             let command = await spawn('python', ['source/app/planificacion/python/script.py',anio,mes,cant_empleados,itinerario,planificacionAnterior])
-            let planificacionMensual; //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
+            let planificacionMensual = new Array(); //verificador para que la variable sea disitnto de vacio y tenga una respuesta.
             
             command.stdout.on ('data', function (data){
                 console.log("Child process on")
-                if(data.toString()!=undefined){
-                    
-                    planificacionMensual = data.toString()
-                    console.log("entre xd")
-                }
+            
+                console.log(data.toString());
+                planificacionMensual.push(data.toString());
+                
                 //planificacion.push(data.toString());
             });
             command.stderr.on ('data', function (data){
@@ -59,7 +58,7 @@ const generarplanificacion = async(req, res) =>{
                 console.log("Child process close")
                 //obj = planificacion[0].replace(/'/g,"\""); 
                 //console.log(planificacion)
-                turno_empleado = await planificacionModel.asignar_turno_empleado(planificacionMensual,empleados);
+                turno_empleado = await planificacionModel.asignar_turno_empleado(planificacionMensual[0],empleados);
                 jsonsend = JSON.parse(turno_empleado);
                 if(planificacionUltimaSemana.length != 0){
                     jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados)
