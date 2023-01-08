@@ -132,6 +132,9 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
     all_empleado = range(num_empleado) # 0..3
     all_dias = range(1,cantidad_dias+1) 
 
+    itinerario = nuevo_itinerario
+    planificacionAnterior = nueva_planificacionAnterior
+
     #Modelo
     model = cp_model.CpModel()
 
@@ -295,7 +298,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
     
-    itinerario = nuevo_itinerario
 
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
         lista = []
@@ -543,6 +545,30 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                         cant_turnos_totales[0] = cant_turnos_totales[0] + 1
                         cant_turnos_totales[1] = cant_turnos_totales[1] + 1
                         cant_turnos_totales[2] = cant_turnos_totales[2] + 1
+            elif(mes[num_semana][i][0]==meses_anio[month_prev-1]):
+                if(primeraPlanificacion==False):
+                    #nueva_planificacionAnterior = 
+                    # [
+                    # [30, [[1, 1], [2, 2], [1, 3], [2, 4], [3, 5]]], 
+                    # [31, [[1, 1], [1, 2], [2, 3], [0, 4], [3, 5]]]
+                    # ]
+                    #TODO: FALTA GREGAR LA CANT_TUIRNOS TOTALES
+                    cont=0
+                    for planificacion in planificacionAnterior[i][1]:
+                        if(planificacion[0]!=0):
+                            cont = cont + 1
+                    work_extra = work_extra - cont + cant_turno
+
+                semana_work.append([
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 2"),
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 3")
+                    ])
+                if(i!=6):
+                    cant_turnos_totales[0] = cant_turnos_totales[0] + 1
+                    cant_turnos_totales[1] = cant_turnos_totales[1] + 1
+                    cant_turnos_totales[2] = cant_turnos_totales[2] + 1
+            #SEMANA DEL MES PRESENTE Y DEL SIGUIENTE
             else:
                 semana_work.append([
                     model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
@@ -730,8 +756,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                             cant_turnos_totales[1] = cant_turnos_totales[1] + 1
                             cant_turnos_totales[2] = cant_turnos_totales[2] + 1
                             #print(cant_turnos_totales)
-
-    planificacionAnterior = nueva_planificacionAnterior
 
     indice = 0
     for num_semana in range(len(cont_semana)):

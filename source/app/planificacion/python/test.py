@@ -95,8 +95,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
             #print(self._solution_count)
             return self._solution_count
     
-    print(nueva_planificacionAnterior)
-    print(nuevo_itinerario)
 
     if(month==12):
         month_next = 1
@@ -133,6 +131,10 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
     cant_turnos_totales = [0,0,0]
     all_empleado = range(num_empleado) # 0..3
     all_dias = range(1,cantidad_dias+1) 
+
+    itinerario = nuevo_itinerario
+    planificacionAnterior = nueva_planificacionAnterior
+
 
     #Modelo
     model = cp_model.CpModel()
@@ -172,7 +174,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
         indice_semana = indice_semana + 1
         if(indice_semana == 7): indice_semana=0
 
-    # Condición para agregar los dias faltantes de la última semana del mes
+    # Condición para agregar los dias faltantes de la última semana del mes siguiente
     if(len(mes[len(mes)-1])!=7):
         indice_semana = dias_mes_actual[0]
         for k in range(7-indice_semana_next):
@@ -180,7 +182,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
             mes[len(mes)-1].insert(indice_semana_next,[meses_anio[month_next-1],k+1,dias_semana[indice_semana_next],array_empleado])
             indice_semana_next = indice_semana_next + 1
 
-    # Condición para gregar los dias faltantes de la primera semana del mes
+    # Condición para gregar los dias faltantes de la primera semana del mes anterior
     if(len(mes[0])!=7):
         indice_semana = dias_mes_actual[0]
         for j in range(indice_semana):
@@ -298,7 +300,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                     lista_minima_emp_domingo.append(mes[num_semana][domingo][3][e][t])
             model.Add(sum(lista_minima_emp_domingo)>=2)
 
-                #TODO: dia,turno,empleado
+                # dia,turno,empleado
     #itinerario=[#[4,1,4],#[4,2,4],
     #            [11,1,4],#,[11,2,3],
     #            [18,1,4],#,[18,2,3],
@@ -306,8 +308,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
     #            [19,2,3],#2
     #            [19,3,3]]#2->1
     
-    itinerario = nuevo_itinerario
-
     def OrdenarLista(a,b,c,ind_a,ind_b,ind_c):
         lista = []
         if(a>b and b>c):
@@ -372,6 +372,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
         work_extra = turnos_extra
         control_five_turnos = True
         for i in range(cont_semana[indice]):
+            #SEMANAS DEL PRESENTE
             if(mes[num_semana][i][0]==meses_anio[month-1]):
                 list_index_itinerario = ItinerarioFunction(mes[num_semana][i][1],itinerario)
                 if(i!=6):
@@ -557,6 +558,31 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                         cant_turnos_totales[0] = cant_turnos_totales[0] + 1
                         cant_turnos_totales[1] = cant_turnos_totales[1] + 1
                         cant_turnos_totales[2] = cant_turnos_totales[2] + 1
+            #SEMANA DEL MES PASADO Y DEL PRESNTE
+            elif(mes[num_semana][i][0]==meses_anio[month_prev-1]):
+                if(primeraPlanificacion==False):
+                    #nueva_planificacionAnterior = 
+                    # [
+                    # [30, [[1, 1], [2, 2], [1, 3], [2, 4], [3, 5]]], 
+                    # [31, [[1, 1], [1, 2], [2, 3], [0, 4], [3, 5]]]
+                    # ]
+                    #TODO: FALTA GREGAR LA CANT_TUIRNOS TOTALES
+                    cont=0
+                    for planificacion in planificacionAnterior[i][1]:
+                        if(planificacion[0]!=0):
+                            cont = cont + 1
+                    work_extra = work_extra - cont + cant_turno
+
+                semana_work.append([
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 2"),
+                        model.NewIntVar(1,num_empleado-cant_turno+1,"turno 3")
+                    ])
+                if(i!=6):
+                    cant_turnos_totales[0] = cant_turnos_totales[0] + 1
+                    cant_turnos_totales[1] = cant_turnos_totales[1] + 1
+                    cant_turnos_totales[2] = cant_turnos_totales[2] + 1
+            #SEMANA DEL MES PRESENTE Y DEL SIGUIENTE
             else:
                 semana_work.append([
                     model.NewIntVar(1,num_empleado-cant_turno+1,"turno 1"),
@@ -572,12 +598,10 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
         list_turno_extra.append(work_extra)
         indice = indice + 1
 
+
     # Turnos sobrantes por asignar en la mañana.
-    indice = 0
     for num_semana in range(len(cont_semana)):
         work_extra = list_turno_extra[num_semana]
-
-
         if(work_extra>=1):
             for i in range(list_turno_extra[num_semana]):
                 if(mes[num_semana][i][0]==meses_anio[month-1]):
@@ -621,6 +645,8 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                                 work_extra = work_extra -1
                                 cant_turnos_totales[1] = cant_turnos_totales[1] + 1
 
+
+
                 else: 
                     if((i<=5) and (work_extra>=1)): # ASIGNACIÓN EN LA MAÑANA
                         if(len(list_index_itinerario)==0):
@@ -661,7 +687,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
         indice = indice + 1
     
     list_complete_dom = [[1,1,1],[1,1,1]]
-    list_incomplete_dom = [[1,1,0],[1,1,0]]
+    list_incomplete_dom = [[1,1,0],[1,1,0]] 
     lista_domingos_completo = [3,3]
     lista_domingos_incompleto = [2,2]
     list_complete = []
@@ -761,7 +787,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                             [30,[[1,1],[1,2],[3,3],[0,4],[2,5]]]
                             ]
                             """
-    planificacionAnterior = nueva_planificacionAnterior
 
                                  #[1] => EMPLEADO
     #print(planificacionAnterior[0][1][0])
@@ -807,7 +832,6 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                         model.Add(sum(mes[num_semana][i][3][e][0] for e in all_empleado)<=1)
                         model.Add(sum(mes[num_semana][i][3][e][1] for e in all_empleado)<=1)
                         model.Add(sum(mes[num_semana][i][3][e][2] for e in all_empleado)<=1)
-                #TODO: PRIMERA PLANIFICACION NEGATIVE ENTRA
                 elif((mes[num_semana][i][0] == meses_anio[month_prev-1]) and (primeraPlanificacion==False)):
                     for e in all_empleado:
                         for t in range(cant_turno):
@@ -971,9 +995,11 @@ else:
 #nueva_planificacionAnterior = [] 
 #primeraPlanificacion = True
 #
-nuevo_itinerario = []
-#nuevo_itinerario = [[4,2,3]]
-nueva_planificacionAnterior = [[30, [[1, 1], [2, 2], [1, 3], [2, 4], [3, 5]]], [31, [[1, 1], [1, 2], [2, 3], [0, 4], [3, 5]]]] 
+#nuevo_itinerario = []
+# SE CAE CON 3,4,28 febrero??
+# S
+nuevo_itinerario = [[28,2,5]]
+nueva_planificacionAnterior = [[30, [[1, 1], [2, 2], [1, 3], [2, 4], [3, 5]]], [31, [[1, 1], [1, 2], [2, 3], [0, 4], [3, 5]]]]
 primeraPlanificacion = False
 
 GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planificacionAnterior,primeraPlanificacion)
