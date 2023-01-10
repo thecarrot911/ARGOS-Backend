@@ -56,7 +56,7 @@ const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
         let string_sql_planificacionDia = 
         `SELECT planificacion.planificacion_id, planificacion.month mes, planificacion.year año, 
         dia.dia_id, dia.dia_semana, dia.dia_numero, dia.comodin, 
-        empleado.nombre, empleado.turno, empleado.empleado_id 
+        empleado.nombre, empleado.nombre_id,empleado.turno, empleado.empleado_id 
         FROM ${process.env.NOMBRE_BD}.planificacion planificacion, ${process.env.NOMBRE_BD}.empleado empleado,${process.env.NOMBRE_BD}.dia dia 
         WHERE planificacion.planificacion_id = ${planificacion_id} and dia.planificacion_id = ${planificacion_id}
         and dia.dia_id = empleado.dia_id
@@ -65,7 +65,6 @@ const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
         let consulta_planificacion = await conexion.query(string_sql_planificacionDia);
         copyPlanificacion = consulta_planificacion;
         planificacionAnterior = new Array();
-
 
         for(let i = 0;i<30;i=i+5){
             if(consulta_planificacion[i].dia_semana == 'Lunes'){
@@ -85,12 +84,12 @@ const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
             }
             else{
                 let empleados = new Array()
-                let cont_emp = 1;
+                //let cont_emp = 1;
                 for(let j = i; j<i+cant_empleados ;j++){
                     for(let t = 0 ; t<turno.length; t++){
                         if(consulta_planificacion[j].turno == turno[t]){
-                            empleados.push([t,cont_emp])
-                            cont_emp++;
+                            empleados.push([t,consulta_planificacion[j].nombre_id])
+                            //cont_emp++;
                             break;
                         }
                     }
@@ -101,6 +100,8 @@ const existe_mes_anterior = async(anio,numero_mes,cant_empleados)=>{
     }else{
         planificacionAnterior = 0
     }
+    //console.log(planificacionAnterior)
+    //console.log(copyPlanificacion)
     return { planificacionAnterior,copyPlanificacion} ;
 };
 const existe_planificacion = async(anio,numero_mes)=>{
@@ -134,7 +135,7 @@ const asignar_turno_empleado = async(obj, empleados)=>{
     array_empleados[4] = empleados[4].nombre 
 
     array_empleados = array_empleados.sort(function() {return Math.random() - 0.5});
-    console.log(obj)
+    //console.log(obj)
     //Asignación de turno
     for (i = 1;i<=array_empleados.length;i++){
         obj = obj.replaceAll('"nombre": '+i,'"nombre": "'+array_empleados[i-1]+'"');
@@ -151,22 +152,79 @@ const asignar_turno_empleado = async(obj, empleados)=>{
 
 const asignar_nombre_ultima_semana = async(jsonsend,planificacionUltimaSemana,cant_empleados)=>{
 
-    for(let i = 0;i<30;i=i+5){
-        if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
-            let k = 0;
-            for(let j=i;j<cant_empleados;j++){
-                jsonsend[j].empleados[k].nombre = planificacionUltimaSemana[j].nombre
-                k++;
+    //console.log(jsonsend[0].numero_dia)
+    //console.log("_-_")
+    console.log(planificacionUltimaSemana[0])
+    for(let i=0;i<jsonsend.length;i++){
+        for(let j=0;j<cant_empleados;j++){
+            for(let k=0;k<cant_empleados;k++){
+                if(jsonsend[i].empleados[j].nombre_id == planificacionUltimaSemana[k].nombre_id){
+                    jsonsend[i].empleados[j].nombre = planificacionUltimaSemana[k].nombre;
+                    //console.log(jsonsend[i].empleados[j].nombre_id)
+                    //console.log(planificacionUltimaSemana[k].nombre_id)
+                }
             }
-            break;
-        }
-        
-        let k = 0;
-        for(let j=i;j<cant_empleados;j++){
-            jsonsend[j].empleados[k].nombre = planificacionUltimaSemana[j].nombre
-            k++;
         }
     }
+    /*
+    let cantidadDiasSemanaMesAnterior = 0
+    for(let i=0;i<planificacionUltimaSemana.length;i=i+5){
+        if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
+            cantidadDiasSemanaMesAnterior++;
+            break;
+        }
+        else{
+            cantidadDiasSemanaMesAnterior++;
+        }
+    }
+
+    for(let i=0;i<planificacionUltimaSemana.length;i=i+5){
+        if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
+            /*console.log(planificacionUltimaSemana[i].dia_numero)
+            console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].numero_dia)
+            for(let j=i;j<i+cant_empleados;j++){
+                for(let k=0;k<cant_empleados;k++){
+                    if(planificacionUltimaSemana[j].nombre_id==jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id){
+                        jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre = planificacionUltimaSemana[j].nombre;
+                        break;
+                    }
+                }
+            }
+            cantidadDiasSemanaMesAnterior = cantidadDiasSemanaMesAnterior - 1
+            break;
+        }
+        else{
+            /*
+            console.log(planificacionUltimaSemana[i].dia_numero)
+            console.log(planificacionUltimaSemana[i].nombre)
+            console.log(planificacionUltimaSemana[i+1].nombre)
+            console.log(planificacionUltimaSemana[i+2].nombre)
+            console.log(planificacionUltimaSemana[i+3].nombre)
+            console.log(planificacionUltimaSemana[i+4].nombre)
+            console.log("____________")
+
+            console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].numero_dia)
+            
+            for(let j=i;j<i+cant_empleados;j++){
+                for(let k=0;k<cant_empleados;k++){
+                    if(planificacionUltimaSemana[j].nombre_id==jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id){
+                        console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id)
+                        jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre = planificacionUltimaSemana[j].nombre;
+                        break;
+                    }
+                }
+            }
+
+            /*for(let k=0;k<cant_empleados;k++){
+                console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre)
+                
+
+            }
+            console.log("_______________________3")
+            cantidadDiasSemanaMesAnterior = cantidadDiasSemanaMesAnterior - 1
+            console.log("_______________________")
+        }
+    }*/
     return jsonsend
 };
 
@@ -195,10 +253,12 @@ const guardar = async(month, year, planificacion)=>{
         // Inserción de empleados
         for(j=0;j<planificacion[i].empleados.length;j++){
             let nombre = planificacion[i].empleados[j].nombre
+            let nombre_id = planificacion[i].empleados[j].nombre_id
             let turno = planificacion[i].empleados[j].turno
-            let string_sql_empleado = "INSERT INTO "+process.env.NOMBRE_BD+".empleado(dia_id, nombre, turno) VALUES('"+dia_id+"','"+nombre+"','"+turno+"')";
+            let string_sql_empleado = "INSERT INTO "+process.env.NOMBRE_BD+".empleado(dia_id, nombre, nombre_id, turno) VALUES('"+dia_id+"','"+nombre+"','"+nombre_id+"','"+turno+"')";
             await conexion.query(string_sql_empleado);
         }
+
         // Inserción de itinerario
         if(planificacion[i].itinerario !=0)
         {

@@ -52,10 +52,12 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                                         is_working = True
                                         emp_turn["turno"] = t+1
                                         emp_turn["nombre"] = j+1
+                                        emp_turn["nombre_id"] = j+1
                                         contador[j][t+1] = contador[j][t+1] + 1 
                                 if not is_working:
                                     emp_turn["turno"] = 0
                                     emp_turn["nombre"] = j+1
+                                    emp_turn["nombre_id"] = j+1
                                     contador[j][0] = contador[j][0] + 1
                                 empleados.append(emp_turn)
                             dia["empleados"] = empleados

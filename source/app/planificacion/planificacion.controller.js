@@ -23,12 +23,15 @@ const generarplanificacion = async(req, res) =>{
                 itinerario = new Array()
                 for(i=0;i<itinerario_json.length;i++){
                     let itinerario_array = new Array()
-                    itinerario_array.push(String(itinerario_json[i].dia))
-                    itinerario_array.push(String(itinerario_json[i].turno))
-                    itinerario_array.push(String(itinerario_json[i].aviones))
-                    itinerario.push(itinerario_array)
+                    if(itinerario_json[i].aviones>1){
+                        itinerario_array.push(String(itinerario_json[i].dia))
+                        itinerario_array.push(String(itinerario_json[i].turno))
+                        itinerario_array.push(String(itinerario_json[i].aviones))
+                        itinerario.push(itinerario_array)
+                    }
                 }
             }
+            console.log(itinerario)
 
             let mesAnterior = await planificacionModel.existe_mes_anterior(anio,mes,cant_empleados);
 
@@ -45,7 +48,7 @@ const generarplanificacion = async(req, res) =>{
             command.stdout.on ('data', function (data){
                 console.log("Child process on")
             
-                console.log(data.toString());
+                //console.log(data.toString());
                 planificacionMensual.push(data.toString());
                 
                 //planificacion.push(data.toString());
@@ -57,18 +60,19 @@ const generarplanificacion = async(req, res) =>{
             command.on('close', async function(code){
                 console.log("Child process close")
                 //obj = planificacion[0].replace(/'/g,"\""); 
-                //console.log(planificacion)
                 turno_empleado = await planificacionModel.asignar_turno_empleado(planificacionMensual[0],empleados);
                 jsonsend = JSON.parse(turno_empleado);
                 if(planificacionUltimaSemana.length != 0){
                     jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados)
                 }
-                planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
+                
+                /*planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
                 let json = {}
                 json.planificacion_id = planificacion_id;
                 json.planificacion = jsonsend;
                 let json_send = JSON.stringify(json)
-                return res.send(json_send);
+                return res.send(json_send);*/
+                return res.json(jsonsend)
             });
             command.on('error', function(err){
                 console.log('child process error')
