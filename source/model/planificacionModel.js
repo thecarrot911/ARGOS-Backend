@@ -150,19 +150,52 @@ const asignar_turno_empleado = async(obj, empleados)=>{
     return obj;
 };
 
-const asignar_nombre_ultima_semana = async(jsonsend,planificacionUltimaSemana,cant_empleados)=>{
+const asignar_nombre_ultima_semana = async(jsonsend,planificacionUltimaSemana,cant_empleados,empleados)=>{
 
-    //console.log(jsonsend[0].numero_dia)
+    //console.log(jsonsend[0])
     //console.log("_-_")
-    console.log(planificacionUltimaSemana[0])
-    for(let i=0;i<jsonsend.length;i++){
-        for(let j=0;j<cant_empleados;j++){
-            for(let k=0;k<cant_empleados;k++){
-                if(jsonsend[i].empleados[j].nombre_id == planificacionUltimaSemana[k].nombre_id){
-                    jsonsend[i].empleados[j].nombre = planificacionUltimaSemana[k].nombre;
-                    //console.log(jsonsend[i].empleados[j].nombre_id)
-                    //console.log(planificacionUltimaSemana[k].nombre_id)
+    //console.log(planificacionUltimaSemana[0])
+    //console.log(planificacionUltimaSemana[5])
+
+    //planificacionUltimaSemana: EMPIEZA DESDE EL ULTIMO DIA DEL MES PASADO
+    //jsonsend: EMPIEZA DEL PRIMER DIA DE LA PRIMERA SEMANA DLE MES PASADO
+
+    var cantidadDiasSemanaMesAnterior = 0
+    for(let i=0;i<planificacionUltimaSemana.length;i=i+5){
+        if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
+            cantidadDiasSemanaMesAnterior++;
+            break;
+        }else{
+            cantidadDiasSemanaMesAnterior++;
+        }
+    }
+
+    if(cantidadDiasSemanaMesAnterior>0){
+        for(let i=0;i<planificacionUltimaSemana.length; i=i+5){
+            if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
+                for(let j=i;j<i+cant_empleados;j++){
+                    for(let k=0;k<cant_empleados;k++){
+                        if(planificacionUltimaSemana[j].nombre_id == jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id){
+                            jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre = planificacionUltimaSemana[j].nombre
+                        }
+                    }
                 }
+                cantidadDiasSemanaMesAnterior = cantidadDiasSemanaMesAnterior - 1
+                break;
+            }
+            else{
+                console.log(jsonsend[cantidadDiasSemanaMesAnterior-1])
+
+                for(let j=i;j<i+cant_empleados;j++){
+                    for(let k=0;k<cant_empleados;k++){
+                        if(planificacionUltimaSemana[j].nombre_id == jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id){
+
+                            jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre = planificacionUltimaSemana[j].nombre
+                        }
+                    }
+                }
+                cantidadDiasSemanaMesAnterior = cantidadDiasSemanaMesAnterior - 1
+
             }
         }
     }

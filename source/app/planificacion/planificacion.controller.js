@@ -63,16 +63,16 @@ const generarplanificacion = async(req, res) =>{
                 turno_empleado = await planificacionModel.asignar_turno_empleado(planificacionMensual[0],empleados);
                 jsonsend = JSON.parse(turno_empleado);
                 if(planificacionUltimaSemana.length != 0){
-                    jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados)
+                    jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados,empleados)
                 }
-                // /*
+                 ///*
                 planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
                 let json = {}
                 json.planificacion_id = planificacion_id;
                 json.planificacion = jsonsend;
                 let json_send = JSON.stringify(json)
                 return res.send(json_send);
-                // */
+                 //*/
                 //return res.json(jsonsend)
             });
             command.on('error', function(err){
