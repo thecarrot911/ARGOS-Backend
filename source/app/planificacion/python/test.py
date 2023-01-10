@@ -1,4 +1,3 @@
-from operator import index
 from numpy import array
 from sklearn.utils import shuffle
 import sys
