@@ -65,14 +65,15 @@ const generarplanificacion = async(req, res) =>{
                 if(planificacionUltimaSemana.length != 0){
                     jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados)
                 }
-                
-                /*planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
+                // /*
+                planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
                 let json = {}
                 json.planificacion_id = planificacion_id;
                 json.planificacion = jsonsend;
                 let json_send = JSON.stringify(json)
-                return res.send(json_send);*/
-                return res.json(jsonsend)
+                return res.send(json_send);
+                // */
+                //return res.json(jsonsend)
             });
             command.on('error', function(err){
                 console.log('child process error')

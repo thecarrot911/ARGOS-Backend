@@ -166,65 +166,6 @@ const asignar_nombre_ultima_semana = async(jsonsend,planificacionUltimaSemana,ca
             }
         }
     }
-    /*
-    let cantidadDiasSemanaMesAnterior = 0
-    for(let i=0;i<planificacionUltimaSemana.length;i=i+5){
-        if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
-            cantidadDiasSemanaMesAnterior++;
-            break;
-        }
-        else{
-            cantidadDiasSemanaMesAnterior++;
-        }
-    }
-
-    for(let i=0;i<planificacionUltimaSemana.length;i=i+5){
-        if(planificacionUltimaSemana[i].dia_semana == 'Lunes'){
-            /*console.log(planificacionUltimaSemana[i].dia_numero)
-            console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].numero_dia)
-            for(let j=i;j<i+cant_empleados;j++){
-                for(let k=0;k<cant_empleados;k++){
-                    if(planificacionUltimaSemana[j].nombre_id==jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id){
-                        jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre = planificacionUltimaSemana[j].nombre;
-                        break;
-                    }
-                }
-            }
-            cantidadDiasSemanaMesAnterior = cantidadDiasSemanaMesAnterior - 1
-            break;
-        }
-        else{
-            /*
-            console.log(planificacionUltimaSemana[i].dia_numero)
-            console.log(planificacionUltimaSemana[i].nombre)
-            console.log(planificacionUltimaSemana[i+1].nombre)
-            console.log(planificacionUltimaSemana[i+2].nombre)
-            console.log(planificacionUltimaSemana[i+3].nombre)
-            console.log(planificacionUltimaSemana[i+4].nombre)
-            console.log("____________")
-
-            console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].numero_dia)
-            
-            for(let j=i;j<i+cant_empleados;j++){
-                for(let k=0;k<cant_empleados;k++){
-                    if(planificacionUltimaSemana[j].nombre_id==jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id){
-                        console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre_id)
-                        jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre = planificacionUltimaSemana[j].nombre;
-                        break;
-                    }
-                }
-            }
-
-            /*for(let k=0;k<cant_empleados;k++){
-                console.log(jsonsend[cantidadDiasSemanaMesAnterior-1].empleados[k].nombre)
-                
-
-            }
-            console.log("_______________________3")
-            cantidadDiasSemanaMesAnterior = cantidadDiasSemanaMesAnterior - 1
-            console.log("_______________________")
-        }
-    }*/
     return jsonsend
 };
 
