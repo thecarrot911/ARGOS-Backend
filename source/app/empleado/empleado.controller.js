@@ -1,14 +1,11 @@
 const {empleado_model} = require("../../model/empleadoModel");
 
 const registrar_empleado = async(req,res)=>{
+    console.log(req.body)
     consulta_verificacion = await empleado_model.buscar(req.body.rut);
     if(consulta_verificacion == ""){
         try{
-            let nombre = req.body.nombre;
-            let apellido = req.body.apellido;
-            let rut = req.body.rut;
-            consulta_insercion = await empleado_model.registrar(nombre,apellido,rut);
-            console.log(consulta_insercion);
+            consulta_insercion = await empleado_model.registrar(req.body);
             return res.json({
                 error: false,
                 msg: "Empleado Registrado",
@@ -53,12 +50,12 @@ const mostrar_todos_empleados = async(req,res)=>{
     }
 };
 
-const mostrar_un_empleado = async(req,res)=>{
+const mostrar_perfil = async(req,res)=>{
     consulta_verificacion = await empleado_model.buscar(req.query.rut);
     if(consulta_verificacion != ""){
         try{
             let rut = req.query.rut;
-            consulta_mostrar = await empleado_model.mostrar_uno(rut);
+            consulta_mostrar = await empleado_model.mostrar(rut);
             return res.json({
                 error: false,
                 data: consulta_mostrar[0]
@@ -84,19 +81,19 @@ const mostrar_un_empleado = async(req,res)=>{
     }
 };
 
-//FALTA IMPLEMENTAR
-const actualizar_empleado = async()=>{
+const modificar_empleado = async(req,res)=>{
     let string_sql = "";
-    let consulta = await conexion.query(string_sql);
-    return consulta;
+    console.log(req.body)
+    //let consulta = await conexion.query(string_sql);
+    return res.send(req.body);
 };
 
 const eliminar_empleado = async(req,res)=>{
-    consulta_verificacion = await empleado_model.buscar(req.query.rut);
+    consulta_verificacion = await empleado_model.buscar(req.params.rut);
     if(consulta_verificacion != ""){
         try{
             let rut = req.query.rut;
-            consulta = await empleado_model.eliminar(rut);
+            consulta = await empleado_model.eliminar(req.params.rut);
             return res.json({
                 error: false,
                 msg: "Empleado eliminado"
@@ -124,9 +121,9 @@ const eliminar_empleado = async(req,res)=>{
 };
 
 module.exports.empleado_controller = {
-    registrar_empleado, 
-    actualizar_empleado,
+    registrar_empleado,
+    modificar_empleado,
     eliminar_empleado,
     mostrar_todos_empleados,
-    mostrar_un_empleado
+    mostrar_perfil,
 };

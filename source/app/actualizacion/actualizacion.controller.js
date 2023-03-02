@@ -48,7 +48,6 @@ const eliminar_actualizacion = async (req,res) =>{
 const modificar_actualizacion = async (req,res)=>{
     try{
         let actualizacion = req.body;
-        console.log(actualizacion);
         respuesta = await actualizacionModel.modificar(actualizacion)
         return res.json({
             error: false,
