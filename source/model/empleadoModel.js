@@ -2,7 +2,7 @@ const conexion = require('../database');
 const { validateRUT, getCheckDigit, generateRandomRUT } = require('validar-rut')
 
 
-const registrar = async(empleado)=>{
+const registrarEmpleado = async(empleado)=>{
     let nombre_materno = empleado.nombre_materno;
     let nombre_paterno = empleado.nombre_paterno;
     let apellido_materno = empleado.apellido_materno;
@@ -21,15 +21,23 @@ const registrar = async(empleado)=>{
 
     let RegistroEmpleado = await conexion.query(stringRegistrarEmpleado);
 
+    return RegistroEmpleado;
+};
+
+const RegistrarPlanificacion = async(empleado)=>{
+    let nombre_materno = empleado.nombre_materno;
+    let nombre_paterno = empleado.nombre_paterno;
+    let apellido_materno = empleado.apellido_materno;
+    let apellido_paterno = empleado.apellido_paterno;
+    let rut = empleado.rut;
+
     let stringRegistrarEmpleadoPlanificacion = `
     INSERT INTO ${process.env.NOMBRE_BD}.empleado_planificacion (rut, nombre_paterno, nombre_materno, apellido_paterno, apellido_materno)
     VALUES ('${rut}','${nombre_paterno}','${nombre_materno}','${apellido_paterno}','${apellido_materno}');
     `;
-    
-    let RegistroEmpleadoPlanificacion = await conexion.query(stringRegistrarEmpleadoPlanificacion);
 
-    return RegistroEmpleado;
-};
+    return await conexion.query(stringRegistrarEmpleadoPlanificacion);
+}
 
 const mostrar_todos = async()=>{
     let dataArray = new Array();
@@ -104,16 +112,18 @@ const eliminar = async(rut)=>{
     return conexion.query(stringSQLEmpleado);
 };
 
-const buscar = async(rut)=>{
-    let string_sql = "SELECT * FROM mydb.empleado WHERE rut = ('"+rut+"')";
-    let consulta = await conexion.query(string_sql);
-    return consulta
+const buscar = async(rut, tabla)=>{
+    let string_sql = `SELECT * FROM ${process.env.NOMBRE_BD}.${tabla} WHERE rut = '${rut}'`
+    let respuesta = await conexion.query(string_sql);
+    if(respuesta.length == 0) return true;
+    else  return false;
 };
 
 module.exports.empleado_model = {
-    registrar,
+    registrarEmpleado,
+    RegistrarPlanificacion,
     mostrar_todos,
     mostrar,
     eliminar,
-    buscar
+    buscar,
 };

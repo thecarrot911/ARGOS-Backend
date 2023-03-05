@@ -1,12 +1,12 @@
 const {credencial_model} = require("../../model/credencialModel");
 
 const registrar_credencial = async (req,res) => {
+    // AGREGAR A LA BASE DE DATOS TIPO DE CREDENCIAL COMO TABLA PARA MOSTRAR OPCIONES XD
     try{
-        let consulta_insercion = await credencial_model.registrar(req.body);
+        await credencial_model.registrar(req.body);
         return res.json({
             error: false,
             msg: "Credencial Registrada",
-            data: consulta_insercion
         });
     }catch(error){
         return res.json({

@@ -2,7 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 
-require("dotenv").config({path:__dirname+'/../.env'});
+require("dotenv").config({ path: __dirname + "/../.env" });
 
 /**Inicialización del servidor */
 const app = express();

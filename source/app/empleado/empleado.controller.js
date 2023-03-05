@@ -1,36 +1,32 @@
-const {empleado_model} = require("../../model/empleadoModel");
+const { empleado_model } = require("../../model/empleadoModel");
 
 const registrar_empleado = async(req,res)=>{
-    console.log(req.body)
-    consulta_verificacion = await empleado_model.buscar(req.body.rut);
-    if(consulta_verificacion == ""){
-        try{
-            consulta_insercion = await empleado_model.registrar(req.body);
+    try{
+        if (await empleado_model.buscar(req.body.rut, "empleado")) {
+            consulta_insercion = await empleado_model.registrarEmpleado(req.body);
+            
+            if(await empleado_model.buscar(req.body.rut, "empleado_planificacion")){
+                await empleado_model.RegistrarPlanificacion(req.body);
+            }
+
             return res.json({
                 error: false,
                 msg: "Empleado Registrado",
-                data: consulta_insercion[0]
+                data: consulta_insercion[0],
             });
-        }catch(error){
-            return res.json({
-                error: true,
-                msg: ''+error
-            });
-        }
-    }
-    else{
-        try{
+
+        } else {
             return res.json({
                 error: false,
                 msg: "El empleado ya esta registrado",
-                data: consulta_verificacion[0]
-            });
-        }catch(error){
-            return res.json({
-                error: true,
-                msg: ''+error
             });
         }
+    }catch(error){
+        console.error(error)
+        return res.json({
+            error: true,
+            msg: "" + error,
+        });
     }
 };
 
@@ -89,35 +85,25 @@ const modificar_empleado = async(req,res)=>{
 };
 
 const eliminar_empleado = async(req,res)=>{
-    consulta_verificacion = await empleado_model.buscar(req.params.rut);
-    if(consulta_verificacion != ""){
-        try{
-            let rut = req.query.rut;
-            consulta = await empleado_model.eliminar(req.params.rut);
+    try{
+        if(!await empleado_model.buscar(req.params.rut, "empleado")){
+            await empleado_model.eliminar(req.params.rut);
             return res.json({
                 error: false,
-                msg: "Empleado eliminado"
-            });
-        }catch(error){
-            return res.json({
-                error: true,
-                msg: ''+error
-            });
-        }
-    }else{
-        try{
+                msg: "El empleado ha sido eliminado del sistema"
+            })
+        }else{
             return res.json({
                 error: false,
                 msg: "El empleado no esta registrado en el sistema"
-            });
-        }catch(error){
-            return res.json({
-                error: true,
-                msg: ''+error
-            });
+            })
         }
+    }catch(error){
+        return res.json({
+            error: true,
+            msg: "" + error
+        });
     }
-
 };
 
 module.exports.empleado_controller = {

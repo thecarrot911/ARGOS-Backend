@@ -4,7 +4,7 @@ const registrar = async(credencial)=>{
     let fecha_vencimiento = credencial.fecha_vencimiento;
     let fecha_emision = credencial.fecha_emision;
     let tipo = credencial.tipo;
-    let rut = credencial.rut;
+    let rut = credencial.empleado_rut;
     let numero = credencial.numero
 
     let string_sql = `
@@ -12,8 +12,7 @@ const registrar = async(credencial)=>{
     VALUES('${fecha_vencimiento}','${fecha_emision}','${tipo}','${rut}','${numero}');
     `
 
-    let consulta = await conexion.query(string_sql);
-    return consulta;
+    return await conexion.query(string_sql);
 };
 
 const eliminar = async(credencial_id)=>{
