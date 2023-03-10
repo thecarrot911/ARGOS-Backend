@@ -25,7 +25,7 @@ const registrar_empleado = async(req,res)=>{
         console.error(error)
         return res.json({
             error: true,
-            msg: "" + error,
+            msg: "" + error.message,
         });
     }
 };
@@ -46,42 +46,20 @@ const mostrar_todos_empleados = async(req,res)=>{
     }
 };
 
-const mostrar_perfil = async(req,res)=>{
-    consulta_verificacion = await empleado_model.buscar(req.query.rut);
-    if(consulta_verificacion != ""){
-        try{
-            let rut = req.query.rut;
-            consulta_mostrar = await empleado_model.mostrar(rut);
-            return res.json({
-                error: false,
-                data: consulta_mostrar[0]
-            });
-        }catch(error){
-            return res.json({
-                error: true,
-                msg: ''+error
-            });
-        }
-    }else{
-        try{
-            return res.json({
-                error: false,
-                msg: "El empleado no esta registrado en el sistema"
-            });
-        }catch(error){
-            return res.json({
-                error: true,
-                msg: ''+error
-            });
-        }
-    }
-};
-
 const modificar_empleado = async(req,res)=>{
-    let string_sql = "";
-    console.log(req.body)
-    //let consulta = await conexion.query(string_sql);
-    return res.send(req.body);
+    try{
+        await empleado_model.Modificar(req.body)
+        return res.json({
+            error: false,
+            msg: "Los datos del empleado han sido modificado",
+        });
+    }catch(error){
+        console.log(error);
+            return res.json({
+            error: true,
+            msg: "" + error.message
+        });
+    }
 };
 
 const eliminar_empleado = async(req,res)=>{
@@ -110,6 +88,5 @@ module.exports.empleado_controller = {
     registrar_empleado,
     modificar_empleado,
     eliminar_empleado,
-    mostrar_todos_empleados,
-    mostrar_perfil,
+    mostrar_todos_empleados
 };

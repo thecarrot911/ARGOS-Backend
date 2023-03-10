@@ -1,4 +1,6 @@
 const conexion = require('../database');
+const { validateRUT } = require("validar-rut");
+const { crendecialHelper } = require("../helper/credencial.helper");
 
 const registrar = async(credencial)=>{
     let fecha_vencimiento = credencial.fecha_vencimiento;
@@ -6,6 +8,10 @@ const registrar = async(credencial)=>{
     let tipo = credencial.tipo;
     let rut = credencial.empleado_rut;
     let numero = credencial.numero
+
+    /*if (await crendecialHelper.buscarTipo(credencial)) {
+        throw new TypeError("Ya existe ese tipo de credencial");
+    }*/
 
     let string_sql = `
     INSERT INTO ${process.env.NOMBRE_BD}.credencial(fecha_vencimiento, fecha_emision, tipo, empleado_rut, numero)
@@ -42,18 +48,57 @@ const mostrar = async (rut) => {
 
 
 const renovar = async(credencial)=>{
+    if (!validateRUT(credencial.empleado_rut)) {
+        throw new TypeError("El RUT ingresado no es válido.");
+    }
 
+    /*
+    // Verificar que la credencial exista
+    if (await crendecialHelper.buscar(credencial.empleado_rut,credencial.credencial_id)){
+        throw new TypeError("La credencial que quiere renovar no existe");
+    }*/
+
+    // Verificar que el tipo de credencial no exista
+    // probar
+    if (!await crendecialHelper.buscarTipo(credencial)) {
+        throw new TypeError("Ya existe ese tipo de credencial");
+    }
+
+
+    let sql_RenovarCredencial = `
+        UPDATE ${process.env.NOMBRE_BD}.credencial
+        SET empleado_rut = "${credencial.empleado_rut}",
+        fecha_emision = "${credencial.fecha_emision}",
+        fecha_vencimiento = "${credencial.fecha_vencimiento}",
+        tipo = "${credencial.tipo}",
+        numero = "${credencial.numero}"
+        WHERE credencial_id = ${credencial.credencial_id}
+        `;
+
+
+    return await conexion.query(sql_RenovarCredencial);
 };
 
-const modificar = async(credencial)=>{
+const vencer = async() =>{
+
+    let sql_CredencialVencer = `
+    SELECT EXISTS (
+    SELECT 1
+    FROM mydb.credencial
+    WHERE IF(DATEDIFF(fecha_vencimiento, CURDATE()) < 0, 1, fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 1 MONTH)) = 1
+    ) AS vence;
+    `;
+
+    let credencialVencer = await conexion.query(sql_CredencialVencer)
+    if (credencialVencer[0].vence) return true;
+    else return false;
 
 };
-
 
 module.exports.credencial_model = {
     registrar,
     renovar,
-    modificar,
     eliminar,
-    mostrar
+    mostrar,
+    vencer
 }

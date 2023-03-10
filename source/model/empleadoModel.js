@@ -1,5 +1,6 @@
 const conexion = require('../database');
-const { validateRUT, getCheckDigit, generateRandomRUT } = require('validar-rut')
+const { validateRUT } = require('validar-rut');
+const { empleadoHelper } = require('../helper/empleado.helper');
 
 
 const registrarEmpleado = async(empleado)=>{
@@ -63,7 +64,9 @@ const mostrar_todos = async()=>{
             DATE_FORMAT(fecha_vencimiento, '%Y-%m-%d') fecha_vencimiento,
             tipo,
             numero,
-            empleado_rut
+            empleado_rut,
+            IF(DATEDIFF(fecha_vencimiento, CURDATE()) < 0, 1, fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 1 MONTH)) AS vence,
+            DATEDIFF(fecha_vencimiento, CURDATE()) AS dias_restantes
             FROM ${process.env.NOMBRE_BD}.credencial
             WHERE empleado_rut = '${allEmpleados[i].rut}'`;
 
@@ -102,28 +105,50 @@ const eliminar = async(rut)=>{
     WHERE empleado_rut = '${rut}'
     `
     
-    conexion.query(stringSQLCredencial);
+    await conexion.query(stringSQLCredencial);
 
     let stringSQLEmpleado = `
     DELETE FROM ${process.env.NOMBRE_BD}.empleado 
     WHERE rut = '${rut}'
     `;
-    
-    return conexion.query(stringSQLEmpleado);
+    console.log(stringSQLEmpleado);
+    return await conexion.query(stringSQLEmpleado);
 };
 
-const buscar = async(rut, tabla)=>{
-    let string_sql = `SELECT * FROM ${process.env.NOMBRE_BD}.${tabla} WHERE rut = '${rut}'`
-    let respuesta = await conexion.query(string_sql);
-    if(respuesta.length == 0) return true;
-    else  return false;
+const buscar = async (rut, tabla) => {
+  let string_sql = `SELECT * FROM ${process.env.NOMBRE_BD}.${tabla} WHERE rut = '${rut}'`;
+    console.log(string_sql);
+    
+  let respuesta = await conexion.query(string_sql);
+  console.log(respuesta)
+  if (respuesta.length == 0) return true;
+  else return false;
 };
+
+const Modificar = async(empleado)=>{
+  if (await empleadoHelper.buscar(empleado.rut,"empleado")) {
+    throw new TypeError("El empleado no esta registrado en el sistema");
+  }
+
+  let sql_ModificarEmpleado = `
+    UPDATE ${process.env.NOMBRE_BD}.empleado
+    SET rut = "${empleado.rut}", 
+    nombre_paterno = "${empleado.nombre_paterno}", 
+    nombre_materno = "${empleado.nombre_materno}", 
+    apellido_paterno = "${empleado.apellido_paterno}", 
+    apellido_materno = "${empleado.apellido_materno}"
+    WHERE ${process.env.NOMBRE_BD}.empleado.rut = "${empleado.rut}"
+    `;
+
+  return await conexion.query(sql_ModificarEmpleado);
+}
 
 module.exports.empleado_model = {
     registrarEmpleado,
     RegistrarPlanificacion,
     mostrar_todos,
     mostrar,
+    Modificar,
     eliminar,
     buscar,
 };
