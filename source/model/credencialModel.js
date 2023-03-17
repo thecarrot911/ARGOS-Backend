@@ -17,7 +17,6 @@ const registrar = async(credencial)=>{
     INSERT INTO ${process.env.NOMBRE_BD}.credencial(fecha_vencimiento, fecha_emision, tipo, empleado_rut, numero)
     VALUES('${fecha_vencimiento}','${fecha_emision}','${tipo}','${rut}','${numero}');
     `
-
     return await conexion.query(string_sql);
 };
 
