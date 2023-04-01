@@ -1,16 +1,15 @@
 const { spawn } = require("child_process");
 const { planificacionModel } = require("../../model/planificacionModel");
-const GenerarPlanificacion = require("../../class/planificacion.class")
+const Planificacion = require("../../class/planificacion.class");
 
-const GenerarPlanificacionEmpleado = async(req, res) =>{
+const GenerarPlanificacionDeEmpleado = async(req, res) =>{
     try{
-        const data = new GenerarPlanificacion(req,body);
-        console.log(data)
-
+        const planificacion = new Planificacion(req.body);
+        const planificacionMensual = await planificacion.GenerarPlanificacion();
         return res.status(200).json({
             error: false,
-            msg: 'Se ha creado la Planificación de $MES correctamente',
-            data: data
+            msg: `Se ha creado la Planificación de ${planificacion.mes_planificacion} del año ${planificacion.anio} correctamente`,
+            data: planificacionMensual
         })
     }catch(error){
         console.error(error);
@@ -161,7 +160,7 @@ const eliminarPlanificacion = async (req, res) =>{
 };
 
 module.exports.planificacion_controller = {
-    GenerarPlanificacionEmpleado,
+    GenerarPlanificacionDeEmpleado,
     planificacion_mostrar_ultima,
     eliminarPlanificacion,
     planificacion_mostrar_todo,

@@ -255,7 +255,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
             for domingo, num_semana in domingos:
                 for t in range(cant_turno):
                     lista_domingo_suma.append(mes[num_semana][domingo][3][e][t])
-            model.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))#2
+                #2
     else:
         for e in all_empleado: 
             lista_domingo_suma = []
@@ -359,6 +359,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
     indice=0
     for num_semana in range(len(cont_semana)):
         semana_work = []
+        
         work_extra = turnos_extra
         control_five_turnos = True
         for i in range(cont_semana[indice]):
@@ -425,6 +426,7 @@ def GenerarPlanificacion(year,month,num_empleado,nuevo_itinerario,nueva_planific
                         index_itinerario = list_index_itinerario[0]
                         dia_work = []
                         if((itinerario[index_itinerario][2]+cant_turno-1==num_empleado)and(work_extra>=itinerario[index_itinerario][2]-1)and(control_five_turnos==False)):
+                            
                             work_extra = work_extra+1 - itinerario[index_itinerario][2]
                             for t in range(cant_turno):
                                 if(itinerario[index_itinerario][1]==(t+1)):
