@@ -1,29 +1,16 @@
-const { empleado_model } = require("../../model/empleadoModel");
+const { empleadoModel } = require("../../model/empleadoModel");
 
 const registrar_empleado = async(req,res)=>{
     try{
-        if (await empleado_model.buscar(req.body.rut, "empleado")) {
-            consulta_insercion = await empleado_model.registrarEmpleado(req.body);
-            
-            if(await empleado_model.buscar(req.body.rut, "empleado_planificacion")){
-                await empleado_model.RegistrarPlanificacion(req.body);
-            }
-
-            return res.json({
-                error: false,
-                msg: "Empleado Registrado",
-                data: consulta_insercion[0],
-            });
-
-        } else {
-            return res.json({
-                error: false,
-                msg: "El empleado ya esta registrado",
-            });
-        }
+        const consulta_registrarEmpleado = await empleadoModel.Registrar(req.body, req.file)
+        return res.status(200).json({
+            error: false,
+            msg: "Se ha registrado el empleado exitosamente",
+            data: consulta_registrarEmpleado
+        });
     }catch(error){
         console.error(error)
-        return res.json({
+        return res.status(400).json({
             error: true,
             msg: "" + error.message,
         });
@@ -32,7 +19,7 @@ const registrar_empleado = async(req,res)=>{
 
 const mostrar_todos_empleados = async(req,res)=>{
     try{
-        consulta = await empleado_model.mostrar_todos();
+        consulta = await empleadoModel.MostrarAll();
         return res.json({
             error:false,
             msg: 'Lista de empleados registrados',

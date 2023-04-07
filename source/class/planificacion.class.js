@@ -1,27 +1,26 @@
 const { spawn } = require("child_process");
+const conexion = require("../database");
 
 class Planificacion {
-      constructor({anio, mes, empleados, mes_planificacion, itinerario}){
+      constructor({ anio, mes, empleados, mes_planificacion, itinerario }) {
             this.anio = parseInt(anio),
             this.mes = parseInt(mes),
             this.cantidad_empleado = empleados.length,
             this.mes_planificacion = mes_planificacion,
             this.empleados = empleados,
             this.itinerario = JSON.stringify(itinerario)
-      };
+      }
 
-      GenerarPlanificacion(){
-            return new Promise((resolve,reject) =>{
-                  let planificacionMensual = []; 
-                  //console.log(typeof(this.itinerario))
-                  const empleadosPlanificacion = this.empleados.map(emp => emp.rut)
-                  const command = spawn('python', ['source/app/planificacion/python/index.py',
-                  this.anio,this.mes, this.cantidad_empleado, this.itinerario, 0, ...empleadosPlanificacion])
+      GenerarPlanificacion() {
+            return new Promise((resolve, reject) => {
+                  let planificacionMensual = [];
+                  const empleadosPlanificacion = this.empleados.map((emp) => emp.rut);
+                  const command = spawn("python", ["source/app/planificacion/python/index.py",
+                              this.anio,this.mes,this.cantidad_empleado,this.itinerario,0,...empleadosPlanificacion,
+                  ]);
 
-
-                  command.stdout.on('data', function(data){
+                  command.stdout.on("data", function (data) {
                         console.log("Child process ON");
-                        //console.log(data.toString())
                         planificacionMensual.push(data.toString().trim());
                   });
                   command.stderr.on("data", function (data) {
@@ -32,8 +31,7 @@ class Planificacion {
                         console.log("Child process CLOSE");
                         //console.log(planificacionMensual.toString());
                         //resolve(planificacionMensual[0]);
-
-                        const json = JSON.parse(planificacionMensual[0])
+                        const json = JSON.parse(planificacionMensual[0]);
                         resolve(json);
                   });
                   command.on("error", function (err) {
@@ -42,7 +40,93 @@ class Planificacion {
                         reject(err);
                   });
             });
+      }
+
+      GuardarTurnoDia = async () => {
+
       };
+      
+      GuardarTurno = async () => {
+            
+      };
+
+      GuardarDia = async (planificacion, planificacion_id) => {
+            const diaData = [];
+            for (const p of planificacion) {
+                  const dia = [
+                        planificacion_id,
+                        p.dia_semana,
+                        p.dia_numero,
+                        p.feriado,
+                        p.comodin,
+            ];
+            diaData.push(dia);
+      }
+      const sql_IngresarDia = `INSERT INTO dia(planificacion_id, dia_semana, dia_numero, comodin, feriado) VALUES ?`;
+      return await conexion.query(sql_IngresarDia, [diaData]);
+      };
+
+      GuardarPlanificacion = async () => {
+            const sql_IngresarPlanificacion = `INSERT INTO planificacion(month, year) VALUES('${this.mes}','${this.anio}');`;
+            const IngresarPlanificacion = await conexion.query(sql_IngresarPlanificacio);
+            return IngresarPlanificacion.insertId;
+      };
+
+  /*GuardarPlanificacion = async(planificacion) =>{
+            const sql_IngresarPlanificacion = `
+            INSERT INTO planificacion(month, year) VALUES('${this.mes}','${this.anio}');`;
+            const IngresarPlanificacion = await conexion.query(sql_IngresarPlanificacion);
+            
+            //return IngresarPlanificacion.insertId
+            const diaData = []
+            const turnoData = []
+            const turno_diaData = []
+
+            for (const p of planificacion){
+                  const dia = [
+                        IngresarPlanificacion.insertId,
+                        p.dia_semana,
+                        p.dia_numero,
+                        p.feriado,
+                        p.comodin,
+                  ];
+                  diaData.push(dia);
+            };
+
+            
+            const sql_IngresarDia = `INSERT INTO dia(planificacion_id, dia_semana, dia_numero, comodin, feriado) VALUES ?`;
+            const IngresarDia = await conexion.query(sql_IngresarDia,[diaData]);
+            
+
+            let j = 0
+            for(const p of planificacion){
+                  for (const d of p.empleados) {
+                        const turno = [
+                              IngresarDia.insertId+j,
+                              d.turno
+                        ];
+                        turnoData.push(turno);
+                        j++;
+                  }
+            }
+            const sql_IngresarTurno = `INSERT INTO turno(dia_id, turno) VALUES ?`;
+            const IngresarTurno = await conexion.query(sql_IngresarTurno,[turnoData]);
+            
+            let i = 0
+            for(const p of planificacion){
+                  for(const d of p.empleados){
+                        const turno_dia = [
+                              d.nombre,
+                              IngresarTurno.insertId+i
+                        ]
+                        turno_diaData.push(turno_dia);
+                        i++;
+                  }
+            }
+
+            const sql_IngresarTurnoDia = `INSERT INTO turno_dia(empleado_rut, turno_id) VALUES ?`;
+            const IngresarTurnoDia = await conexion.query(sql_IngresarTurnoDia,[turno_diaData])
+      };*/
 }
 
 module.exports = Planificacion;

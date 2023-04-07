@@ -1,5 +1,6 @@
 from calendar import monthrange
 from ortools.sat.python import cp_model
+import holidays
 
 
 def DefiniendoModelo(modelo: cp_model.CpModel ,year: int, month: int, 
@@ -49,24 +50,50 @@ def DefiniendoModelo(modelo: cp_model.CpModel ,year: int, month: int,
                   semana = []
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
                   if(dia == cantidad_dias): 
-                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado])
+                        #print("%i %i %i" % (year,month,dia))
+                        #print(FeriadoMes(year,month,dia))
+                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
                         mes.append(semana)
                   else: 
-                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado])
+                        #print("%i %i %i" % (year,month,dia))
+                        #print(FeriadoMes(year,month,dia))
+                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
             else: 
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
                   if(dia == cantidad_dias):
-                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado])
+                        #print("%i %i %i" % (year,month,dia))
+                        #print(FeriadoMes(year,month,dia))
+                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
                         mes.append(semana)
                   else:
-                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado])
+                        #print("%i %i %i" % (year,month,dia))
+                        #print(FeriadoMes(year,month,dia))
+                        semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
             indice_semana = indice_semana + 1
             if(indice_semana == 7): indice_semana=0
       
-      AgregandoDiasUltimmaSemana(mes, meses_anio, month_next, dias_semana, indice_semana_next, modelo, all_empleado, cant_turno)
-      AgregandoDiasPrimeraSemana(mes, dias_mes_actual, meses_anio, month_prev, dias_semana, modelo, all_empleado, cant_turno, cantidad_dias_prev)
+      AgregandoDiasUltimmaSemana(mes,year_next ,meses_anio, month_next, dias_semana, indice_semana_next, modelo, all_empleado, cant_turno)
+      AgregandoDiasPrimeraSemana(mes,year_prev ,dias_mes_actual, meses_anio, month_prev, dias_semana, modelo, all_empleado, cant_turno, cantidad_dias_prev)
       ContadorDeSemanas(mes, cont_semana)
       return mes, all_dias, cont_semana, month_prev
+
+def FeriadoMes(anio: int, mes: int, dia: int):
+      feriados_anio = holidays.Chile(years=anio)
+            
+      feriado = {}
+      for fecha, nombre in feriados_anio.items():
+            if fecha.month == mes and fecha.day == dia: 
+                  feriado["dia"] = fecha.day
+                  feriado["mes"] = fecha.month
+                  feriado["anio"] = fecha.year
+                  feriado["nombre"] = nombre
+                  feriado["feriado"] = True
+            
+      if not bool(feriado):
+            feriado["feriado"] = False
+
+      return feriado["feriado"]
+
 
 def ModeloTurnoDeEmpleados(modelo: cp_model.CpModel, all_empleado: range, cant_turno: int):
       
@@ -81,7 +108,7 @@ def ModeloTurnoDeEmpleados(modelo: cp_model.CpModel, all_empleado: range, cant_t
       return array_empleado
 
 def AgregandoDiasUltimmaSemana(
-      mes: list[list], meses_anio: list[str], month_next: int, dias_semana: int, 
+      mes: list[list], year: int, meses_anio: list[str], month_next: int, dias_semana: int, 
       indice_semana_next: int, modelo: cp_model.CpModel, all_empleado: range, cant_turno: int):
       """
       Esta función agrega los ultimos dias faltantes de la última 
@@ -90,10 +117,12 @@ def AgregandoDiasUltimmaSemana(
       if(len(mes[len(mes)-1])!=7):
             for k in range(7-indice_semana_next):
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
-                  mes[len(mes)-1].insert(indice_semana_next,[meses_anio[month_next-1],k+1,dias_semana[indice_semana_next],array_empleado])
+                  #print("%i %i %i" % (year,month_next,k+1))
+                  #print(FeriadoMes(year,month_next,k+1))
+                  mes[len(mes)-1].insert(indice_semana_next,[meses_anio[month_next-1],k+1,dias_semana[indice_semana_next],array_empleado, FeriadoMes(year,month_next,k+1)])
                   indice_semana_next = indice_semana_next + 1
 
-def AgregandoDiasPrimeraSemana(mes: list[list], dias_mes_actual: int, meses_anio: list[str], month_prev: int, 
+def AgregandoDiasPrimeraSemana(mes: list[list], year: int, dias_mes_actual: int, meses_anio: list[str], month_prev: int, 
       dias_semana: int, modelo: cp_model.CpModel, all_empleado: range, cant_turno: int, cantidad_dias_prev: int):
       """
       Esta función agrega los primeros dias faltantes de la primera 
@@ -103,12 +132,11 @@ def AgregandoDiasPrimeraSemana(mes: list[list], dias_mes_actual: int, meses_anio
             indice_semana = dias_mes_actual[0]
             for j in range(indice_semana):
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
-                  mes[0].insert(0,[meses_anio[month_prev-1],cantidad_dias_prev,dias_semana[indice_semana-1],array_empleado])
+                  #print("%i %i %i" % (year,month_prev,cantidad_dias_prev))
+                  #print(FeriadoMes(year,month_prev,cantidad_dias_prev))
+                  mes[0].insert(0,[meses_anio[month_prev-1],cantidad_dias_prev,dias_semana[indice_semana-1],array_empleado, FeriadoMes(year,month_prev,cantidad_dias_prev)])
                   cantidad_dias_prev = cantidad_dias_prev-1
                   indice_semana = indice_semana-1
-
-
-
 
 def ContadorDeSemanas(mes: list, cont_semana: list):
       """Función que cuenta la cantidad de semanas del modelo."""

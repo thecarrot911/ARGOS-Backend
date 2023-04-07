@@ -1,45 +1,32 @@
 const conexion = require('../database');
 const { validateRUT } = require('validar-rut');
 const { empleadoHelper } = require('../helper/empleado.helper');
+const Empleado = require('../class/empleado.class');
 
 
-const registrarEmpleado = async(empleado)=>{
-    let nombre_materno = empleado.nombre_materno;
-    let nombre_paterno = empleado.nombre_paterno;
-    let apellido_materno = empleado.apellido_materno;
-    let apellido_paterno = empleado.apellido_paterno;
-    let rut = empleado.rut;
-    
-    if(!validateRUT(rut)){
-        throw new TypeError('El RUT ingresado no es válido.')
-    }
+const Registrar = async(empleado, file)=>{
+  nuevoEmpleado = new Empleado(empleado,file)
+  if(!validateRUT(nuevoEmpleado.rut)){
+    throw new TypeError("El RUT ingresado no es válido");
+  }
+  if(!await nuevoEmpleado.Buscar()){
+    throw new TypeError("El usuario ya existe");
+  }
 
-    let stringRegistrarEmpleado = 
-    `
-    INSERT INTO ${process.env.NOMBRE_BD}.empleado (rut, nombre_paterno, nombre_materno, apellido_paterno, apellido_materno)
-    VALUES ('${rut}','${nombre_paterno}','${nombre_materno}','${apellido_paterno}','${apellido_materno}');
-    `;
-
-    let RegistroEmpleado = await conexion.query(stringRegistrarEmpleado);
-
-    return RegistroEmpleado;
+  return await nuevoEmpleado.Registrar();
 };
 
-const RegistrarPlanificacion = async(empleado)=>{
-    let nombre_materno = empleado.nombre_materno;
-    let nombre_paterno = empleado.nombre_paterno;
-    let apellido_materno = empleado.apellido_materno;
-    let apellido_paterno = empleado.apellido_paterno;
-    let rut = empleado.rut;
+const MostrarAll = async() =>{
+  const empleados = await Empleado.MostrarTodos();
+  return await empleadoHelper.GenerandoListaEmpleado(empleados);
+};
 
-    let stringRegistrarEmpleadoPlanificacion = `
-    INSERT INTO ${process.env.NOMBRE_BD}.empleado_planificacion (rut, nombre_paterno, nombre_materno, apellido_paterno, apellido_materno)
-    VALUES ('${rut}','${nombre_paterno}','${nombre_materno}','${apellido_paterno}','${apellido_materno}');
-    `;
 
-    return await conexion.query(stringRegistrarEmpleadoPlanificacion);
-}
+const Mostrar = async() =>{
+  
+};
 
+/*
 const mostrar_todos = async()=>{
     let dataArray = new Array();
 
@@ -84,7 +71,7 @@ const mostrar_todos = async()=>{
     
     return dataArray;
 };
-
+*/
 const mostrar = async(rut)=>{
     let string_sql = `
     SELECT rut, nombre_paterno, nombre_materno, apellido_paterno, apellido_materno, 
@@ -143,12 +130,11 @@ const Modificar = async(empleado)=>{
   return await conexion.query(sql_ModificarEmpleado);
 }
 
-module.exports.empleado_model = {
-    registrarEmpleado,
-    RegistrarPlanificacion,
-    mostrar_todos,
-    mostrar,
-    Modificar,
-    eliminar,
-    buscar,
+module.exports.empleadoModel = {
+  Registrar,
+  mostrar,
+  Modificar,
+  eliminar,
+  buscar,
+  MostrarAll
 };

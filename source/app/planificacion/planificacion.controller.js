@@ -6,11 +6,19 @@ const GenerarPlanificacionDeEmpleado = async(req, res) =>{
     try{
         const planificacion = new Planificacion(req.body);
         const planificacionMensual = await planificacion.GenerarPlanificacion();
+        const planificacion_id = await planificacion.GuardarPlanificacion();
+        const { insertId, affectedRows } = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
+        console.log(await insertId)
+        console.log(await affectedRows)
+
+      //const {} = await planificacion.GuardarTurno();
+      //const {} = await planificacion.GuardarTurnoDia();
+
         return res.status(200).json({
             error: false,
             msg: `Se ha creado la Planificación de ${planificacion.mes_planificacion} del año ${planificacion.anio} correctamente`,
-            data: planificacionMensual
-        })
+            data: planificacionMensual,
+        });
     }catch(error){
         console.error(error);
         return res.status(400).json({
