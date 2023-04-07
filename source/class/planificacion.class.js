@@ -29,8 +29,6 @@ class Planificacion {
                   });
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
-                        //console.log(planificacionMensual.toString());
-                        //resolve(planificacionMensual[0]);
                         const json = JSON.parse(planificacionMensual[0]);
                         resolve(json);
                   });
@@ -42,12 +40,40 @@ class Planificacion {
             });
       }
 
-      GuardarTurnoDia = async () => {
-
+      GuardarTurnoDia = async (planificacion, turno_id) => {
+            const turno_diaData = [];
+            let i = 0
+            for(const p of planificacion){
+                  for(const d of p.empleados){
+                        const turno_dia = [
+                              d.nombre,
+                              turno_id+i
+                        ]
+                        turno_diaData.push(turno_dia);
+                        i++;
+                  }
+            }
+            const sql_IngresarTurnoDia = `INSERT INTO turno_dia(empleado_rut, turno_id) VALUES ?`;
+            const IngresarTurnoDia = await conexion.query(sql_IngresarTurnoDia,[turno_diaData])
+            return IngresarTurnoDia.insertId;
       };
       
-      GuardarTurno = async () => {
-            
+      GuardarTurno = async (planificacion,dia_id) => {
+            const turnoData = []
+            let j = 0
+            for(const p of planificacion){
+                  for (const d of p.empleados) {
+                        const turno = [
+                              dia_id+j,
+                              d.turno
+                        ];
+                        turnoData.push(turno);
+                  }
+                  j++;
+            }
+            const sql_IngresarTurno = `INSERT INTO turno(dia_id, turno) VALUES ?`;
+            const IngresarTurno = await conexion.query(sql_IngresarTurno,[turnoData]);
+            return IngresarTurno.insertId;
       };
 
       GuardarDia = async (planificacion, planificacion_id) => {
@@ -59,74 +85,19 @@ class Planificacion {
                         p.dia_numero,
                         p.feriado,
                         p.comodin,
-            ];
-            diaData.push(dia);
-      }
-      const sql_IngresarDia = `INSERT INTO dia(planificacion_id, dia_semana, dia_numero, comodin, feriado) VALUES ?`;
-      return await conexion.query(sql_IngresarDia, [diaData]);
+                  ];
+                  diaData.push(dia);
+            }
+            const sql_IngresarDia = `INSERT INTO dia(planificacion_id, dia_semana, dia_numero, comodin, feriado) VALUES ?`;
+            const IngresarDia = await conexion.query(sql_IngresarDia, [diaData]);
+            return IngresarDia.insertId;
       };
 
       GuardarPlanificacion = async () => {
             const sql_IngresarPlanificacion = `INSERT INTO planificacion(month, year) VALUES('${this.mes}','${this.anio}');`;
-            const IngresarPlanificacion = await conexion.query(sql_IngresarPlanificacio);
+            const IngresarPlanificacion = await conexion.query(sql_IngresarPlanificacion);
             return IngresarPlanificacion.insertId;
       };
-
-  /*GuardarPlanificacion = async(planificacion) =>{
-            const sql_IngresarPlanificacion = `
-            INSERT INTO planificacion(month, year) VALUES('${this.mes}','${this.anio}');`;
-            const IngresarPlanificacion = await conexion.query(sql_IngresarPlanificacion);
-            
-            //return IngresarPlanificacion.insertId
-            const diaData = []
-            const turnoData = []
-            const turno_diaData = []
-
-            for (const p of planificacion){
-                  const dia = [
-                        IngresarPlanificacion.insertId,
-                        p.dia_semana,
-                        p.dia_numero,
-                        p.feriado,
-                        p.comodin,
-                  ];
-                  diaData.push(dia);
-            };
-
-            
-            const sql_IngresarDia = `INSERT INTO dia(planificacion_id, dia_semana, dia_numero, comodin, feriado) VALUES ?`;
-            const IngresarDia = await conexion.query(sql_IngresarDia,[diaData]);
-            
-
-            let j = 0
-            for(const p of planificacion){
-                  for (const d of p.empleados) {
-                        const turno = [
-                              IngresarDia.insertId+j,
-                              d.turno
-                        ];
-                        turnoData.push(turno);
-                        j++;
-                  }
-            }
-            const sql_IngresarTurno = `INSERT INTO turno(dia_id, turno) VALUES ?`;
-            const IngresarTurno = await conexion.query(sql_IngresarTurno,[turnoData]);
-            
-            let i = 0
-            for(const p of planificacion){
-                  for(const d of p.empleados){
-                        const turno_dia = [
-                              d.nombre,
-                              IngresarTurno.insertId+i
-                        ]
-                        turno_diaData.push(turno_dia);
-                        i++;
-                  }
-            }
-
-            const sql_IngresarTurnoDia = `INSERT INTO turno_dia(empleado_rut, turno_id) VALUES ?`;
-            const IngresarTurnoDia = await conexion.query(sql_IngresarTurnoDia,[turno_diaData])
-      };*/
 }
 
 module.exports = Planificacion;

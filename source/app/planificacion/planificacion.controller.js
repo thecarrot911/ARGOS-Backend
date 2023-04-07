@@ -7,12 +7,9 @@ const GenerarPlanificacionDeEmpleado = async(req, res) =>{
         const planificacion = new Planificacion(req.body);
         const planificacionMensual = await planificacion.GenerarPlanificacion();
         const planificacion_id = await planificacion.GuardarPlanificacion();
-        const { insertId, affectedRows } = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
-        console.log(await insertId)
-        console.log(await affectedRows)
-
-      //const {} = await planificacion.GuardarTurno();
-      //const {} = await planificacion.GuardarTurnoDia();
+        const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
+        const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
+        const turnoDia_id = await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
 
         return res.status(200).json({
             error: false,
