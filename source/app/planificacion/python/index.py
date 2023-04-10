@@ -101,7 +101,7 @@ mes, all_dias, cont_semana, month_prev = DefiniendoModelo(modelo, year, month, a
 
 # Restricciones
 modelo, mes = EmpleadoTrabajoPorDia(all_empleado, cont_semana, modelo, mes, cant_turno)
-modelo, mes = DiaLibrePorSemana(all_empleado,cont_semana, mes, cant_turno, modelo)
+modelo, mes = DiaLibrePorSemana(all_empleado,cont_semana, mes, cant_turno, modelo, num_empleado)
 modelo, mes = NoAdmitenTurnosSeguidos(all_empleado, cont_semana, mes, modelo)
 modelo, mes, domingo = DomingosLibres(modelo, domingos,cont_semana,mes, meses_anio,all_empleado,num_empleado,cant_turno,month)
 modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, cant_turno)
@@ -112,7 +112,7 @@ turnos_totales, domingos_asignacion = ContabilizandoTurnosDomingo(mes,domingos,c
 modelo, turnos_totales = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales)
 modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos)
 
-modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo,cont_semana,cant_turno,lista_itinerario)
+modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo,cont_semana,cant_turno,lista_itinerario, num_empleado)
 modelo = AsignacionTurnos(modelo,mes, lista_itinerario,cont_semana,cant_turno,domingos,month,meses_anio,all_empleado,domingos_asignacion)
 
 # Crea el solver y la solución

@@ -5,7 +5,7 @@ const GenerandoListaEmpleado = async (empleados) => {
                   nombre_paterno: actual.nombre_paterno,
                   nombre_materno: actual.nombre_materno,
                   apellido_paterno: actual.apellido_paterno,
-                  apellido_paterno: actual.apellido_materno,
+                  apellido_materno: actual.apellido_materno,
                   imagen: actual.imagen,
                   credencial: []
                   

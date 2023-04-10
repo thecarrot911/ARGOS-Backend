@@ -24,7 +24,7 @@ def CalculoMinimaCantidadTurno(modelo: cp_model.CpModel,turnos_totales: list, me
                         for t in range(cant_turno):
                               jornada[t].append(mes[num_semana][i][3][e][t])
 
-            if len(domingos) == 5:
+            if len(domingos) == 5: # HACER CALCULO MATEMÁTICO
                   for t in range(cant_turno):
                         modelo.Add(min_turno[t] <= sum(jornada[t]))
                         #modelo.Add(sum(jornada[t]) < max_turno[t]+1)

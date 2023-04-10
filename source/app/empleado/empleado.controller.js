@@ -1,4 +1,4 @@
-const { empleadoModel } = require("../../model/empleadoModel");
+const { empleadoModel } = require("./empleado.model");
 
 const registrar_empleado = async(req,res)=>{
     try{
@@ -19,7 +19,7 @@ const registrar_empleado = async(req,res)=>{
 
 const mostrar_todos_empleados = async(req,res)=>{
     try{
-        consulta = await empleadoModel.MostrarAll();
+        const consulta = await empleadoModel.MostrarAll();
         return res.json({
             error:false,
             msg: 'Lista de empleados registrados',
@@ -32,7 +32,7 @@ const mostrar_todos_empleados = async(req,res)=>{
         });
     }
 };
-
+/*
 const modificar_empleado = async(req,res)=>{
     try{
         await empleado_model.Modificar(req.body)
@@ -47,33 +47,26 @@ const modificar_empleado = async(req,res)=>{
             msg: "" + error.message
         });
     }
-};
+};*/
 
 const eliminar_empleado = async(req,res)=>{
     try{
-        if(!await empleado_model.buscar(req.params.rut, "empleado")){
-            await empleado_model.eliminar(req.params.rut);
-            return res.json({
-                error: false,
-                msg: "El empleado ha sido eliminado del sistema"
-            })
-        }else{
-            return res.json({
-                error: false,
-                msg: "El empleado no esta registrado en el sistema"
-            })
-        }
+        await empleadoModel.Eliminar(req.query.rut)
+        return res.json({
+            error: false,
+            msg: "El empleado ha sido eliminado del sistema"
+        })
     }catch(error){
+        console.error(error)
         return res.json({
             error: true,
-            msg: "" + error
+            msg: "" + error.message
         });
     }
 };
 
 module.exports.empleado_controller = {
     registrar_empleado,
-    modificar_empleado,
-    eliminar_empleado,
-    mostrar_todos_empleados
+    mostrar_todos_empleados,
+    eliminar_empleado
 };

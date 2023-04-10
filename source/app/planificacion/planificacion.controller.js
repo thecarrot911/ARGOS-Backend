@@ -1,20 +1,13 @@
 const { spawn } = require("child_process");
-const { planificacionModel } = require("../../model/planificacionModel");
-const Planificacion = require("../../class/planificacion.class");
+const { planificacionModel } = require("../planificacion/planificacion.model");
 
-const GenerarPlanificacionDeEmpleado = async(req, res) =>{
+const GenerarPlanificacionMensual = async(req, res) =>{
     try{
-        const planificacion = new Planificacion(req.body);
-        const planificacionMensual = await planificacion.GenerarPlanificacion();
-        const planificacion_id = await planificacion.GuardarPlanificacion();
-        const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
-        const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
-        const turnoDia_id = await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
-
+        const planificacionMensual = await planificacionModel.GenerarPlanificacion(req.body);
         return res.status(200).json({
             error: false,
-            msg: `Se ha creado la Planificación de ${planificacion.mes_planificacion} del año ${planificacion.anio} correctamente`,
-            data: planificacionMensual,
+            msg: `Se ha creado la Planificación de ${req.body.mes} del año ${req.body.anio} correctamente`,
+            data: planificacionMensual
         });
     }catch(error){
         console.error(error);
@@ -23,7 +16,25 @@ const GenerarPlanificacionDeEmpleado = async(req, res) =>{
             msg: ''+error.message
         })
     }
-}
+};
+
+const MostrarUltimaPlanificacion = async(req, res) =>{
+    try{
+        const [planificacion] = await planificacionModel.UltimaPlanificacion();
+        return res.status(200).json({
+            error: true,
+            msg: `La última planificación corresponde al mes de ${planificacion.mes} del año ${planificacion.anio}`,
+            data: planificacion
+        });
+    }catch(error){
+        console.error(error);
+        return res.status(400).json({
+            error: true,
+            msg: ''+error.message
+        })
+    }
+};
+
 
 const ggenerarplanificacion = async(req, res) =>{
     try{
@@ -33,7 +44,10 @@ const ggenerarplanificacion = async(req, res) =>{
         let cant_empleados = empleados.length
         let itinerario_json = req.body.itinerario;
         // Variable que controla que las planificaciones no se repitan
-        let planificacionMes = await planificacionModel.existe_planificacion(anio,mes);
+        
+        /*let planificacionMes = await planificacionModel.existe_planificacion(anio,mes);*/
+        
+        
         //let control = true;
         let control = planificacionMes.control;
         //let planificacion = planificacionMes.consulta_planificacion;
@@ -56,7 +70,7 @@ const ggenerarplanificacion = async(req, res) =>{
             }
             console.log(itinerario)
 
-            let mesAnterior = await planificacionModel.existe_mes_anterior(anio,mes,cant_empleados);
+            //let mesAnterior = await planificacionModel.existe_mes_anterior(anio,mes,cant_empleados);
 
             var planificacionAnterior = mesAnterior.planificacionAnterior
             var planificacionUltimaSemana;
@@ -82,14 +96,14 @@ const ggenerarplanificacion = async(req, res) =>{
             });
             command.on('close', async function(code){
                 console.log("Child process close")
-                //obj = planificacion[0].replace(/'/g,"\""); 
-                turno_empleado = await planificacionModel.asignar_turno_empleado(planificacionMensual[0],empleados);
+
+                //turno_empleado = await planificacionModel.asignar_turno_empleado(planificacionMensual[0],empleados);
                 jsonsend = JSON.parse(turno_empleado);
                 if(planificacionUltimaSemana.length != 0){
-                    jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados,empleados)
+                    //jsonsend = await planificacionModel.asignar_nombre_ultima_semana(jsonsend,planificacionUltimaSemana,cant_empleados,empleados)
                 }
                  ///*
-                planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
+                //planificacion_id = await planificacionModel.guardar(mes, anio, jsonsend);
                 let json = {}
                 json.planificacion_id = planificacion_id;
                 json.planificacion = jsonsend;
@@ -116,10 +130,11 @@ const ggenerarplanificacion = async(req, res) =>{
     }
 
 };
+
 const planificacion_mostrar_todo = async(req,res) =>{
     try{
         let anio = req.query.anio;
-        consulta_ultima_planificacion = await planificacionModel.mostrar_planificacion_anual(anio);
+        //consulta_ultima_planificacion = await planificacionModel.mostrar_planificacion_anual(anio);
         return res.json({
             error: false,
             msg: "Planificaciones del año "+anio,
@@ -134,7 +149,7 @@ const planificacion_mostrar_todo = async(req,res) =>{
 };
 const planificacion_mostrar_ultima = async(req,res)=>{
     try{
-        consulta_ultima_planificacion = await planificacionModel.mostrar_ultima();
+        //consulta_ultima_planificacion = await planificacionModel.mostrar_ultima();
         return res.json({
             error: false,
             msg: "Última planificación",
@@ -151,7 +166,7 @@ const planificacion_mostrar_ultima = async(req,res)=>{
 const eliminarPlanificacion = async (req, res) =>{
     try{
         let planificacion_id = req.params.planificacion_id
-        consulta_planificacion = await planificacionModel.eliminar(planificacion_id);
+        //consulta_planificacion = await planificacionModel.eliminar(planificacion_id);
         return res.json({
             error: false,
             msg: "Planificación Eliminada"
@@ -165,9 +180,7 @@ const eliminarPlanificacion = async (req, res) =>{
 };
 
 module.exports.planificacion_controller = {
-    GenerarPlanificacionDeEmpleado,
-    planificacion_mostrar_ultima,
-    eliminarPlanificacion,
-    planificacion_mostrar_todo,
+    GenerarPlanificacionMensual,
+    MostrarUltimaPlanificacion
 };
 

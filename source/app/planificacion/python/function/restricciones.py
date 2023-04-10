@@ -18,7 +18,7 @@ def EmpleadoTrabajoPorDia(all_empleado: range, cont_semana: list, modelo:cp_mode
                         modelo.AddAtMostOne(mes[num_semana][i][3][e][t] for t in range(cant_turno))
       return modelo, mes
 
-def DiaLibrePorSemana(all_empleado: range, cont_semana: list, mes: list[list], cant_turno: int, modelo: cp_model.CpModel):
+def DiaLibrePorSemana(all_empleado: range, cont_semana: list, mes: list[list], cant_turno: int, modelo: cp_model.CpModel, num_empleado: int):
       """Cada empleado tiene 1 día libre por semana."""
       for e in all_empleado:
             for num_semana in range(len(cont_semana)):
@@ -28,7 +28,7 @@ def DiaLibrePorSemana(all_empleado: range, cont_semana: list, mes: list[list], c
                               if mes[num_semana][i][2] != 'Domingo':
                                     for t in range(cant_turno):
                                           lista_semana.append(mes[num_semana][i][3][e][t])
-                        modelo.Add(sum(lista_semana) == 5)
+                        modelo.Add(sum(lista_semana) == num_empleado)
       return modelo, mes
 
 def NoAdmitenTurnosSeguidos(all_empleado: range, cont_semana: list, mes: list[list], modelo: cp_model.CpModel):
@@ -77,7 +77,7 @@ def CantidadMaximaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], al
             for domingo, num_semana in domingos:
                   for t in range(cant_turno):
                         lista_domingos_empleados.append(mes[num_semana][domingo][3][e][t])
-      if len(domingos) == 5: 
+      if len(domingos) == 5: # HACER CALCULO MATEMÁTICO
             modelo.Add(sum(lista_domingos_empleados)==15)
       else: 
             modelo.Add(sum(lista_domingos_empleados)==10)
@@ -90,7 +90,7 @@ def CantidadMinimaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], al
             for e in all_empleado: 
                   for t in range(cant_turno):
                         lista_minima_emp_domingo.append(mes[num_semana][domingo][3][e][t])
-            if len(domingos) == 5:
+            if len(domingos) == 5: # HACER CALCULO MATEMÁTICO
                   modelo.Add(sum(lista_minima_emp_domingo)>=3)
             else: 
                   modelo.Add(sum(lista_minima_emp_domingo)>=2)
@@ -167,7 +167,7 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                 turnos_totales[1] = turnos_totales[1] + 1
       return modelo, turnos_totales
 
-def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, cont_semana: list, cant_turno: int, list_itinerario: list[list]):
+def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, cont_semana: list, cant_turno: int, list_itinerario: list[list], num_empleado: int):
       """   [lista_semana] -> Máxima cantidad de turnos trabajados en 1 semana por dia
             [lista_dia] -> Máxima y mínima cantidad de empleados trabajando en un día.
       """
@@ -179,9 +179,9 @@ def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, cont_semana:
                         for t in range(cant_turno):
                               lista_semana.append(list_itinerario[num_semana][i][t])
                               lista_dia.append(list_itinerario[num_semana][i][t])
-                        modelo.Add(sum(lista_dia)<=5)
-                        modelo.Add(sum(lista_dia)>=3)
-            modelo.Add(sum(lista_semana)==25)
+                        modelo.Add(sum(lista_dia)<=num_empleado)
+                        modelo.Add(sum(lista_dia)>=cant_turno)
+            modelo.Add(sum(lista_semana)==25) # MODIFICAR
       return modelo
 
 def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list] , lista_itinerario: list ,cont_semana: list, 

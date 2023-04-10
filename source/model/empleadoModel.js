@@ -6,6 +6,7 @@ const Empleado = require('../class/empleado.class');
 
 const Registrar = async(empleado, file)=>{
   nuevoEmpleado = new Empleado(empleado,file)
+
   if(!validateRUT(nuevoEmpleado.rut)){
     throw new TypeError("El RUT ingresado no es válido");
   }
@@ -13,6 +14,11 @@ const Registrar = async(empleado, file)=>{
     throw new TypeError("El usuario ya existe");
   }
 
+  if(file==undefined){
+    nuevoEmpleado.imagen = "https://i.imgur.com/EBH7aDM.png";
+  }else{
+    nuevoEmpleado.imagen = `${process.env.HOST}/public/empleados/${file.filename}`;
+  }
   return await nuevoEmpleado.Registrar();
 };
 

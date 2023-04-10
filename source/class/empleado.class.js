@@ -1,7 +1,5 @@
 const conexion = require("../database");
 
-const imgAuxiliar = "https://i.imgur.com/EBH7aDM.png";
-
 class Empleado{
       constructor({nombre_paterno, nombre_materno, apellido_paterno, apellido_materno, rut}, imagen){
             this.nombre_paterno = nombre_paterno.charAt(0).toUpperCase() + nombre_paterno.slice(1).toLowerCase(),
@@ -10,7 +8,7 @@ class Empleado{
             this.apellido_materno = apellido_materno.charAt(0).toUpperCase() + apellido_materno.slice(1).toLowerCase()
             this.rut = rut,
             this.activo = true,
-            this.imagen = imagen !== undefined ? `${process.env.HOST}/public/empleados/${imagen.filename}` : imgAuxiliar;
+            this.imagen = imagen
       };
 
       Registrar = async() =>{ 
@@ -25,10 +23,17 @@ class Empleado{
             const sql_BuscarEmpleado = `
             SELECT * FROM empleado WHERE rut = '${this.rut}'`;
             const BuscarEmpleado = await conexion.query(sql_BuscarEmpleado);
-            if(BuscarEmpleado.length == 0) return true;
-            else return false;
+            let existe = false
+            if(BuscarEmpleado.length == 0) existe = true;
+            return {existe, BuscarEmpleado}
       };
 
+      Reactivar = async () =>{
+            const stringSQLEmpleado = `
+            UPDATE empleado SET activo = 1 
+            WHERE rut='${this.rut}';`;
+            return await conexion.query(stringSQLEmpleado);
+      }
       static MostrarTodos = async() =>{
             const sql_MostrarEmpleados = `
             SELECT
@@ -44,7 +49,8 @@ class Empleado{
                   c.tipo,
                   c.numero
             FROM empleado e
-            LEFT JOIN credencial c ON e.rut = c.empleado_rut;
+            LEFT JOIN credencial c ON e.rut = c.empleado_rut
+            WHERE e.activo = 1;
             `;
             return await conexion.query(sql_MostrarEmpleados);
       };

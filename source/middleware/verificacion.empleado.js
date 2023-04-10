@@ -1,17 +1,11 @@
-const multer = require("multer");
-const path = require("path");
+const conexion = require("../database")
 
-const empleado = multer.diskStorage({
-      destination: function (req, file, cb){
-            cb(null, path.join(__dirname, "../public","empleados"));
-      },
-      filename: function (req, file, cb){
-            cb(null, req.body.rut + path.extname(file.originalname));
-      }
-});
+const Existe = async() => {
 
-const Empleado = multer({ storage: empleado })
+};
 
-module.exports.middlewareIamgen = {
-      Empleado
-}
+const CuentaInactiva = async() =>{
+
+};
+
+module.exports.verificadorEmpleado = {}

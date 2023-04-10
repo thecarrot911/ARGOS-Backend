@@ -1,5 +1,6 @@
 const { spawn } = require("child_process");
 const conexion = require("../database");
+const { planificacionHelper } = require("../helper/planificacion.helper")
 
 class Planificacion {
       constructor({ anio, mes, empleados, mes_planificacion, itinerario }) {
@@ -88,15 +89,26 @@ class Planificacion {
                   ];
                   diaData.push(dia);
             }
-            const sql_IngresarDia = `INSERT INTO dia(planificacion_id, dia_semana, dia_numero, comodin, feriado) VALUES ?`;
+            const sql_IngresarDia = `INSERT INTO dia(planificacion_id, dia_semana, dia_numero, feriado, comodin) VALUES ?`;
             const IngresarDia = await conexion.query(sql_IngresarDia, [diaData]);
             return IngresarDia.insertId;
       };
 
       GuardarPlanificacion = async () => {
-            const sql_IngresarPlanificacion = `INSERT INTO planificacion(month, year) VALUES('${this.mes}','${this.anio}');`;
-            const IngresarPlanificacion = await conexion.query(sql_IngresarPlanificacion);
+            const sql = `INSERT INTO planificacion(month, year) VALUES('${await planificacionHelper.ObtenerMes(this.mes)}','${this.anio}');`;
+            const IngresarPlanificacion = await conexion.query(sql);
             return IngresarPlanificacion.insertId;
+      };
+
+      static MostrarUltima = async() => {
+            const sql = `
+            SELECT * FROM planificacion
+            INNER JOIN dia ON planificacion.planificacion_id = dia.planificacion_id
+            INNER JOIN turno ON dia.id = turno.dia_id
+            INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
+            INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
+            WHERE planificacion.planificacion_id = (SELECT MAX(planificacion_id) FROM planificacion);`;
+            return await conexion.query(sql);
       };
 }
 
