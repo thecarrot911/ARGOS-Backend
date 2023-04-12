@@ -1,5 +1,5 @@
-const { json } = require("express/lib/response");
 const { actualizacionModel } = require("../../model/actualizacionModel");
+const Actualizacion = require("../../class/actualizacion.class")
 
 const crear_actualizacion = async (req, res)=>{
     try{
@@ -45,27 +45,26 @@ const eliminar_actualizacion = async (req,res) =>{
         });
     }
 }
-const modificar_actualizacion = async (req,res)=>{
-    try{
-        let actualizacion = req.body;
-        respuesta = await actualizacionModel.modificar(actualizacion)
-        return res.json({
-            error: false,
-            msg: "Actualización modificado",
-            data: respuesta
 
+const MostrarTipoActualizacion = async(req, res) =>{
+    try{
+        const consulta_MostrarTipoActualizacion = await Actualizacion.MostrarTipo();
+        return res.status(200).json({
+            error: false,
+            msg: "Lista de todos los tipos de actualización que existen.",
+            data: consulta_MostrarTipoActualizacion
         });
     }catch(error){
-        return res.json({
+        console.error(error)
+        return res.status(400).json({
             error: true,
-            msg: ''+error,
-            data: respuesta
-        })
+            msg: error.message
+        });
     }
 };
 
 module.exports.actualizacion_controller = {
     crear_actualizacion,
-    modificar_actualizacion,
-    eliminar_actualizacion
+    eliminar_actualizacion,
+    MostrarTipoActualizacion
 }
