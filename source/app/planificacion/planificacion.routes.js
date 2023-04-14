@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { planificacion_controller } = require("./planificacion.controller");
+const { verificadorPlanificacion } = require("../../middleware/verificacion.planificacion")
+
 
 router.get("", planificacion_controller.MostrarUltimaPlanificacion);
-router.post("/generar",planificacion_controller.GenerarPlanificacionMensual);
+router.post("/generar",[verificadorPlanificacion.ExistenciaPlanificacion],planificacion_controller.GenerarPlanificacionMensual);
 
 
 //router.get('/mostrar_planificacion_anual',planificacion_controller.planificacion_mostrar_todo);

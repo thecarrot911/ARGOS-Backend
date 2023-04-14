@@ -4,14 +4,28 @@ const { planificacionHelper } = require("../../helper/planificacion.helper");
 const GenerarPlanificacion = async(DatosPlanificacion) =>{
       
       const planificacion = new Planificacion(DatosPlanificacion);
-      const planificacionMensual = await planificacion.GenerarPlanificacion();
+      let planificacionAnterior = await planificacion.PlanificacionDelMesAnterior();
+      planificacionAnterior = await planificacionHelper.GenerarListaPlanificacion(planificacionAnterior);
+      
+      if (planificacionAnterior.length != 0){
+            const UltimaSemanaAnterior = await planificacionHelper.ObtenerUltimaSemanaDelMes(planificacionAnterior)
+            const planificacionMensual =  await planificacion.GenerarPlanificacion(UltimaSemanaAnterior);
+            return planificacionMensual;
+
+      }else{
+            // NO HAY PLANIFICACION ANTERIOR
+            const planificacionMensual = await planificacion.GenerarPlanificacion(null);
+            return planificacionMensual;
+
+      }
 
       //Guardar Planificación
-      const planificacion_id = await planificacion.GuardarPlanificacion();
-      const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
-      const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
-      await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
+      //const planificacion_id = await planificacion.GuardarPlanificacion();
+      //const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
+      //const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
+      //await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
 
+      //return planificacionMensual;
       return planificacionMensual;
 };
 

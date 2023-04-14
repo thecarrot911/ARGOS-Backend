@@ -11,51 +11,16 @@ from function.distribucionUniforme import *
 year = int(sys.argv[1]) 
 month = int(sys.argv[2])
 num_empleado = int(sys.argv[3])
-itinerario = json.loads(sys.argv[4])
-#planificacionAnterior = str(sys.argv[5])
+itinerario = json.loads(sys.argv[4]) # Si no hay devuevlve un []
+planificacionAnterior = json.loads(sys.argv[5]) # Si no hay devuelve un None
 empleadoPlanificacion = sys.argv[6:]
 
 
-#dia = itinerario[0]["dia"]
-#aviones = itinerario[0]["aviones"]
-#turno = itinerario[0]["turno"]
-
-#year = 2023
-#month = 4
-#num_empleado = 5
-#itinerario = '0'
-planificacionAnterior = '0'
-#empleadoPlanificacion = ['A','B','C','D','E']
-
-if(planificacionAnterior != '0'):
-    nueva_planificacionAnterior = []
-    empleados = []
-    emp = []
-    cont = 0
-    cont_general = 0
-    aux = 0
-    for plan in planificacionAnterior.split(','):
-        if(int(plan)>20):
-                aux = int(plan)
-        elif(cont_general<10):
-            cont_general = cont_general + 1
-            if(cont==0):
-                emp.append(int(plan))
-                cont = cont + 1
-            else:
-                emp.append(int(plan))
-                empleados.append(emp)
-                emp = []
-                cont = 0
-                if(len(empleados)==5):
-                    nueva_planificacionAnterior.append([aux,empleados])
-                    cont_general=0
-                    empleados = []
-
-    primeraPlanificacion = False
-else:
-    nueva_planificacionAnterior = []
-    primeraPlanificacion = True
+"""for dia in planificacionAnterior:
+    for empleado in dia:
+        print(empleado) # dia
+        print(empleado[1]) # rut    
+        print(empleado[2]) # turno"""
 
 
 # VARIABLES A UTILIZAR
@@ -107,13 +72,13 @@ modelo, mes, domingo = DomingosLibres(modelo, domingos,cont_semana,mes, meses_an
 modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, cant_turno)
 modelo = CantidadMinimaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, cant_turno)
 
-lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales = ListaEmpleadoParaCadaTurno(modelo, turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev)
+lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales = ListaEmpleadoParaCadaTurno(modelo,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev)
 turnos_totales, domingos_asignacion = ContabilizandoTurnosDomingo(mes,domingos,cant_turno,turnos_totales)
 modelo, turnos_totales = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales)
 modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos)
 
 modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo,cont_semana,cant_turno,lista_itinerario, num_empleado)
-modelo = AsignacionTurnos(modelo,mes, lista_itinerario,cont_semana,cant_turno,domingos,month,meses_anio,all_empleado,domingos_asignacion)
+modelo = AsignacionTurnos(modelo,mes, planificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion)
 
 # Crea el solver y la solución
 solver = cp_model.CpSolver()
@@ -132,5 +97,5 @@ solver.Solve(modelo, solution_printer)
 #print('  - conflicts      : %i' % solver.NumConflicts())
 #print('  - branches       : %i' % solver.NumBranches())
 #print('  - wall time      : %f s' % solver.WallTime())
-#print('  - solutions found: %i' % solution_printer.solution_count())
+print('  - solutions found: %i' % solution_printer.solution_count())
 

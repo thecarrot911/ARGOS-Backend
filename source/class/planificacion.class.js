@@ -12,12 +12,41 @@ class Planificacion {
             this.itinerario = JSON.stringify(itinerario)
       }
 
-      GenerarPlanificacion() {
+      PlanificacionDelMesAnterior = async() =>{
+            let mesActual = await planificacionHelper.ObtenerMes(this.mes);
+            let anioAnterior;
+            let mesAnterior;
+            
+            if(mesActual == "Enero"){
+                  anioAnterior = this.anio - 1; 
+                  mesAnterior = "Diciembre";
+            }
+            else{
+                  anioAnterior =  this.anio; 
+                  mesAnterior = await planificacionHelper.ObtenerMes(this.mes-1)
+            }
+            const sql = `
+            SELECT * FROM planificacion
+            INNER JOIN dia ON planificacion.planificacion_id = (SELECT planificacion_id FROM planificacion WHERE planificacion.year = ${anioAnterior} and planificacion.month = '${mesAnterior}')
+            INNER JOIN turno ON dia.id = turno.dia_id
+            INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
+            INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
+            `;
+            return await conexion.query(sql);
+      };
+
+      GenerarPlanificacion(planificacionAnterior) {
             return new Promise((resolve, reject) => {
                   let planificacionMensual = [];
                   const empleadosPlanificacion = this.empleados.map((emp) => emp.rut);
-                  const command = spawn("python", ["source/app/planificacion/python/index.py",
-                              this.anio,this.mes,this.cantidad_empleado,this.itinerario,0,...empleadosPlanificacion,
+                  const command = spawn("python", [
+                        "source/app/planificacion/python/index.py",
+                        this.anio,
+                        this.mes,
+                        this.cantidad_empleado,
+                        this.itinerario,
+                        JSON.stringify(planificacionAnterior),
+                        ...empleadosPlanificacion,
                   ]);
 
                   command.stdout.on("data", function (data) {
@@ -30,7 +59,8 @@ class Planificacion {
                   });
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
-                        const json = JSON.parse(planificacionMensual[0]);
+                        let json = planificacionMensual[0]
+                        //const json = JSON.parse(planificacionMensual[0]);
                         resolve(json);
                   });
                   command.on("error", function (err) {

@@ -50,24 +50,16 @@ def DefiniendoModelo(modelo: cp_model.CpModel ,year: int, month: int,
                   semana = []
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
                   if(dia == cantidad_dias): 
-                        #print("%i %i %i" % (year,month,dia))
-                        #print(FeriadoMes(year,month,dia))
                         semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
                         mes.append(semana)
                   else: 
-                        #print("%i %i %i" % (year,month,dia))
-                        #print(FeriadoMes(year,month,dia))
                         semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
             else: 
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
                   if(dia == cantidad_dias):
-                        #print("%i %i %i" % (year,month,dia))
-                        #print(FeriadoMes(year,month,dia))
                         semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
                         mes.append(semana)
                   else:
-                        #print("%i %i %i" % (year,month,dia))
-                        #print(FeriadoMes(year,month,dia))
                         semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
             indice_semana = indice_semana + 1
             if(indice_semana == 7): indice_semana=0
@@ -117,8 +109,6 @@ def AgregandoDiasUltimmaSemana(
       if(len(mes[len(mes)-1])!=7):
             for k in range(7-indice_semana_next):
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
-                  #print("%i %i %i" % (year,month_next,k+1))
-                  #print(FeriadoMes(year,month_next,k+1))
                   mes[len(mes)-1].insert(indice_semana_next,[meses_anio[month_next-1],k+1,dias_semana[indice_semana_next],array_empleado, FeriadoMes(year,month_next,k+1)])
                   indice_semana_next = indice_semana_next + 1
 
@@ -132,8 +122,6 @@ def AgregandoDiasPrimeraSemana(mes: list[list], year: int, dias_mes_actual: int,
             indice_semana = dias_mes_actual[0]
             for j in range(indice_semana):
                   array_empleado = ModeloTurnoDeEmpleados(modelo, all_empleado, cant_turno)
-                  #print("%i %i %i" % (year,month_prev,cantidad_dias_prev))
-                  #print(FeriadoMes(year,month_prev,cantidad_dias_prev))
                   mes[0].insert(0,[meses_anio[month_prev-1],cantidad_dias_prev,dias_semana[indice_semana-1],array_empleado, FeriadoMes(year,month_prev,cantidad_dias_prev)])
                   cantidad_dias_prev = cantidad_dias_prev-1
                   indice_semana = indice_semana-1

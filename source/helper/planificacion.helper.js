@@ -33,8 +33,35 @@ const ObtenerMes = async(indice) =>{
       return meses[indice - 1];
 };
 
+const ObtenerUltimaSemanaDelMes = async(planificacion) =>{
+      const UltimaSemana = []
+      for(let i=planificacion.length-1; i>=0; i--){
+            for(let e=0;e<planificacion[i].empleados.length;e++){
+                  UltimaSemana.push([
+                        planificacion[i].dia_numero,
+                        planificacion[i].empleados[e].rut,
+                        parseInt(planificacion[i].empleados[e].turno),
+                  ]);
+            }
+            if(planificacion[i].dia_semana == "Lunes") break;
+      }
+      
+      const UltimaSemanaAgrupado = UltimaSemana.reduce((dia, elemento) => {
+            const clave = elemento[0]
+            if(!dia[clave]){
+                  dia[clave] = []
+            }
+            dia[clave].push(elemento);
+            return dia
+      }, {});
+
+      return Object.values(UltimaSemanaAgrupado);
+};
+
+
 module.exports.planificacionHelper = {
       GenerarListaPlanificacion,
+      ObtenerUltimaSemanaDelMes,
       ObtenerMes,
       OrdenarLista
 };

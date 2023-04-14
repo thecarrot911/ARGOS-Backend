@@ -11,6 +11,16 @@ class Actualizacion{
             this.reemplazo = reemplazo
       };
 
+      Registrar = async() =>{
+            console.log(this.rut)
+            console.log(this.planificacion_id)
+            console.log(this.descripcion)
+            console.log(this.fecha_inicio)
+            console.log(this.fecha_termino)
+            console.log(this.tipo)
+            console.log(this.reemplazo)
+      };
+      
       static MostrarTipo = async() =>{
             const sql_MostrarTipo = `SELECT * FROM tipo`;
             return await conexion.query(sql_MostrarTipo);

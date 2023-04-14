@@ -1,3 +1,4 @@
+from statistics import mode
 from sklearn.utils import shuffle
 from ortools.sat.python import cp_model
 from function.itinerario import *
@@ -184,8 +185,8 @@ def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, cont_semana:
             modelo.Add(sum(lista_semana)==25) # MODIFICAR
       return modelo
 
-def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list] , lista_itinerario: list ,cont_semana: list, 
-      cant_turno: int, domingos: list, month: int, meses_anio: list[str], all_empleado: range, domingos_asignacion: list):
+def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list], planificacionAnterior: list[list], lista_itinerario: list ,cont_semana: list, 
+      cant_turno: int, domingos: list, month: int,month_prev:int, meses_anio: list[str], all_empleado: range, domingos_asignacion: list):
       
       """Se asigna los turnos a cada empleado durante el mes"""
       
@@ -195,6 +196,13 @@ def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list] , lista_itinerari
                         if mes[num_semana][i][2] == "Domingo" and mes[num_semana][i][0] == meses_anio[month-1]:
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)>=1)
+                        elif mes[num_semana][i][0] == meses_anio[month_prev-1] and planificacionAnterior != None:
+                              for e in all_empleado:
+                                    for t in range(cant_turno):
+                                          if planificacionAnterior[i][e][2] == t+1:
+                                                modelo.Add(mes[num_semana][i][3][e][t]==1)
+                                          else:
+                                                modelo.Add(mes[num_semana][i][3][e][t]==0)
                         else: 
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==lista_itinerario[num_semana][i][t])
@@ -203,6 +211,16 @@ def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list] , lista_itinerari
                         if mes[num_semana][i][2] == "Domingo" and mes[num_semana][i][0] == meses_anio[month-1]:
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==domingos_asignacion[num_semana][t])
+                        
+                        elif mes[num_semana][i][0] == meses_anio[month_prev-1] and planificacionAnterior != None:
+                              for e in all_empleado:
+                                    for t in range(cant_turno):
+                                          if planificacionAnterior[i][e][2] == t+1:
+                                                print(mes[num_semana][i][3][e][t].Name())
+                                                modelo.Add(mes[num_semana][i][3][e][t]==1)
+                                          else:
+                                                modelo.Add(mes[num_semana][i][3][e][t]==0)
+
                         else:
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==lista_itinerario[num_semana][i][t])
