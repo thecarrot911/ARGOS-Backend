@@ -15,12 +15,14 @@ itinerario = json.loads(sys.argv[4]) # Si no hay devuevlve un []
 planificacionAnterior = json.loads(sys.argv[5]) # Si no hay devuelve un None
 empleadoPlanificacion = sys.argv[6:]
 
-
-"""for dia in planificacionAnterior:
+empleadoPlanificacionAnterior = []
+for dia in planificacionAnterior:
     for empleado in dia:
-        print(empleado) # dia
-        print(empleado[1]) # rut    
-        print(empleado[2]) # turno"""
+        empleadoPlanificacionAnterior.append(empleado[1])
+    break
+        #print(empleado) # dia
+        #print(empleado[1]) # rut
+        #print(empleado[2]) # turno
 
 
 # VARIABLES A UTILIZAR
@@ -62,12 +64,11 @@ lista_turno_extra = []
 ## DEFINICIÓN DEL MODELO
 modelo = cp_model.CpModel()
 
-mes, all_dias, cont_semana, month_prev = DefiniendoModelo(modelo, year, month, all_empleado, cant_turno , meses_anio, cont_semana)
+mes, all_dias, cont_semana, month_prev = DefiniendoModelo(modelo, empleadoPlanificacion, empleadoPlanificacionAnterior, year, month, all_empleado, cant_turno , meses_anio, cont_semana)
 
 # Restricciones
 modelo, mes = EmpleadoTrabajoPorDia(all_empleado, cont_semana, modelo, mes, cant_turno)
 modelo, mes = DiaLibrePorSemana(all_empleado,cont_semana, mes, cant_turno, modelo, num_empleado)
-modelo, mes = NoAdmitenTurnosSeguidos(all_empleado, cont_semana, mes, modelo)
 modelo, mes, domingo = DomingosLibres(modelo, domingos,cont_semana,mes, meses_anio,all_empleado,num_empleado,cant_turno,month)
 modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, cant_turno)
 modelo = CantidadMinimaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, cant_turno)
@@ -78,7 +79,11 @@ modelo, turnos_totales = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,li
 modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos)
 
 modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo,cont_semana,cant_turno,lista_itinerario, num_empleado)
-modelo = AsignacionTurnos(modelo,mes, planificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion)
+modelo = AsignacionTurnos(modelo,mes,empleadoPlanificacionAnterior, planificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion)
+modelo, mes = NoAdmitenTurnosSeguidos(all_empleado, cont_semana, mes, modelo)
+
+
+# AGREGAR UNA FUNCIÓN QUE INDIQUE QUE EL ANTIGUO NO PUEDE ESTAR CON EL NUEVO
 
 # Crea el solver y la solución
 solver = cp_model.CpSolver()
@@ -97,5 +102,5 @@ solver.Solve(modelo, solution_printer)
 #print('  - conflicts      : %i' % solver.NumConflicts())
 #print('  - branches       : %i' % solver.NumBranches())
 #print('  - wall time      : %f s' % solver.WallTime())
-print('  - solutions found: %i' % solution_printer.solution_count())
+#print('  - solutions found: %i' % solution_printer.solution_count())
 

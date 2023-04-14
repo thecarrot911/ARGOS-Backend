@@ -44,12 +44,26 @@ def NoAdmitenTurnosSeguidos(all_empleado: range, cont_semana: list, mes: list[li
                         if(i+1!=cont_semana[num_semana]):
                               lista_turno.append(mes[num_semana][i][3][e][2])
                               lista_turno.append(mes[num_semana][i+1][3][e][0])
-                              modelo.Add(sum(lista_turno) <= 1)
+
+                              if mes[num_semana][i][3][e][2].Name() == mes[num_semana][i+1][3][e][0].Name():
+                                    #print(str(mes[num_semana][i][1])+'|'+str(mes[num_semana][i+1][1]))
+                                    #print(mes[num_semana][i][3][e][2].Name()+'|'+mes[num_semana][i+1][3][e][0].Name())
+                                    modelo.Add(sum(lista_turno) <= 1)
+                              else:
+                                    modelo.Add(sum(lista_turno) <= 2)
+
                         else: 
                               if((i+1)*(num_semana+1)< len(mes[num_semana])*len(mes)):
                                     lista_turno.append(mes[num_semana][i][3][e][2])
                                     lista_turno.append(mes[num_semana+1][0][3][e][0])
-                                    modelo.Add(sum(lista_turno) <= 1)
+
+                                    if mes[num_semana][i][3][e][2].Name() == mes[num_semana+1][0][3][e][0].Name():
+                                          modelo.Add(sum(lista_turno) <= 1)
+                                          #print(str(mes[num_semana][i][1])+'|'+str(mes[num_semana+1][i][1]))
+                                          #print(mes[num_semana][i][3][e][2].Name()+'|'+mes[num_semana+1][0][3][e][0].Name())
+                                    else:
+                                          modelo.Add(sum(lista_turno) <= 2)
+
       return modelo, mes
 
 def DomingosLibres(modelo: cp_model.CpModel,domingos: list , cont_semana: list, mes: list[list], meses_anio: list[str], all_empleado: range,num_empleado: int, cant_turno: int, month: int):
@@ -185,7 +199,7 @@ def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, cont_semana:
             modelo.Add(sum(lista_semana)==25) # MODIFICAR
       return modelo
 
-def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list], planificacionAnterior: list[list], lista_itinerario: list ,cont_semana: list, 
+def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list], empleadoPlanificacionAnterior: list[str] , planificacionAnterior: list[list], lista_itinerario: list ,cont_semana: list, 
       cant_turno: int, domingos: list, month: int,month_prev:int, meses_anio: list[str], all_empleado: range, domingos_asignacion: list):
       
       """Se asigna los turnos a cada empleado durante el mes"""
@@ -196,13 +210,16 @@ def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list], planificacionAnt
                         if mes[num_semana][i][2] == "Domingo" and mes[num_semana][i][0] == meses_anio[month-1]:
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)>=1)
+                        
                         elif mes[num_semana][i][0] == meses_anio[month_prev-1] and planificacionAnterior != None:
-                              for e in all_empleado:
-                                    for t in range(cant_turno):
-                                          if planificacionAnterior[i][e][2] == t+1:
-                                                modelo.Add(mes[num_semana][i][3][e][t]==1)
-                                          else:
-                                                modelo.Add(mes[num_semana][i][3][e][t]==0)
+                              for empleado in empleadoPlanificacionAnterior:
+                                    for e in all_empleado: 
+                                          if empleado == planificacionAnterior[i][e][1]:
+                                                for t in range(cant_turno):
+                                                      if planificacionAnterior[i][e][2] == t+1:
+                                                            modelo.Add(mes[num_semana][i][3][e][t]==1)
+                                                      else:
+                                                            modelo.Add(mes[num_semana][i][3][e][t]==0)
                         else: 
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==lista_itinerario[num_semana][i][t])
@@ -211,16 +228,16 @@ def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list], planificacionAnt
                         if mes[num_semana][i][2] == "Domingo" and mes[num_semana][i][0] == meses_anio[month-1]:
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==domingos_asignacion[num_semana][t])
-                        
-                        elif mes[num_semana][i][0] == meses_anio[month_prev-1] and planificacionAnterior != None:
-                              for e in all_empleado:
-                                    for t in range(cant_turno):
-                                          if planificacionAnterior[i][e][2] == t+1:
-                                                print(mes[num_semana][i][3][e][t].Name())
-                                                modelo.Add(mes[num_semana][i][3][e][t]==1)
-                                          else:
-                                                modelo.Add(mes[num_semana][i][3][e][t]==0)
 
+                        elif mes[num_semana][i][0] == meses_anio[month_prev-1] and planificacionAnterior != None:
+                              for empleado in empleadoPlanificacionAnterior:
+                                    for e in all_empleado: 
+                                          if empleado == planificacionAnterior[i][e][1]:
+                                                for t in range(cant_turno):
+                                                      if planificacionAnterior[i][e][2] == t+1:
+                                                            modelo.Add(mes[num_semana][i][3][e][t]==1)
+                                                      else:
+                                                            modelo.Add(mes[num_semana][i][3][e][t]==0)
                         else:
                               for t in range(cant_turno):
                                     modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==lista_itinerario[num_semana][i][t])

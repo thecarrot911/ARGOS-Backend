@@ -35,6 +35,22 @@ const MostrarUltimaPlanificacion = async(req, res) =>{
     }
 };
 
+const MostrarPlanificacionAnual = async(req,res) =>{
+    try{
+        const planificacionAnual = await planificacionModel.PlanificacionAnual(req.query.anio)
+        return res.status(200).json({
+            error: true,
+            msg: `Planificaciones del año ${req.query.anio}`,
+            data: planificacionAnual
+        });
+    }catch(error){
+        console.error(error)
+        return res.status(400).json({
+            error: true,
+            msg: ''+error
+        })
+    }
+}
 
 const ggenerarplanificacion = async(req, res) =>{
     try{
@@ -181,6 +197,7 @@ const eliminarPlanificacion = async (req, res) =>{
 
 module.exports.planificacion_controller = {
     GenerarPlanificacionMensual,
-    MostrarUltimaPlanificacion
+    MostrarUltimaPlanificacion,
+    MostrarPlanificacionAnual
 };
 

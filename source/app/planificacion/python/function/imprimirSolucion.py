@@ -53,22 +53,17 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                 if(self.Value(self._mes[num_semana][i][3][j][t])):
                                                       is_working = True
                                                       emp_turn["turno"] = t+1
-                                                      emp_turn["nombre"] = self._empleadoPlanificacion[j]
+                                                      emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
                                                       if self._mes[num_semana][i][4]: contador[j][3] = contador[j][3] + 1
-                                                      contador[j][t] = contador[j][t] + 1 
+                                                      #contador[j][t] = contador[j][t] + 1 
                                           if not is_working:
                                                 emp_turn["turno"] = 0
-                                                emp_turn["nombre"] = self._empleadoPlanificacion[j]
+                                                emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
                                                 #contador[j][0] = contador[j][0] + 1
                                           empleados.append(emp_turn)
                                     dia["empleados"] = empleados
                                     if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month]:
                                           result = {}
-                                          #result["turno_0"] = sum([contador[e][0] for e in self._all_empleado])
-                                          #result["turno_1"] = sum([contador[e][1] for e in self._all_empleado])
-                                          #result["turno_2"] = sum([contador[e][2] for e in self._all_empleado])
-                                          #result["turno_3"] = sum([contador[e][3] for e in self._all_empleado])
-                                          #result["total"] = sum([contador[e][t] for t in range(1,self._cant_turno+1) for e in self._all_empleado])
                                           result["total_mes"] = self._turnos_totales
                                           result["emp_1"] = contador[0]
                                           result["emp_2"] = contador[1]
@@ -84,6 +79,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                           #dia["resultado"] = result
                                     json_v.append(dia)
                   print(json.dumps(json_v))
+            
             if self._solution_count >= self._solution_limit:
                   self.StopSearch()
 

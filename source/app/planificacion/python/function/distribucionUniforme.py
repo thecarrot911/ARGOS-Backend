@@ -1,3 +1,4 @@
+import json
 from ortools.sat.python import cp_model
 
 def CalculoMinimaCantidadTurno(modelo: cp_model.CpModel,turnos_totales: list, mes: list[list], num_empleado: int, all_empleado: range, 
@@ -31,6 +32,8 @@ def CalculoMinimaCantidadTurno(modelo: cp_model.CpModel,turnos_totales: list, me
             else: 
                   for t in range(cant_turno):
                         modelo.Add(min_turno[t] <= sum(jornada[t]))
+                        #print(json.dumps({'xD':min_turno[0]}))
+
                         #modelo.Add(sum(jornada[t]) < max_turno[t]+1)
             
             #modelo.Add(max_total+2 > sum(sum(jornada[t]) for t in range(cant_turno)))

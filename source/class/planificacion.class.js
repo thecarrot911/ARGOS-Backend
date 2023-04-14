@@ -59,8 +59,8 @@ class Planificacion {
                   });
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
-                        let json = planificacionMensual[0]
-                        //const json = JSON.parse(planificacionMensual[0]);
+                        //let json = planificacionMensual[0]
+                        const json = JSON.parse(planificacionMensual[0]);
                         resolve(json);
                   });
                   command.on("error", function (err) {
@@ -139,6 +139,18 @@ class Planificacion {
             INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
             WHERE planificacion.planificacion_id = (SELECT MAX(planificacion_id) FROM planificacion);`;
             return await conexion.query(sql);
+      };
+
+      static Anual = async() =>{
+            const sql = `
+            SELECT * FROM planificacion
+            INNER JOIN dia ON planificacion.planificacion_id = dia.planificacion_id
+            INNER JOIN turno ON dia.id = turno.dia_id
+            INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
+            INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
+            WHERE planificacion.year = 2023;
+            `;
+            return await conexion.query(sql)
       };
 }
 

@@ -6,7 +6,7 @@ const { verificadorPlanificacion } = require("../../middleware/verificacion.plan
 
 router.get("", planificacion_controller.MostrarUltimaPlanificacion);
 router.post("/generar",[verificadorPlanificacion.ExistenciaPlanificacion],planificacion_controller.GenerarPlanificacionMensual);
-
+router.get("/planificacion_anual", planificacion_controller.MostrarPlanificacionAnual);
 
 //router.get('/mostrar_planificacion_anual',planificacion_controller.planificacion_mostrar_todo);
 //router.delete('/eliminar_planificacion/:planificacion_id', planificacion_controller.eliminarPlanificacion);

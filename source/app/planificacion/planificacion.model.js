@@ -7,25 +7,22 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
       let planificacionAnterior = await planificacion.PlanificacionDelMesAnterior();
       planificacionAnterior = await planificacionHelper.GenerarListaPlanificacion(planificacionAnterior);
       
+      let planificacionMensual
+
       if (planificacionAnterior.length != 0){
             const UltimaSemanaAnterior = await planificacionHelper.ObtenerUltimaSemanaDelMes(planificacionAnterior)
-            const planificacionMensual =  await planificacion.GenerarPlanificacion(UltimaSemanaAnterior);
-            return planificacionMensual;
+            planificacionMensual =  await planificacion.GenerarPlanificacion(UltimaSemanaAnterior);
 
       }else{
             // NO HAY PLANIFICACION ANTERIOR
-            const planificacionMensual = await planificacion.GenerarPlanificacion(null);
-            return planificacionMensual;
-
+            planificacionMensual = await planificacion.GenerarPlanificacion(null);
       }
 
       //Guardar Planificación
-      //const planificacion_id = await planificacion.GuardarPlanificacion();
-      //const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
-      //const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
-      //await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
-
-      //return planificacionMensual;
+      const planificacion_id = await planificacion.GuardarPlanificacion();
+      const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
+      const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
+      await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
       return planificacionMensual;
 };
 
@@ -42,7 +39,15 @@ const UltimaPlanificacion = async() =>{
       return data;
 };
 
+const PlanificacionAnual = async() =>{
+      const DatosPlanificacionAnual = await Planificacion.Anual();
+      const ListaPlanificacionAnual = await planificacionHelper.GenerarListaPlanificacionAnual(DatosPlanificacionAnual);
+      return ListaPlanificacionAnual;
+};
+
+
 module.exports.planificacionModel = {
       GenerarPlanificacion,
-      UltimaPlanificacion
+      UltimaPlanificacion,
+      PlanificacionAnual
 }
