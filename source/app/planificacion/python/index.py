@@ -20,9 +20,6 @@ for dia in planificacionAnterior:
     for empleado in dia:
         empleadoPlanificacionAnterior.append(empleado[1])
     break
-        #print(empleado) # dia
-        #print(empleado[1]) # rut
-        #print(empleado[2]) # turno
 
 
 # VARIABLES A UTILIZAR

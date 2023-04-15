@@ -62,19 +62,19 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                 #contador[j][0] = contador[j][0] + 1
                                           empleados.append(emp_turn)
                                     dia["empleados"] = empleados
-                                    if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month]:
-                                          result = {}
-                                          result["total_mes"] = self._turnos_totales
-                                          result["emp_1"] = contador[0]
-                                          result["emp_2"] = contador[1]
-                                          result["emp_3"] = contador[2]
-                                          result["emp_4"] = contador[3]
-                                          result["emp_5"] = contador[4]
-                                          result["feriado_1"] = contador[0][3]
-                                          result["feriado_2"] = contador[1][3]
-                                          result["feriado_3"] = contador[2][3]
-                                          result["feriado_4"] = contador[3][3]
-                                          result["feriado_5"] = contador[4][3]
+                                    #if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month]:
+                                    #      result = {}
+                                    #      result["total_mes"] = self._turnos_totales
+                                    #      result["emp_1"] = contador[0]
+                                    #      result["emp_2"] = contador[1]
+                                    #      result["emp_3"] = contador[2]
+                                    #      result["emp_4"] = contador[3]
+                                    #      result["emp_5"] = contador[4]
+                                    #      result["feriado_1"] = contador[0][3]
+                                    #      result["feriado_2"] = contador[1][3]
+                                    #      result["feriado_3"] = contador[2][3]
+                                    #     result["feriado_4"] = contador[3][3]
+                                    #      result["feriado_5"] = contador[4][3]
 
                                           #dia["resultado"] = result
                                     json_v.append(dia)
