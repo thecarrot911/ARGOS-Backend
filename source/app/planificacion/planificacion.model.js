@@ -39,8 +39,8 @@ const UltimaPlanificacion = async() =>{
       return data;
 };
 
-const PlanificacionAnual = async() =>{
-      const DatosPlanificacionAnual = await Planificacion.Anual();
+const PlanificacionAnual = async(year) =>{
+      const DatosPlanificacionAnual = await Planificacion.Anual(year);
       const ListaPlanificacionAnual = await planificacionHelper.GenerarListaPlanificacionAnual(DatosPlanificacionAnual);
       return ListaPlanificacionAnual;
 };

@@ -141,14 +141,14 @@ class Planificacion {
             return await conexion.query(sql);
       };
 
-      static Anual = async() =>{
+      static Anual = async(year) =>{
             const sql = `
             SELECT * FROM planificacion
             INNER JOIN dia ON planificacion.planificacion_id = dia.planificacion_id
             INNER JOIN turno ON dia.id = turno.dia_id
             INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
             INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
-            WHERE planificacion.year = 2023;
+            WHERE planificacion.year = ${year};
             `;
             return await conexion.query(sql)
       };

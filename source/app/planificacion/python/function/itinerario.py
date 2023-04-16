@@ -7,7 +7,7 @@ from ortools.sat.python import cp_model
 
 
 def ListaEmpleadoParaCadaTurno(
-      modelo: cp_model.CpModel, planificacionAnterior: list[list] ,turnos_totales: list[int], itinerario: list[object], lista_itinerario: list, lista_turno_extra: list , cant_turno: int, num_empleado: int,
+      modelo: cp_model.CpModel, empleadoPlanificacionAnterior:list[list] ,planificacionAnterior: None ,turnos_totales: list[int], itinerario: list[object], lista_itinerario: list, lista_turno_extra: list , cant_turno: int, num_empleado: int,
       mes: list[list], cont_semana: list, turnos_extra: int, meses_anio: list[str], month:int, month_prev:int):
       """
       Se genera una lista con la cantidad de empleados para cada turno.
@@ -59,10 +59,10 @@ def ListaEmpleadoParaCadaTurno(
                         #print((mes[num_semana][i][0],mes[num_semana][i][1]))
                         if planificacionAnterior!=None:
                               contador = 0
-                              for dia in planificacionAnterior[i]:
+                              for dia in empleadoPlanificacionAnterior[i]:
                                     if dia[2] != 0:
                                           contador = contador + 1
-                        trabajo_extra = trabajo_extra - contador + cant_turno
+                              trabajo_extra = trabajo_extra - contador + cant_turno
 
                         semana_trabajo.append([
                               modelo.NewIntVar(1, num_empleado - (cant_turno-1), "turno 1"),

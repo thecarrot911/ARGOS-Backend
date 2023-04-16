@@ -20,6 +20,25 @@ class Actualizacion{
             console.log(this.tipo)
             console.log(this.reemplazo)
       };
+
+      ObtenerPlanificacion = async() =>{
+            const sql = `
+            SELECT * FROM planificacion
+            INNER JOIN dia ON planificacion.planificacion_id =  ${this.planificacion_id}
+            INNER JOIN turno ON dia.id = turno.dia_id
+            INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
+            INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut;`;
+            return await conexion.query(sql)
+      };
+
+
+      CambioTurno = async() =>{
+
+      };
+
+      Permiso = async() =>{
+
+      };
       
       static MostrarTipo = async() =>{
             const sql_MostrarTipo = `SELECT * FROM tipo`;

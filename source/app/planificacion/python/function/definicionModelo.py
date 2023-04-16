@@ -3,7 +3,7 @@ from ortools.sat.python import cp_model
 import holidays
 
 
-def DefiniendoModelo(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str], empleadoPlanificacionAnterior: list[str], year: int, month: int, 
+def DefiniendoModelo(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str],planificacionAnterior: None , empleadoPlanificacionAnterior: list[str], year: int, month: int, 
       all_empleado: range, cant_turno: int , meses_anio: list[str], cont_semana: list):
       
       if(month==12):
@@ -65,7 +65,12 @@ def DefiniendoModelo(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str],
             if(indice_semana == 7): indice_semana=0
       
       AgregandoDiasUltimmaSemana(mes,empleadoPlanificacion,year_next ,meses_anio, month_next, dias_semana, indice_semana_next, modelo, all_empleado, cant_turno)
-      AgregandoDiasPrimeraSemana(mes,empleadoPlanificacionAnterior,year_prev ,dias_mes_actual, meses_anio, month_prev, dias_semana, modelo, all_empleado, cant_turno, cantidad_dias_prev)
+      
+      if planificacionAnterior != None:
+            AgregandoDiasPrimeraSemana(mes,empleadoPlanificacionAnterior,year_prev ,dias_mes_actual, meses_anio, month_prev, dias_semana, modelo, all_empleado, cant_turno, cantidad_dias_prev)
+      else:
+            AgregandoDiasPrimeraSemana(mes,empleadoPlanificacion,year_prev ,dias_mes_actual, meses_anio, month_prev, dias_semana, modelo, all_empleado, cant_turno, cantidad_dias_prev)
+
       ContadorDeSemanas(mes, cont_semana)
       return mes, all_dias, cont_semana, month_prev
 

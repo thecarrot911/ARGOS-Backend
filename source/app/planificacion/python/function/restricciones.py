@@ -199,7 +199,7 @@ def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, cont_semana:
             modelo.Add(sum(lista_semana)==25) # MODIFICAR
       return modelo
 
-def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list], empleadoPlanificacionAnterior: list[str] , planificacionAnterior: list[list], lista_itinerario: list ,cont_semana: list, 
+def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list],planificacionAnterior: None ,empleadoPlanificacionAnterior: list[str] , lista_itinerario: list ,cont_semana: list, 
       cant_turno: int, domingos: list, month: int,month_prev:int, meses_anio: list[str], all_empleado: range, domingos_asignacion: list):
       
       """Se asigna los turnos a cada empleado durante el mes"""
