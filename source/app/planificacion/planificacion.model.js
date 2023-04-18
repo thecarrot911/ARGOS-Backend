@@ -1,3 +1,4 @@
+const Actualizacion = require("../../class/actualizacion.class");
 const Planificacion = require("../../class/planificacion.class");
 const { planificacionHelper } = require("../../helper/planificacion.helper");
 
@@ -30,11 +31,13 @@ const UltimaPlanificacion = async() =>{
       const DatosPlanificacion = await Planificacion.MostrarUltima();
       const ListaPlanificacion =  await planificacionHelper.GenerarListaPlanificacion(DatosPlanificacion);
       const ListaOrdenadaPlanificacion = await planificacionHelper.OrdenarLista(ListaPlanificacion)
+      const Actualizaciones = await Actualizacion.MostrarActualizacion(DatosPlanificacion[DatosPlanificacion.length-1].planificacion_id);
       const data = [{
             "anio":DatosPlanificacion[DatosPlanificacion.length-1].year,
             "mes":DatosPlanificacion[DatosPlanificacion.length-1].month,
             "id": DatosPlanificacion[DatosPlanificacion.length-1].planificacion_id,
-            "planificacion": ListaOrdenadaPlanificacion
+            "planificacion": ListaOrdenadaPlanificacion,
+            "actualizacion": Actualizaciones
       }]
       return data;
 };

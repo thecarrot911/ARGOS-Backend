@@ -3,6 +3,7 @@ const GenerarListaPlanificacion = async(datosPlanificacion) => {
             empleado[actual.dia_id] = empleado[actual.dia_id] || {
                   dia_semana: actual.dia_semana,
                   dia_numero: actual.dia_numero,
+                  dia_id: actual.dia_id,
                   feriado: actual.feriado,
                   empleados: []
             };
@@ -10,7 +11,8 @@ const GenerarListaPlanificacion = async(datosPlanificacion) => {
                   rut: actual.rut,
                   nombre: actual.nombre_paterno,
                   apellido: actual.apellido_paterno,
-                  turno: actual.turno
+                  turno: actual.turno,
+                  turno_id: actual.turno_id
             });
             return empleado;
       },[]);
@@ -46,13 +48,15 @@ const GenerarListaPlanificacionAnual = async (datosPlanificacionAnual) => {
                         dia_numero: actual.dia_numero,
                         dia_semana: actual.dia_semana,
                         feriado: actual.feriado,
+                        dia_id: actual.dia_id,
                         empleados: []
                   };
                   dias[actual.dia_id].empleados.push({
                         rut: actual.rut,
                         nombre: actual.nombre,
                         apellido: actual.apellido,
-                        turno: parseInt(actual.turno)
+                        turno: parseInt(actual.turno),
+                        turno_id: actual.turno_id
                   });
                   dias[actual.dia_id].empleados.sort((a, b) => a.turno - b.turno);
                   return dias;

@@ -28,6 +28,14 @@ class Empleado{
             return {existe, BuscarEmpleado}
       };
 
+      static Buscar = async(rut)=>{
+            const sql = `SELECT * FROM empleado WHERE rut = '${rut}';`;
+            const empleado = await conexion.query(sql);
+            let existe = false;
+            if(empleado.length == 0) existe = true;
+            return {existe, empleado}
+      }
+
       Reactivar = async () =>{
             const stringSQLEmpleado = `
             UPDATE empleado SET activo = 1 

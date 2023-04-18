@@ -3,7 +3,6 @@ const { actualizacionModel } = require("../actualizacion/actualizacion.model");
 const RegistrarActualizacion = async (req, res)=>{
     try{
         const consulta_RegistrarActualizacion = await actualizacionModel.Registrar(req.body)
-        await actualizacionModel.Registrar(req.body);
         return res.status(200).json({
             error: false,
             msg: 'Se ha registrado la nueva actualización',
@@ -13,7 +12,7 @@ const RegistrarActualizacion = async (req, res)=>{
         console.error(error)
         return res.status(400).json({
             error: true,
-            msg: ''+error
+            msg: ''+error.message
         });
     }
 
@@ -21,7 +20,7 @@ const RegistrarActualizacion = async (req, res)=>{
 
 const FormularioActualizacion = async(req, res) =>{
     try{
-        const consulta_FormularioActualizacion = await actualizacionModel.MostrarFormulario();
+        const consulta_FormularioActualizacion = await actualizacionModel.MostrarFormulario(req.query.planificacion_id);
         return res.status(200).json({
             error: false,
             msg: "Lista de todos los tipos de actualización que existen.",
