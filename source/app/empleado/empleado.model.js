@@ -39,10 +39,17 @@ const Eliminar = async(rut) =>{
       UPDATE empleado SET activo = 0 
       WHERE rut='${rut}';`;
       return await conexion.query(stringSQLEmpleado)
-}
+};
+
+
+const Perfil = async(rut) =>{
+      const perfil = await Empleado.Perfil(rut)
+      return perfil;
+};
 
 module.exports.empleadoModel = {
       Registrar,
       MostrarAll,
-      Eliminar
+      Eliminar,
+      Perfil
 }

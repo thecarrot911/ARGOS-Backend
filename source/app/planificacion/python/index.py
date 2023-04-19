@@ -96,6 +96,7 @@ modelo, mes = NoAdmitenTurnosSeguidos(all_empleado, cont_semana, mes, modelo)
 # Crea el solver y la solución
 solver = cp_model.CpSolver()
 solver.parameters.linearization_level = 0
+#solver.parameters.max_time_in_seconds = 60
 
 # Enumera todas las soluciones encontradas
 solver.parameters.enumerate_all_solutions = True

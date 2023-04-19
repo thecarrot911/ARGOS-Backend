@@ -59,7 +59,7 @@ def ListaEmpleadoParaCadaTurno(
                         #print((mes[num_semana][i][0],mes[num_semana][i][1]))
                         if planificacionAnterior!=None:
                               contador = 0
-                              for dia in empleadoPlanificacionAnterior[i]:
+                              for dia in planificacionAnterior[i]:
                                     if dia[2] != 0:
                                           contador = contador + 1
                               trabajo_extra = trabajo_extra - contador + cant_turno
