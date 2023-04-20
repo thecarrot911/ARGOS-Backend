@@ -1,8 +1,5 @@
 const conexion = require("../database");
 
-const buscarId = async (rut, credencial_id) =>{
-};
-
 const buscarTipo =  async (credencial) =>{
 
       let sql_buscarTipo = `
@@ -16,6 +13,5 @@ const buscarTipo =  async (credencial) =>{
 };
 
 module.exports.crendecialHelper = {
-      buscarId,
       buscarTipo
-};
+}

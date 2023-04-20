@@ -35,7 +35,6 @@ const mostrar_todos_empleados = async(req,res)=>{
 
 const PerfilEmpleado = async (req,res) =>{
     try{
-        console.log("xD")
         const Perfil = await empleadoModel.Perfil(req.query.rut);
         return res.status(200).json({
             error:false,
@@ -50,7 +49,7 @@ const PerfilEmpleado = async (req,res) =>{
         });
     }
 };
-/*
+
 const modificar_empleado = async(req,res)=>{
     try{
         await empleado_model.Modificar(req.body)
@@ -65,7 +64,7 @@ const modificar_empleado = async(req,res)=>{
             msg: "" + error.message
         });
     }
-};*/
+};
 
 const eliminar_empleado = async(req,res)=>{
     try{
@@ -85,6 +84,7 @@ const eliminar_empleado = async(req,res)=>{
 
 module.exports.empleado_controller = {
     registrar_empleado,
+    modificar_empleado,
     mostrar_todos_empleados,
     eliminar_empleado,
     PerfilEmpleado

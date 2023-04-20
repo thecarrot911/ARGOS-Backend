@@ -78,7 +78,6 @@ class Empleado{
                   INNER JOIN turno ON dia.id = turno.dia_id
                   INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
                   INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
-            WHERE empleado.rut = '19.870.095-9'
             GROUP BY empleado.rut, planificacion.planificacion_id
             ORDER BY year DESC,  CASE month
                   WHEN 'enero' THEN 1

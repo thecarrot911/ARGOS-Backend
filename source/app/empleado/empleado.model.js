@@ -31,7 +31,8 @@ const Registrar = async (empleado, file) => {
 
 const MostrarAll = async () => {
       const empleados = await Empleado.MostrarTodos();
-      return await empleadoHelper.GenerandoListaEmpleado(empleados);
+      const credenciales = await empleadoHelper.GenerandoListaEmpleado(empleados);
+      return credenciales;
 };
 
 const Eliminar = async(rut) =>{
@@ -42,9 +43,17 @@ const Eliminar = async(rut) =>{
 };
 
 
-const Perfil = async(rut) =>{
-      const perfil = await Empleado.Perfil(rut)
-      return perfil;
+const Perfil = async() =>{
+      const empleados = await Empleado.MostrarTodos();
+      const credenciales = await empleadoHelper.GenerandoListaEmpleado(empleados);
+      const datosPlanificacion = await Empleado.Perfil()
+      const planificacion = await empleadoHelper.GenerandoListaPerfil(datosPlanificacion);
+
+      const data = {
+            "credencial": credenciales,
+            "planificacion": planificacion
+      }
+      return data;
 };
 
 module.exports.empleadoModel = {
