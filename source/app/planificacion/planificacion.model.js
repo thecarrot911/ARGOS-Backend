@@ -20,10 +20,10 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
       }
 
       //Guardar Planificación
-      const planificacion_id = await planificacion.GuardarPlanificacion();
-      const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
-      const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
-      await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
+      //const planificacion_id = await planificacion.GuardarPlanificacion();
+      //const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
+      //const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
+      //await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
       return planificacionMensual;
 };
 

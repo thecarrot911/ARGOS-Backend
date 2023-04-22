@@ -85,9 +85,12 @@ def DomingosLibres(modelo: cp_model.CpModel,domingos: list , cont_semana: list, 
 
       return modelo, mes, domingos
 
-def CantidadMaximaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], all_empleado: range, domingos: list[list], cant_turno: int):
+def CantidadMaximaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], all_empleado: range, domingos: list[list], num_empleado: int , cant_turno: int):
       """Se límita la cantidad máxima de empleados que puede haber en los domningos del mes."""
       lista_domingos_empleados = []
+      CantidadDomingoLibre = 2
+      CantidadDomingosMes = len(domingos)
+
       for e in all_empleado: 
             for domingo, num_semana in domingos:
                   for t in range(cant_turno):
@@ -96,6 +99,8 @@ def CantidadMaximaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], al
             modelo.Add(sum(lista_domingos_empleados)==15)
       else: 
             modelo.Add(sum(lista_domingos_empleados)==10)
+
+
       return modelo
 
 def CantidadMinimaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], all_empleado: range, domingos: list[list], cant_turno: int):
@@ -196,7 +201,7 @@ def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, cont_semana:
                               lista_dia.append(list_itinerario[num_semana][i][t])
                         modelo.Add(sum(lista_dia)<=num_empleado)
                         modelo.Add(sum(lista_dia)>=cant_turno)
-            modelo.Add(sum(lista_semana)==25) # MODIFICAR
+            modelo.Add(sum(lista_semana)==(num_empleado*6)-num_empleado) # MODIFICAR
       return modelo
 
 def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list],planificacionAnterior: None ,empleadoPlanificacionAnterior: list[str] , lista_itinerario: list ,cont_semana: list, 
