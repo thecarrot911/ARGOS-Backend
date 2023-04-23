@@ -1,3 +1,4 @@
+from re import A
 from statistics import mode
 from sklearn.utils import shuffle
 from ortools.sat.python import cp_model
@@ -71,49 +72,53 @@ def DomingosLibres(modelo: cp_model.CpModel,domingos: list , cont_semana: list, 
       Los empleados tienen 2 domingos libres durante el mes. Además, se límita
       la cantidad de empleados en los domingos.
       """
+      #CantidadDomingosLibres = 2
+
       for num_semana in range(len(cont_semana)):
             for i in range(cont_semana[num_semana]):
                   if mes[num_semana][i][2] == 'Domingo' and mes[num_semana][i][0] == meses_anio[month-1]: 
                         domingos.append([i, num_semana]) 
 
-      for e in all_empleado: 
-            lista_domingo_suma = []
-            for domingo, num_semana in domingos:
-                  for t in range(cant_turno):
-                        lista_domingo_suma.append(mes[num_semana][domingo][3][e][t])
-            modelo.Add(sum(lista_domingo_suma) == len(domingos) - (num_empleado-cant_turno))
+      #for e in all_empleado: 
+      #      lista_domingo_suma = []
+      #      for domingo, num_semana in domingos:
+      #            for t in range(cant_turno):
+      #                  lista_domingo_suma.append(mes[num_semana][domingo][3][e][t])
+      #      modelo.Add(sum(lista_domingo_suma) == CantidadDomingosLibres)
 
-      return modelo, mes, domingos
+      return domingos
 
 def CantidadMaximaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], all_empleado: range, domingos: list[list], num_empleado: int , cant_turno: int):
       """Se límita la cantidad máxima de empleados que puede haber en los domningos del mes."""
       lista_domingos_empleados = []
-      CantidadDomingoLibre = 2
-      CantidadDomingosMes = len(domingos)
-
+      CantidadDomingosLibre = 2 * num_empleado
+      CantidadTurnosMes = num_empleado * len(domingos)
+      CantidadMaximaDomingo = CantidadTurnosMes - CantidadDomingosLibre
       for e in all_empleado: 
             for domingo, num_semana in domingos:
                   for t in range(cant_turno):
                         lista_domingos_empleados.append(mes[num_semana][domingo][3][e][t])
-      if len(domingos) == 5: # HACER CALCULO MATEMÁTICO
-            modelo.Add(sum(lista_domingos_empleados)==15)
-      else: 
-            modelo.Add(sum(lista_domingos_empleados)==10)
-
-
+      modelo.Add(sum(lista_domingos_empleados) == CantidadMaximaDomingo)
       return modelo
 
-def CantidadMinimaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], all_empleado: range, domingos: list[list], cant_turno: int):
+def CantidadMinimaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], all_empleado: range, domingos: list[list], num_empleado: int , cant_turno: int):
       """Se límita la cantidad mínima de empleados que puede haber en un día domingo."""
-      lista_minima_emp_domingo = []
+      CantidadDomingosLibre = 2 * num_empleado
+      CantidadTurnosMes = num_empleado * len(domingos)
+
       for domingo, num_semana in domingos:
+            lista_minima_emp_domingo = []
             for e in all_empleado: 
                   for t in range(cant_turno):
                         lista_minima_emp_domingo.append(mes[num_semana][domingo][3][e][t])
-            if len(domingos) == 5: # HACER CALCULO MATEMÁTICO
-                  modelo.Add(sum(lista_minima_emp_domingo)>=3)
-            else: 
-                  modelo.Add(sum(lista_minima_emp_domingo)>=2)
+
+            if (CantidadTurnosMes - CantidadDomingosLibre)%len(domingos) == 0:
+                  modelo.Add(sum(lista_minima_emp_domingo) >= (CantidadTurnosMes - CantidadDomingosLibre) // len(domingos))
+            else:
+                  modelo.Add(sum(lista_minima_emp_domingo) >= (CantidadTurnosMes - CantidadDomingosLibre) // len(domingos))
+                  modelo.Add(sum(lista_minima_emp_domingo) <= (CantidadTurnosMes - CantidadDomingosLibre) // len(domingos)+1)
+
+      #print((CantidadTurnosMes - CantidadDomingosLibre) // len(domingos))
       return modelo
 
 def ContabilizandoTurnosDomingo(mes: list[list], domingos: list[list], cant_turno: int, turnos_totales: list):
