@@ -81,7 +81,7 @@ def ListaEmpleadoParaCadaTurno(
                               modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 2"),
                               modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 3")
                         ])
-                        #AgregandoTurnosTotales(turnos_totales, cant_turno)
+                        #if i!=6: AgregandoTurnosTotales(turnos_totales, cant_turno)
 
             lista_itinerario.append(semana_trabajo)
             lista_turno_extra.append(trabajo_extra)
