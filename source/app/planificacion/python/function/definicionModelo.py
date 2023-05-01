@@ -121,10 +121,11 @@ def AgregandoDiasPrimeraSemana(mes: list[list],empleadoPlanificacion: list[str],
       Esta función agrega los primeros dias faltantes de la primera 
       semana del mes.
       """
+
       if(len(mes[0])!=7):
             indice_semana = dias_mes_actual[0]
             for j in range(indice_semana):
-                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion,all_empleado, cant_turno)
+                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion,range(len(empleadoPlanificacion)), cant_turno)
                   mes[0].insert(0,[meses_anio[month_prev-1],cantidad_dias_prev,dias_semana[indice_semana-1],array_empleado, FeriadoMes(year,month_prev,cantidad_dias_prev)])
                   cantidad_dias_prev = cantidad_dias_prev-1
                   indice_semana = indice_semana-1
