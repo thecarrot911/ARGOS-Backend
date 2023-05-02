@@ -7,7 +7,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
 
       def __init__(self,solution_number: int, solution_limit: int, mes: list[list], all_empleado: range, 
             cont_semana: list, meses_anio: list[str], month: int, cant_turno: int,
-            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales): 
+            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales, all_empleadoAnterior: range): 
 
             cp_model.CpSolverSolutionCallback.__init__(self)
             self._lista_alarma_turno = []  #lista_alarma_turno
@@ -17,6 +17,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
             self._mes = mes
             self._cont_semana = cont_semana
             self._all_empleado = all_empleado
+            self._all_empleadoAnterior = all_empleadoAnterior
             self._all_dias = all_dias
             self._solution_count = 0
             self._solution_limit = solution_limit
@@ -40,8 +41,34 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                   for num_semana in range(len(self._cont_semana)):
                         for i in range(self._cont_semana[num_semana]):
                               #if self._mes[num_semana][i][2] == "Domingo":
-                                    #if self._mes[num_semana][i][0] == self._meses_anio[self._month-1] or self._mes[num_semana][i][0] == self._meses_anio[self._month_prev-1]:
-                                    if self._mes[num_semana][i][0] == self._meses_anio[self._month-1]:
+                                    if self._mes[num_semana][i][0] == self._meses_anio[self._month_prev-1]:
+                                          dia = {}
+                                          dia["comodin"] = 0
+                                          dia["dia_semana"] = self._mes[num_semana][i][2]
+                                          dia["dia_numero"] = self._mes[num_semana][i][1]
+                                          dia["feriado"]    = self._mes[num_semana][i][4]
+                                          empleados = []
+                                          for j in self._all_empleadoAnterior:
+                                                if self._mes[num_semana][i][3][j][0].Name() != '0':
+                                                      emp_turn = {}
+                                                      is_working = False
+                                                      for t in range(self._cant_turno):
+                                                            if(self.Value(self._mes[num_semana][i][3][j][t])):
+                                                                  is_working = True
+                                                                  emp_turn["turno"] = t+1
+                                                                  emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
+                                                                  #if self._mes[num_semana][i][4]: contador[j][3] = contador[j][3] + 1
+                                                                  contador[j][t] = contador[j][t] + 1 
+                                                      if not is_working:
+                                                            emp_turn["turno"] = 0
+                                                            emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
+                                                            #contador[j][0] = contador[j][0] + 1
+                                                      empleados.append(emp_turn)
+                                          dia["empleados"] = empleados
+                                          json_v.append(dia)
+
+                                    #if self._mes[num_semana][i][0] == self._meses_anio[self._month-1]:
+                                    elif self._mes[num_semana][i][0] == self._meses_anio[self._month-1]:
                                           dia = {}
                                           dia["comodin"] = 0
                                           dia["dia_semana"] = self._mes[num_semana][i][2]
@@ -49,20 +76,21 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                           dia["feriado"]    = self._mes[num_semana][i][4]
                                           empleados = []
                                           for j in self._all_empleado:
-                                                emp_turn = {}
-                                                is_working = False
-                                                for t in range(self._cant_turno):
-                                                      if(self.Value(self._mes[num_semana][i][3][j][t])):
-                                                            is_working = True
-                                                            emp_turn["turno"] = t+1
+                                                if self._mes[num_semana][i][3][j][0].Name() != '0':
+                                                      emp_turn = {}
+                                                      is_working = False
+                                                      for t in range(self._cant_turno):
+                                                            if(self.Value(self._mes[num_semana][i][3][j][t])):
+                                                                  is_working = True
+                                                                  emp_turn["turno"] = t+1
+                                                                  emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
+                                                                  #if self._mes[num_semana][i][4]: contador[j][3] = contador[j][3] + 1
+                                                                  contador[j][t] = contador[j][t] + 1 
+                                                      if not is_working:
+                                                            emp_turn["turno"] = 0
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
-                                                            #if self._mes[num_semana][i][4]: contador[j][3] = contador[j][3] + 1
-                                                            contador[j][t] = contador[j][t] + 1 
-                                                if not is_working:
-                                                      emp_turn["turno"] = 0
-                                                      emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
-                                                      #contador[j][0] = contador[j][0] + 1
-                                                empleados.append(emp_turn)
+                                                            #contador[j][0] = contador[j][0] + 1
+                                                      empleados.append(emp_turn)
                                           dia["empleados"] = empleados
                                           
                                           """if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month]:

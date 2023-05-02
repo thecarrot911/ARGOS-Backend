@@ -1,3 +1,4 @@
+from re import I, S
 from sklearn.utils import shuffle
 from ortools.sat.python import cp_model
 from function.itinerario import *
@@ -29,44 +30,40 @@ def EmpleadoTrabajoPorDia(all_empleado: range, cont_semana: list, modelo:cp_mode
 
       return modelo, mes
 
-def DiaLibrePorSemana(all_empleado: range, cont_semana: list, mes: list[list], cant_turno: int, modelo: cp_model.CpModel, num_empleado: int, meses_anio: list[str], month: int, all_empleadoAnterior: range, month_prev:int):
+def DiaLibrePorSemana(all_empleado: range,cont_semana: list, mes: list[list], cant_turno: int, modelo: cp_model.CpModel, num_empleado: int, meses_anio: list[str], month: int, all_empleadoAnterior: range, month_prev:int, empleadoPlanificacion: list[str], empleadoPlanificacionAnterior: list[str]):
       """Cada empleado tiene 1 día libre por semana."""
       cantidadDiaSemana = 6 # Lunes a Sábado
       diasLibreCadaEmpleadoPorSemana = 1
       
-      """for e in all_empleado:
-            for num_semana in range(len(cont_semana)):
-                  lista_semana = []
-                  if(cont_semana[num_semana]==7):
-                        for i in range(cont_semana[num_semana]):
-                              if mes[num_semana][i][2] != 'Domingo':
-                                    for t in range(cant_turno):
-                                          lista_semana.append(mes[num_semana][i][3][e][t])
-                        modelo.Add(sum(lista_semana) == cantidadDiaSemana - diasLibreCadaEmpleadoPorSemana)"""
-
-      lista_semana_anterior = [[] for _ in all_empleado]
-
-      for empleado in all_empleadoAnterior:
+      # Restricción para la primera semana
+      for empleadoAnterior in all_empleadoAnterior:
+            lista_semana = []
             for dia in range(cont_semana[0]):
-                  if mes[0][dia][2] != 'Domingo' and mes[0][dia][0] == meses_anio[month_prev-1]:
-                        for turno in range(1):
-                              lista_semana_anterior[empleado].append([mes[0][dia][3][empleado][turno], mes[0][dia][1]])
+                  if mes[0][dia][0] == meses_anio[month_prev-1] and mes[0][dia][2] != 'Domingo':
+                        for turno in range(cant_turno):
+                              lista_semana.append(mes[0][dia][3][empleadoAnterior][turno])
 
-      print(lista_semana_anterior[0])
-      print(lista_semana_anterior[1])
-      print(lista_semana_anterior[2])
-      print(lista_semana_anterior[3])
-      print(lista_semana_anterior[4])
-      print(lista_semana_anterior[5])
-      print(lista_semana_anterior[6])
+            if mes[0][dia][3][empleadoAnterior][0].Name() in empleadoPlanificacion:
+                  for dia in range(cont_semana[0]):
+                        if mes[0][dia][0] == meses_anio[month-1] and mes[0][dia][2] != 'Domingo':
+                              for turno in range(cant_turno):
+                                    lista_semana.append(mes[0][dia][3][empleadoAnterior][turno])
+            if lista_semana and mes[0][dia][3][empleadoAnterior][0].Name() in empleadoPlanificacion:
+                  modelo.Add(sum(lista_semana) == cantidadDiaSemana - diasLibreCadaEmpleadoPorSemana)
 
 
+      # Restricción para las demás semanas
       for empleado in all_empleado:
-            for dia in range(cont_semana[0]):
-                  if mes[0][dia][2] != 'Domingo' and mes[0][dia][0] == meses_anio[month-1]:
-                        for turno in range(1):
-                              lista_semana_anterior.append([mes[0][dia][3][empleado][turno], mes[0][dia][1]])
-      #print(lista_semana_anterior)
+            #print(mes[1][0][3][empleado][turno].Name())
+            if mes[1][0][3][empleado][0].Name() != '0':
+                  for semana in range(1,len(cont_semana)):
+                        lista_semana = []
+                        for dia in range(cont_semana[semana]):
+                              if mes[semana][dia][2] != 'Domingo':
+                                    for turno in range(cant_turno):
+                                          lista_semana.append(mes[semana][dia][3][empleado][turno])
+                        modelo.Add(sum(lista_semana) == cantidadDiaSemana - diasLibreCadaEmpleadoPorSemana)
+
       return modelo, mes
 
 def NoAdmitenTurnosSeguidos(all_empleado: range, cont_semana: list, mes: list[list], modelo: cp_model.CpModel):
@@ -116,12 +113,13 @@ def DomingosLibres(modelo: cp_model.CpModel,domingos: list , cont_semana: list, 
       
       DomingosLibresAlMes = 2
 
-      for e in all_empleado:
-            lista_domingo = []
-            for domingo, num_semana in domingos:
-                  for t in range(cant_turno):
-                        lista_domingo.append(mes[num_semana][domingo][3][e][t])
-            modelo.Add(sum(lista_domingo) == len(domingos) - DomingosLibresAlMes)
+      for empleado in all_empleado:
+            if mes[1][0][3][empleado][0].Name() != '0':
+                  lista_domingo = []
+                  for domingo, num_semana in domingos:
+                        for turno in range(cant_turno):
+                              lista_domingo.append(mes[num_semana][domingo][3][empleado][turno])
+                  modelo.Add(sum(lista_domingo) == len(domingos) - DomingosLibresAlMes)
 
       return modelo, domingos
 
@@ -145,9 +143,9 @@ def CantidadMinimaDeEmpleadoDomingo(modelo: cp_model.CpModel,mes: list[list], al
       
       for domingo, num_semana in domingos:
             lista_minima_emp_domingo = []
-            for e in all_empleado: 
+            for empleado in all_empleado:
                   for t in range(cant_turno):
-                        lista_minima_emp_domingo.append(mes[num_semana][domingo][3][e][t])
+                        lista_minima_emp_domingo.append(mes[num_semana][domingo][3][empleado][t])
             
             if (CantidadTurnosMes - CantidadDomingosLibre)%len(domingos) == 0:
                   modelo.Add(sum(lista_minima_emp_domingo) >= (CantidadTurnosMes - CantidadDomingosLibre) // len(domingos))
@@ -286,23 +284,23 @@ def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list],planificacionAnte
       cant_turno: int, domingos: list, month: int,month_prev:int, meses_anio: list[str], all_empleado: range, domingos_asignacion: list):
       
       """Se asigna los turnos a cada empleado durante el mes"""
-      for num_semana in range(len(cont_semana)):
-            for i in range(cont_semana[num_semana]):
-                  if mes[num_semana][i][2] == "Domingo" and mes[num_semana][i][0] == meses_anio[month-1]:
+      for semana in range(len(cont_semana)):
+            for dia in range(cont_semana[semana]):
+                  if mes[semana][dia][2] == "Domingo" and mes[semana][dia][0] == meses_anio[month-1]: #DOMINGO DE ESTE MES
                         for t in range(cant_turno):
-                              modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==domingos_asignacion[num_semana][t])
+                              modelo.Add(sum(mes[semana][dia][3][e][t] for e in all_empleado)==domingos_asignacion[semana][t])
 
-                  elif mes[num_semana][i][0] == meses_anio[month_prev-1] and planificacionAnterior != None:
-                        for empleado in empleadoPlanificacionAnterior:
-                              for e in range(len(empleadoPlanificacionAnterior)): 
-                                    if empleado == planificacionAnterior[i][e][1]:
-                                          for t in range(cant_turno):
-                                                if planificacionAnterior[i][e][2] == t+1:
-                                                      modelo.Add(mes[num_semana][i][3][e][t]==1)
+                  elif mes[semana][dia][0] == meses_anio[month_prev-1] and planificacionAnterior != None: # MES ANTERIOR
+                        for empleadoAnterior in empleadoPlanificacionAnterior:
+                              for empleado in range(len(empleadoPlanificacionAnterior)):
+                                    if empleadoAnterior == planificacionAnterior[dia][empleado][1]:
+                                          for turno in range(cant_turno):
+                                                if planificacionAnterior[dia][empleado][2] == turno+1:
+                                                      modelo.Add(mes[semana][dia][3][empleado][turno]==1)
                                                 else:
-                                                      modelo.Add(mes[num_semana][i][3][e][t]==0)
-                  else:
+                                                      modelo.Add(mes[semana][dia][3][empleado][turno]==0)
+                  else: # MES ACTUAL
                         for t in range(cant_turno):
-                              modelo.Add(sum(mes[num_semana][i][3][e][t] for e in all_empleado)==lista_itinerario[num_semana][i][t])
+                              modelo.Add(sum(mes[semana][dia][3][e][t] for e in all_empleado)==lista_itinerario[semana][dia][t])
 
       return modelo

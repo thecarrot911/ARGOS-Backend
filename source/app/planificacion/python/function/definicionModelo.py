@@ -64,7 +64,7 @@ def DefiniendoModelo(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str],
             indice_semana = indice_semana + 1
             if(indice_semana == 7): indice_semana=0
       
-      AgregandoDiasUltimmaSemana(mes,empleadoPlanificacion,year_next ,meses_anio, month_next, dias_semana, indice_semana_next, modelo, all_empleado, cant_turno)
+      AgregandoDiasUltimaSemana(mes,empleadoPlanificacion,year_next ,meses_anio, month_next, dias_semana, indice_semana_next, modelo, all_empleado, cant_turno)
       
       if planificacionAnterior != None:
             AgregandoDiasPrimeraSemana(mes,empleadoPlanificacionAnterior,year_prev ,dias_mes_actual, meses_anio, month_prev, dias_semana, modelo, all_empleado, cant_turno, cantidad_dias_prev)
@@ -73,6 +73,24 @@ def DefiniendoModelo(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str],
 
       ContadorDeSemanas(mes, cont_semana)
       return mes, all_dias, cont_semana, month_prev
+
+def AgregandoDiasPrimeraSemana(mes: list[list],empleadoPlanificacion: list[str], year: int, dias_mes_actual: int, meses_anio: list[str], month_prev: int, 
+      dias_semana: int, modelo: cp_model.CpModel, all_empleado: range, cant_turno: int, cantidad_dias_prev: int):
+      """
+      Esta función agrega los primeros dias faltantes de la primera 
+      semana del mes.
+      """
+      if(len(mes[0])!=7):
+            indice_semana = dias_mes_actual[0]
+            for j in range(indice_semana):
+                  
+                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
+                  
+                  mes[0].insert(0,[meses_anio[month_prev-1],cantidad_dias_prev,dias_semana[indice_semana-1],array_empleado, FeriadoMes(year,month_prev,cantidad_dias_prev)])
+                  cantidad_dias_prev = cantidad_dias_prev-1
+                  indice_semana = indice_semana-1
+
+      
 
 def FeriadoMes(anio: int, mes: int, dia: int):
       feriados_anio = holidays.Chile(years=anio)
@@ -91,18 +109,23 @@ def FeriadoMes(anio: int, mes: int, dia: int):
 
       return feriado["feriado"]
 
-
 def ModeloTurnoDeEmpleados(modelo: cp_model.CpModel, empleadoPlanificacion:list[str], all_empleado: range, cant_turno: int):
       
       array_empleado = []
       for empleado in empleadoPlanificacion:
-            turnos = []
-            for t in range(cant_turno):
-                  turnos.append(modelo.NewBoolVar(empleado))
-            array_empleado.append(turnos)
+            if empleado != None:
+                  turnos = []
+                  for _ in range(cant_turno):
+                        turnos.append(modelo.NewBoolVar(empleado))
+                  array_empleado.append(turnos)
+            else:
+                  turnos = []
+                  for _ in range(cant_turno):
+                        turnos.append(modelo.NewBoolVar('0'))
+                  array_empleado.append(turnos)
       return array_empleado
 
-def AgregandoDiasUltimmaSemana(
+def AgregandoDiasUltimaSemana(
       mes: list[list], empleadoPlanificacion: list[str], year: int, meses_anio: list[str], month_next: int, dias_semana: int, 
       indice_semana_next: int, modelo: cp_model.CpModel, all_empleado: range, cant_turno: int):
       """
@@ -114,21 +137,6 @@ def AgregandoDiasUltimmaSemana(
                   array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
                   mes[len(mes)-1].insert(indice_semana_next,[meses_anio[month_next-1],k+1,dias_semana[indice_semana_next],array_empleado, FeriadoMes(year,month_next,k+1)])
                   indice_semana_next = indice_semana_next + 1
-
-def AgregandoDiasPrimeraSemana(mes: list[list],empleadoPlanificacion: list[str], year: int, dias_mes_actual: int, meses_anio: list[str], month_prev: int, 
-      dias_semana: int, modelo: cp_model.CpModel, all_empleado: range, cant_turno: int, cantidad_dias_prev: int):
-      """
-      Esta función agrega los primeros dias faltantes de la primera 
-      semana del mes.
-      """
-
-      if(len(mes[0])!=7):
-            indice_semana = dias_mes_actual[0]
-            for j in range(indice_semana):
-                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion,range(len(empleadoPlanificacion)), cant_turno)
-                  mes[0].insert(0,[meses_anio[month_prev-1],cantidad_dias_prev,dias_semana[indice_semana-1],array_empleado, FeriadoMes(year,month_prev,cantidad_dias_prev)])
-                  cantidad_dias_prev = cantidad_dias_prev-1
-                  indice_semana = indice_semana-1
 
 def ContadorDeSemanas(mes: list, cont_semana: list):
       """Función que cuenta la cantidad de semanas del modelo."""
