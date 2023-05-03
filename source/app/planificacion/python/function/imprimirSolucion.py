@@ -48,7 +48,14 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                           dia["dia_numero"] = self._mes[num_semana][i][1]
                                           dia["feriado"]    = self._mes[num_semana][i][4]
                                           empleados = []
-                                          for j in self._all_empleadoAnterior:
+                                          
+
+                                          if self._all_empleadoAnterior == range(0):
+                                                all_anterior = self._all_empleado
+                                          else:
+                                                all_anterior = self._all_empleadoAnterior
+
+                                          for j in all_anterior:
                                                 if self._mes[num_semana][i][3][j][0].Name() != '0':
                                                       emp_turn = {}
                                                       is_working = False
@@ -58,7 +65,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                                   emp_turn["turno"] = t+1
                                                                   emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
                                                                   #if self._mes[num_semana][i][4]: contador[j][3] = contador[j][3] + 1
-                                                                  contador[j][t] = contador[j][t] + 1 
+                                                                  #contador[j][t] = contador[j][t] + 1 
                                                       if not is_working:
                                                             emp_turn["turno"] = 0
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
@@ -93,7 +100,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                       empleados.append(emp_turn)
                                           dia["empleados"] = empleados
                                           
-                                          """if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month]:
+                                          if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month]:
                                                 result = {}
                                                 result["total_mes"] = self._turnos_totales
 
@@ -106,7 +113,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                       result["noche"] = result["noche"] + contador[e][2]
                                                       
                                                       result["emp_"+str(e+1)] = contador[e]
-                                          """
+                                          
                                                 #result["emp_1"] = contador[0]
                                                 #result["emp_2"] = contador[1]
                                                 #result["emp_3"] = contador[2]
@@ -122,7 +129,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                           #     result["feriado_4"] = contador[3][3]
                                           #      result["feriado_5"] = contador[4][3]
 
-                                                #dia["resultado"] = result
+                                                dia["resultado"] = result
                                           json_v.append(dia)
                   print(json.dumps(json_v))
             
