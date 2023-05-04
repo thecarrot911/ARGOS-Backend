@@ -16,11 +16,7 @@ itinerario = json.loads(sys.argv[4]) # Si no hay devuevlve un []
 planificacionAnterior = json.loads(sys.argv[5]) # Si no hay devuelve un None
 empPlan = sys.argv[6:]
 
-
-# Definir la función para extraer el número de RUT
-def extraer_numero_rut(rut):
-    numero_rut = re.sub("[^0-9]", "", rut)
-    return int(numero_rut)
+#print(itinerario)
 
 empleadoPlanificacionAnterior = []
 if planificacionAnterior != None:
@@ -28,10 +24,6 @@ if planificacionAnterior != None:
         for empleado in dia:
             empleadoPlanificacionAnterior.append(empleado[1])
         break
-
-# Ordenar la lista según el número de RUT extraído
-#empPlan = sorted(empPlan, key=extraer_numero_rut)
-#empleadoPlanificacionAnterior = sorted(empleadoPlanificacionAnterior, key=extraer_numero_rut)
 
 empleadoPlanificacion = []
 
@@ -107,22 +99,21 @@ modelo = CantidadMinimaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, nu
 modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, num_empleado ,cant_turno) # Modificada
 
 lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev)
-print(turnos_totales) # Bueno 5,
-modelo, turnos_totales = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior) #Modificada para 5 y 7 empleados
-print(turnos_totales) # Bueno 5,
+#print(turnos_totales) # Bueno 5
+modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior) #Modificada para 5 y 7 empleados
+#print(turnos_totales) # Bueno 5,
 turnos_totales, domingos_asignacion = ContabilizandoTurnosDomingo(mes,domingos,cant_turno,turnos_totales, num_empleado) # Modificada sin itinerario
-print(turnos_totales) # Bueno 5 (5 y 4 domingo), 
+#print(turnos_totales) # Bueno 5 (5 y 4 domingo) 
+
 # Falta para las demás planificaciones
-modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo, mes, meses_anio,month_prev, month,cont_semana,cant_turno,lista_itinerario, num_empleado,num_empleadoAnterior) # Modificada?
+#modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo, mes, meses_anio,month_prev, month,cont_semana,cant_turno,lista_itinerario, num_empleado,num_empleadoAnterior) # Modificada [ARREGLANDO]
 
-modelo = AsignacionTurnos(modelo,mes,planificacionAnterior,empleadoPlanificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion) # Modificada
+modelo = AsignacionTurnos(modelo,mes,planificacionAnterior,empleadoPlanificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion) # Modificar [Funciona]
 
-#modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos,meses_anio, month, month_prev, all_empleadoAnterior, empleadoPlanificacion) # Modificada
+modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos,meses_anio, month, month_prev, all_empleadoAnterior, empleadoPlanificacion) # Modificar
 
-#modelo, mes = NoAdmitenTurnosSeguidos(all_empleado, cont_semana, mes, modelo) # Modificar
+modelo, mes = NoAdmitenTurnosSeguidos(all_empleado,all_empleadoAnterior , cont_semana, mes, modelo, meses_anio, month, month_prev, empleadoPlanificacion) # Modificar [PROBAR]
 
-
-# AGREGAR UNA FUNCIÓN QUE INDIQUE QUE EL ANTIGUO NO PUEDE ESTAR CON EL NUEVO
 
 # Crea el solver y la solución
 solver = cp_model.CpSolver()

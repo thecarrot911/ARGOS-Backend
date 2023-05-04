@@ -9,7 +9,7 @@ class Planificacion {
             this.cantidad_empleado = empleados.length,
             this.mes_planificacion = mes_planificacion,
             this.empleados = empleados,
-            this.itinerario = JSON.stringify(itinerario)
+            this.itinerario = JSON.stringify([])//JSON.stringify(itinerario)
       }
 
       PlanificacionDelMesAnterior = async() =>{
