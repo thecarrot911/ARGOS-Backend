@@ -106,7 +106,7 @@ turnos_totales, domingos_asignacion = ContabilizandoTurnosDomingo(mes,domingos,c
 #print(turnos_totales) # Bueno 5 (5 y 4 domingo) 
 
 # Falta para las demás planificaciones
-#modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo, mes, meses_anio,month_prev, month,cont_semana,cant_turno,lista_itinerario, num_empleado,num_empleadoAnterior) # Modificada [ARREGLANDO]
+modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo, mes, meses_anio,month_prev, month,cont_semana,cant_turno,lista_itinerario, num_empleado,num_empleadoAnterior) # Modificada [ARREGLANDO]
 
 modelo = AsignacionTurnos(modelo,mes,planificacionAnterior,empleadoPlanificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion) # Modificar [Funciona]
 
@@ -125,7 +125,7 @@ solution_limit = 1
 solution_number = random.randint(1,solution_limit)
 solution_printer = SolutionPrinter(solution_number,solution_limit, mes, 
     all_empleado, cont_semana, meses_anio, month, cant_turno, month_prev, all_dias, empleadoPlanificacion, turnos_totales,all_empleadoAnterior)
-solver.Solve(modelo, solution_printer)
+#solver.Solve(modelo, solution_printer)
 
 # Statistics.
 #print('\nStatistics')
