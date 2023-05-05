@@ -37,7 +37,6 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                   json_v = []
 
                   contador = [[0 for j in range(self._cant_turno)] for i in self._all_empleado]
-
                   for num_semana in range(len(self._cont_semana)):
                         for i in range(self._cont_semana[num_semana]):
                               #if self._mes[num_semana][i][2] == "Domingo":
@@ -111,21 +110,6 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                       result["noche"] = result["noche"] + contador[e][2]
                                                       
                                                       result["emp_"+str(e+1)] = contador[e]
-                                          
-                                                #result["emp_1"] = contador[0]
-                                                #result["emp_2"] = contador[1]
-                                                #result["emp_3"] = contador[2]
-                                                #result["emp_4"] = contador[3]
-                                                #result["emp_5"] = contador[4]
-                                                #result["emp_6"] = contador[5]
-                                                #result["emp_7"] = contador[6]
-
-
-                                          #      result["feriado_1"] = contador[0][3]
-                                          #      result["feriado_2"] = contador[1][3]
-                                          #      result["feriado_3"] = contador[2][3]
-                                          #     result["feriado_4"] = contador[3][3]
-                                          #      result["feriado_5"] = contador[4][3]
 
                                                 dia["resultado"] = result
                                           json_v.append(dia)

@@ -1,4 +1,3 @@
-import re
 import json
 import sys
 import random
@@ -50,6 +49,7 @@ meses_anio = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto",
 
 # Rango de empleados totales
 all_empleado = range(len(empleadoPlanificacion)) # 0..num_empleado-1
+#print(all_empleado)
 
 # Rango de empleados totales de la planificación Anterior
 all_empleadoAnterior = range(len(empleadoPlanificacionAnterior))
@@ -99,17 +99,18 @@ modelo = CantidadMinimaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, nu
 modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, num_empleado ,cant_turno) # Modificada
 
 lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev)
-#print(turnos_totales) # Bueno 5
+print(turnos_totales)
 modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior) #Modificada para 5 y 7 empleados
-#print(turnos_totales) # Bueno 5,
+print(turnos_totales)
 turnos_totales, domingos_asignacion = ContabilizandoTurnosDomingo(mes,domingos,cant_turno,turnos_totales, num_empleado) # Modificada sin itinerario
-#print(turnos_totales) # Bueno 5 (5 y 4 domingo) 
+print(turnos_totales)
 
 # Falta para las demás planificaciones
 modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo, mes, meses_anio,month_prev, month,cont_semana,cant_turno,lista_itinerario, num_empleado,num_empleadoAnterior) # Modificada [ARREGLANDO]
 
 modelo = AsignacionTurnos(modelo,mes,planificacionAnterior,empleadoPlanificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion) # Modificar [Funciona]
 
+# Bueno
 modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos,meses_anio, month, month_prev, all_empleadoAnterior, empleadoPlanificacion) # Modificar
 
 modelo, mes = NoAdmitenTurnosSeguidos(all_empleado,all_empleadoAnterior , cont_semana, mes, modelo, meses_anio, month, month_prev, empleadoPlanificacion) # Modificar [PROBAR]
@@ -125,7 +126,7 @@ solution_limit = 1
 solution_number = random.randint(1,solution_limit)
 solution_printer = SolutionPrinter(solution_number,solution_limit, mes, 
     all_empleado, cont_semana, meses_anio, month, cant_turno, month_prev, all_dias, empleadoPlanificacion, turnos_totales,all_empleadoAnterior)
-#solver.Solve(modelo, solution_printer)
+solver.Solve(modelo, solution_printer)
 
 # Statistics.
 #print('\nStatistics')
@@ -133,4 +134,3 @@ solution_printer = SolutionPrinter(solution_number,solution_limit, mes,
 #print('  - branches       : %i' % solver.NumBranches())
 #print('  - wall time      : %f s' % solver.WallTime())
 #print('  - solutions found: %i' % solution_printer.solution_count())
-
