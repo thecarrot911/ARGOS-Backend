@@ -25,6 +25,7 @@ def ListaEmpleadoParaCadaTurno(
       for semana in range(len(cont_semana)):
             semana_trabajo = []
             trabajo_extra = turnos_extra
+
             for dia in range(cont_semana[semana]):
                   if mes[semana][dia][0] == meses_anio[month-1]: 
                         
@@ -52,7 +53,9 @@ def ListaEmpleadoParaCadaTurno(
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 2"),
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 3")
                               ])
-                              if dia != Domingo: AgregandoTurnosTotales(turnos_totales, cant_turno)
+                              if dia != Domingo: 
+                                    AgregandoTurnosTotales(turnos_totales, cant_turno)
+                                    #print(mes[semana][dia][1], mes[semana][dia][0])
                   
                   elif mes[semana][dia][0] == meses_anio[month_prev-1]: 
                         
@@ -72,12 +75,12 @@ def ListaEmpleadoParaCadaTurno(
                         
                         if dia != Domingo and planificacionAnterior == None: # Solo cuenta cuando no hay planificación anterior
                               AgregandoTurnosTotales(turnos_totales, cant_turno)
+                              #print(mes[semana][dia][1], mes[semana][dia][0])
 
                   else: 
                         
                         # Corresponde al mes del futuro
                         #print((mes[semana][dia][0],mes[semana][dia][1]))
-
                         semana_trabajo.append([
                               modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 1"),
                               modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 2"),
