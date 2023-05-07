@@ -97,7 +97,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                       empleados.append(emp_turn)
                                           dia["empleados"] = empleados
                                           
-                                          if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month]:
+                                          if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month-1]:
                                                 result = {}
                                                 result["total_mes"] = self._turnos_totales
 

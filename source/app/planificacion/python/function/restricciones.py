@@ -293,7 +293,6 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
       for semana in range(len(cont_semana)):
             cantidad_turno_extra = lista_turno_extra[semana]
             for diaSemana in range(cont_semana[semana]):
-
                   # Si no hay turno extra, se sale del for
                   if cantidad_turno_extra == 0: break
                   # Si hay turno extra, se sigue iterando
@@ -321,12 +320,15 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                 cantidad_turno_extra = cantidad_turno_extra - 1
                                                 modelo.Add(lista_itinerario[semana][diaSemana][0] >= 2) # 2 Personas en la mañana
                                     
+                                    else: #Mes siguiente
+                                          cantidad_turno_extra = cantidad_turno_extra - 1
 
 
                               elif diaSemana > LunesASabado:
-                                    print(cantidad_turno_extra,'fuera')
+                                    #print(cantidad_turno_extra,'fuera')
                                     jornada[1] = True
                                     vuelta = 1
+
                                     for dia in itertools.cycle(range(cont_semana[semana])):
                                           if cantidad_turno_extra == 0: break
                                           if jornada[0]: # Turno de la Mañana
@@ -343,6 +345,10 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                                   turnos_totales[0] = turnos_totales[0] + 1
                                                                   cantidad_turno_extra = cantidad_turno_extra -1
                                                                   modelo.Add(lista_itinerario[semana][dia][0] >= vuelta + 1)
+                                                      
+                                                      else:
+                                                            #Mes siguiente al actual
+                                                            cantidad_turno_extra = cantidad_turno_extra - 1
 
                                                 else:
                                                       jornada[0] = False
@@ -350,7 +356,6 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                           
                                           elif jornada[1]: # Turno de la Tarde
                                                 if dia <= LunesASabado:
-
                                                       if meses_anio[month-1] == mes[semana][dia][0]:
                                                             turnos_totales[1] = turnos_totales[1] + 1
                                                             cantidad_turno_extra = cantidad_turno_extra - 1
@@ -362,10 +367,12 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                                   turnos_totales[1] = turnos_totales[1] + 1
                                                                   cantidad_turno_extra = cantidad_turno_extra - 1
                                                                   modelo.Add(lista_itinerario[semana][dia][1] >= vuelta + 1)
-
+                                                      else:
+                                                            #Mes siguiente al actual
+                                                            cantidad_turno_extra = cantidad_turno_extra - 1
 
                                                 else:
-                                                      print(cantidad_turno_extra,'tarde')
+                                                      #print(cantidad_turno_extra,'tarde')
                                                       jornada[1] = False
                                                       jornada[2] = True
                                           
@@ -382,10 +389,12 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                                   turnos_totales[2] = turnos_totales[2] + 1
                                                                   cantidad_turno_extra = cantidad_turno_extra - 1
                                                                   modelo.Add(lista_itinerario[semana][dia][2] >= vuelta + 1)
-
+                                                      else:
+                                                            #Mes siguiente al actual
+                                                            cantidad_turno_extra = cantidad_turno_extra - 1
 
                                                 else:
-                                                      print(cantidad_turno_extra,'noche')
+                                                      #print(cantidad_turno_extra,'noche')
                                                       jornada[2] = False
                                                       jornada[0] = True
                                                       vuelta = vuelta + 1
@@ -403,7 +412,6 @@ def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, mes: list[li
 
       # No hay planificación Anterior
       if num_empleadoAnterior == 0: 
-
             for semana in range(len(cont_semana)):
                   lista_semana = []
                   for dia in range(cont_semana[semana]):
@@ -418,61 +426,20 @@ def CantidadEmpleadoTrabajandoXSemanaYDia(modelo: cp_model.CpModel, mes: list[li
 
       # Hay planificación Anterior
       else:
-            """for dia in range(cont_semana[0]):
-                  lista_dia = []
-                  if meses_anio[month_prev-1] == mes[0][dia][0] and dia != Domingo:
-                        for turno in range(cant_turno):
-                              lista_dia.append(list_itinerario[0][dia][turno])
-                        modelo.Add(sum(lista_dia)<=num_empleadoAnterior)
-                  
-                  elif meses_anio[month-1] == mes[0][dia][0] and dia != Domingo:
-                        for turno in range(cant_turno):
-                              lista_dia.append(list_itinerario[0][dia][turno])
-                        modelo.Add(sum(lista_dia)<=num_empleado)
 
-                  modelo.Add(sum(lista_dia)>=cant_turno)"""
             for semana in range(1,len(cont_semana)):
-                  #lista_semana = []
+                  lista_semana = []
                   for dia in range(cont_semana[semana]):
                         if dia != Domingo:
                               lista_dia = []
                               for turno in range(cant_turno):
-                                    #lista_semana.append(list_itinerario[semana][dia][turno])
+                                    lista_semana.append(list_itinerario[semana][dia][turno])
                                     lista_dia.append(list_itinerario[semana][dia][turno])
                               modelo.Add(sum(lista_dia)<=num_empleado)
                               modelo.Add(sum(lista_dia)>=cant_turno)
-                  #modelo.Add(sum(lista_semana)==(num_empleado*6)-num_empleado)
-
-      """for dia in range(cont_semana[0]):
-            lista_dia = []
-            if meses_anio[month_prev-1] == mes[0][dia][0] and dia != Domingo:
-                  for turno in range(cant_turno):
-                        lista_semana_Anterior.append(list_itinerario[0][dia][turno])
-                        lista_dia.append(list_itinerario[0][dia][turno])
-                  #modelo.Add(sum(lista_dia)<=num_empleadoAnterior)
-                  #modelo.Add(sum(lista_dia)>=cant_turno)
-            
-            elif meses_anio[month-1] == mes[0][dia][0] and dia != Domingo:
-                  for turno in range(cant_turno):
-                        lista_semana_Anterior.append(list_itinerario[0][dia][turno])
-                        lista_dia.append(list_itinerario[0][dia][turno])
-                  modelo.Add(sum(lista_dia)<=num_empleado)
-                  modelo.Add(sum(lista_dia)>=cant_turno)"""
-      
-
-      """for semana in range(1,len(cont_semana)):
-            lista_semana = []
-            for dia in range(cont_semana[semana]):
-                  if dia != Domingo:
-                        lista_dia = []
-                        for turno in range(cant_turno):
-                              lista_semana.append(list_itinerario[semana][dia][turno])
-                              lista_dia.append(list_itinerario[semana][dia][turno])
-                        modelo.Add(sum(lista_dia)<=num_empleado)
-                        modelo.Add(sum(lista_dia)>=cant_turno)
-            modelo.Add(sum(lista_semana)==(num_empleado*6)-num_empleado) # Esta bien, creo"""
-
-
+                  
+                  if lista_semana:
+                        modelo.Add(sum(lista_semana)==(num_empleado*6)-num_empleado)
       return modelo
 
 def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list],planificacionAnterior: None ,empleadoPlanificacionAnterior: list[str] , lista_itinerario: list ,cont_semana: list, 
