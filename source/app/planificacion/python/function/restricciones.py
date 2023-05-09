@@ -18,7 +18,7 @@ def EmpleadoTrabajoPorDia(all_empleado: range, cont_semana: list, modelo:cp_mode
       for e in all_empleado:
             for num_semana in range(len(cont_semana)):
                   for i in range(cont_semana[num_semana]):
-                        if meses_anio[month-1] == mes[num_semana][i][0]:
+                        if meses_anio[month_prev-1] != mes[num_semana][i][0]: # Se cambio a distinto del mes pasado, para incluir futuro
                               modelo.AddAtMostOne(mes[num_semana][i][3][e][t] for t in range(cant_turno))
       
       # Restricción para el mes anterior (Asegurar)
@@ -95,35 +95,12 @@ def NoAdmitenTurnosSeguidos(all_empleado: range,all_empleadoAnterior: range , co
       """
       diaSiguiente = 1
 
-      """for empleado in all_empleado:
-            for semana in range(len(cont_semana)):
-                  for dia in range(cont_semana[semana]):
-                        lista_turno = []
-                        if(dia+dia_siguiente!=cont_semana[semana]):
-                              lista_turno.append(mes[semana][i][3][e][2])
-                              lista_turno.append(mes[semana][i+1][3][e][0])
-
-                              if mes[semana][i][3][e][2].Name() == mes[semana][i+1][3][e][0].Name():
-                                    modelo.Add(sum(lista_turno) <= 1)
-                              else:
-                                    modelo.Add(sum(lista_turno) <= 2)
-
-                        else: 
-                              if((i+1)*(semana+1)< len(mes[semana])*len(mes)):
-                                    lista_turno.append(mes[semana][i][3][e][2])
-                                    lista_turno.append(mes[semana+1][0][3][e][0])
-
-                                    if mes[semana][i][3][e][2].Name() == mes[semana+1][0][3][e][0].Name():
-                                          modelo.Add(sum(lista_turno) <= 1)
-                                    else:
-                                          modelo.Add(sum(lista_turno) <= 2)
-      """
       # No hay planificación Anterior
       if all_empleadoAnterior == range(0):
             for empleado in all_empleado:
                   for semana in range(len(cont_semana)):
                         for dia in range(cont_semana[semana]):
-                              if meses_anio[month_prev-1] == mes[semana][dia][0] or meses_anio[month-1] == mes[semana][dia][0]:
+                              #if meses_anio[month_prev-1] == mes[semana][dia][0] or meses_anio[month-1] == mes[semana][dia][0]:
                                     lista = []
 
                                     if dia + diaSiguiente != cont_semana[semana]:
@@ -167,7 +144,8 @@ def NoAdmitenTurnosSeguidos(all_empleado: range,all_empleadoAnterior: range , co
             for empleado in all_empleado:
                   for semana in range(1,len(cont_semana)):
                         for dia in range(cont_semana[semana]):
-                              if mes[semana][dia][0] == meses_anio[month-1] and mes[semana][dia][3][empleado][0].Name() != '0':
+                              #if mes[semana][dia][0] == meses_anio[month-1] and mes[semana][dia][3][empleado][0].Name() != '0':
+                              if mes[semana][dia][3][empleado][0].Name() != '0':
                                     lista = []
 
                                     if dia + diaSiguiente != cont_semana[semana]:
@@ -322,6 +300,7 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                     
                                     else: #Mes siguiente
                                           cantidad_turno_extra = cantidad_turno_extra - 1
+                                          modelo.Add(lista_itinerario[semana][diaSemana][0] >= 2) # 2 Personas en la mañana
 
 
                               elif diaSemana > LunesASabado:
@@ -349,6 +328,7 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                       else:
                                                             #Mes siguiente al actual
                                                             cantidad_turno_extra = cantidad_turno_extra - 1
+                                                            modelo.Add(lista_itinerario[semana][dia][0] >= vuelta + 1) # 2 Personas en la mañana
 
                                                 else:
                                                       jornada[0] = False
@@ -370,6 +350,7 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                       else:
                                                             #Mes siguiente al actual
                                                             cantidad_turno_extra = cantidad_turno_extra - 1
+                                                            modelo.Add(lista_itinerario[semana][dia][1] >= vuelta + 1) # 2 Personas en la mañana
 
                                                 else:
                                                       #print(cantidad_turno_extra,'tarde')
@@ -392,6 +373,7 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                                                       else:
                                                             #Mes siguiente al actual
                                                             cantidad_turno_extra = cantidad_turno_extra - 1
+                                                            modelo.Add(lista_itinerario[semana][dia][2] >= vuelta + 1)
 
                                                 else:
                                                       #print(cantidad_turno_extra,'noche')
@@ -463,12 +445,10 @@ def AsignacionTurnos(modelo: cp_model.CpModel, mes: list[list],planificacionAnte
                                           for turno in range(cant_turno):
                                                 if planificacionAnterior[dia][empleado][2] == turno+1:
                                                       modelo.Add(mes[semana][dia][3][empleado][turno]==1)
-                                                      print()
                                                 else:
                                                       modelo.Add(mes[semana][dia][3][empleado][turno]==0)
-                                                      print()
 
-                  else: # MES ACTUAL y SI NO HAY PLANIFICACION ANTERIOR ENTRA EL MES PASADO
+                  else: # MES ACTUAL y SI NO HAY PLANIFICACION ANTERIOR ENTRA EL MES PASADO Y FUTURO
                         for turno in range(cant_turno):
                               lista = []
                               for empleado in all_empleado:

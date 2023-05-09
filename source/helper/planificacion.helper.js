@@ -19,6 +19,22 @@ const GenerarListaPlanificacion = async(datosPlanificacion) => {
       return Object.values(planificacion);
 };
 
+const GenerarPlanificacionesAnuales = async (datosPlanificacionesAnuales) => {
+      let planificacion = datosPlanificacionesAnuales.reduce((anio, actual) => {
+            anio[actual.year] = anio[actual.year] || {
+                  year: actual.year,
+                  months: []
+            };
+            anio[actual.year].months.push({
+                  month: actual.month,
+                  id: actual.planificacion_id,
+            });
+            return anio;
+      },[]);
+      planificacion = Object.values(planificacion);
+      return planificacion.sort((obj1, obj2) => obj2.year - obj1.year);
+};
+
 const GenerarListaPlanificacionAnual = async (datosPlanificacionAnual) => {
       const planificacionAnual = datosPlanificacionAnual.reduce((mes, actual) => {
             mes[actual.planificacion_id] = mes[actual.planificacion_id] || {
@@ -116,6 +132,7 @@ const ObtenerUltimaSemanaDelMes = async(planificacion) =>{
 module.exports.planificacionHelper = {
       GenerarListaPlanificacion,
       ObtenerUltimaSemanaDelMes,
+      GenerarPlanificacionesAnuales,
       ObtenerMes,
       OrdenarLista,
       GenerarListaPlanificacionAnual

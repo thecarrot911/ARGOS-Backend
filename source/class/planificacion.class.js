@@ -7,9 +7,8 @@ class Planificacion {
             this.anio = parseInt(anio),
             this.mes = parseInt(mes),
             this.cantidad_empleado = empleados.length,
-            this.mes_planificacion = mes_planificacion,
             this.empleados = empleados,
-            this.itinerario = JSON.stringify([])//JSON.stringify(itinerario)
+            this.itinerario = JSON.stringify(itinerario)
       }
 
       PlanificacionDelMesAnterior = async() =>{
@@ -152,6 +151,11 @@ class Planificacion {
             `;
             return await conexion.query(sql)
       };
+
+      static Anuales = async() =>{
+            const sql = `SELECT * FROM planificacion`;
+            return await conexion.query(sql);
+      }
 }
 
 module.exports = Planificacion;

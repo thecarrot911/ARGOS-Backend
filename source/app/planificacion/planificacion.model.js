@@ -3,7 +3,6 @@ const Planificacion = require("../../class/planificacion.class");
 const { planificacionHelper } = require("../../helper/planificacion.helper");
 
 const GenerarPlanificacion = async(DatosPlanificacion) =>{
-      
       const planificacion = new Planificacion(DatosPlanificacion);
       let planificacionAnterior = await planificacion.PlanificacionDelMesAnterior();
       planificacionAnterior = await planificacionHelper.GenerarListaPlanificacion(planificacionAnterior);
@@ -18,12 +17,12 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
             // NO HAY PLANIFICACION ANTERIOR
             planificacionMensual = await planificacion.GenerarPlanificacion(null);
       }
-
+      
       //Guardar Planificación
-      /*const planificacion_id = await planificacion.GuardarPlanificacion();
+      const planificacion_id = await planificacion.GuardarPlanificacion();
       const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
       const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
-      await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);*/
+      await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
       return planificacionMensual;
 };
 
@@ -48,9 +47,14 @@ const PlanificacionAnual = async(year) =>{
       return ListaPlanificacionAnual;
 };
 
+const PlanificacionesAnuales = async() =>{
+      const DatosPlanificacionesAnuales = await Planificacion.Anuales();
+      const ListaPlanificacionAnual = await planificacionHelper.GenerarPlanificacionesAnuales(DatosPlanificacionesAnuales)
+      return ListaPlanificacionAnual;
+};
 
 module.exports.planificacionModel = {
       GenerarPlanificacion,
       UltimaPlanificacion,
-      PlanificacionAnual
-}
+      PlanificacionesAnuales
+};

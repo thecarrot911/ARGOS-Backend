@@ -67,12 +67,10 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                       if not is_working:
                                                             emp_turn["turno"] = 0
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
-                                                            #contador[j][0] = contador[j][0] + 1
                                                       empleados.append(emp_turn)
                                           dia["empleados"] = empleados
                                           json_v.append(dia)
 
-                                    #if self._mes[num_semana][i][0] == self._meses_anio[self._month-1]:
                                     elif self._mes[num_semana][i][0] == self._meses_anio[self._month-1]:
                                           dia = {}
                                           dia["comodin"] = 0
@@ -93,11 +91,10 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                       if not is_working:
                                                             emp_turn["turno"] = 0
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
-                                                            #contador[j][0] = contador[j][0] + 1
                                                       empleados.append(emp_turn)
                                           dia["empleados"] = empleados
                                           
-                                          if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month-1]:
+                                          """if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month-1]:
                                                 result = {}
                                                 result["total_mes"] = self._turnos_totales
 
@@ -111,7 +108,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                       
                                                       result["emp_"+str(e+1)] = contador[e]
 
-                                                dia["resultado"] = result
+                                                dia["resultado"] = result"""
                                           json_v.append(dia)
                   print(json.dumps(json_v))
             
