@@ -137,7 +137,7 @@ solver.parameters.enumerate_all_solutions = True
 solution_limit = 1
 solution_number = random.randint(1,solution_limit)
 solution_printer = SolutionPrinter(solution_number,solution_limit, mes, 
-    all_empleado, cont_semana, meses_anio, month, cant_turno, month_prev, all_dias, empleadoPlanificacion, turnos_totales,all_empleadoAnterior)
+    all_empleado, cont_semana, meses_anio, month, cant_turno, month_prev, all_dias, empleadoPlanificacion, turnos_totales,all_empleadoAnterior, planificacionAnterior)
 solver.Solve(modelo, solution_printer)
 
 # Statistics.

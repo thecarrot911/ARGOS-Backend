@@ -19,15 +19,18 @@ const GenerarListaPlanificacion = async(datosPlanificacion) => {
       return Object.values(planificacion);
 };
 
-const GenerarPlanificacionesAnuales = async (datosPlanificacionesAnuales) => {
+const GenerarPlanificacionesAnuales = async (datosPlanificacionesAnuales, datosEstadisticasPlanificacion) => {
       let planificacion = datosPlanificacionesAnuales.reduce((anio, actual) => {
             anio[actual.year] = anio[actual.year] || {
                   year: actual.year,
-                  months: []
+                  months: [],
             };
             anio[actual.year].months.push({
                   month: actual.month,
                   id: actual.planificacion_id,
+                  estadistica: datosEstadisticasPlanificacion.filter( 
+                        planificacion => planificacion.month == actual.month)
+
             });
             return anio;
       },[]);

@@ -41,7 +41,7 @@ const UltimaPlanificacion = async() =>{
       return data;
 };
 
-const PlanificacionAnual = async(year) =>{
+const MostrarPlanificacion = async(year) =>{
       const DatosPlanificacionAnual = await Planificacion.Anual(year);
       const ListaPlanificacionAnual = await planificacionHelper.GenerarListaPlanificacionAnual(DatosPlanificacionAnual);
       return ListaPlanificacionAnual;
@@ -49,12 +49,14 @@ const PlanificacionAnual = async(year) =>{
 
 const PlanificacionesAnuales = async() =>{
       const DatosPlanificacionesAnuales = await Planificacion.Anuales();
-      const ListaPlanificacionAnual = await planificacionHelper.GenerarPlanificacionesAnuales(DatosPlanificacionesAnuales)
+      const DatosEstadisticasPlanificacion = await Planificacion.Estadistica();
+      const ListaPlanificacionAnual = await planificacionHelper.GenerarPlanificacionesAnuales(DatosPlanificacionesAnuales,DatosEstadisticasPlanificacion)
       return ListaPlanificacionAnual;
 };
 
 module.exports.planificacionModel = {
       GenerarPlanificacion,
       UltimaPlanificacion,
-      PlanificacionesAnuales
+      PlanificacionesAnuales,
+      MostrarPlanificacion
 };

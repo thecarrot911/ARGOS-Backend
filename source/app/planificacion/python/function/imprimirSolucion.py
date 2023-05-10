@@ -7,7 +7,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
 
       def __init__(self,solution_number: int, solution_limit: int, mes: list[list], all_empleado: range, 
             cont_semana: list, meses_anio: list[str], month: int, cant_turno: int,
-            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales, all_empleadoAnterior: range): 
+            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales, all_empleadoAnterior: range,planificacionAnterior: None ): 
 
             cp_model.CpSolverSolutionCallback.__init__(self)
             self._lista_alarma_turno = []  #lista_alarma_turno
@@ -28,6 +28,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
             self._cant_turno = cant_turno
             self._empleadoPlanificacion = empleadoPlanificacion
             self._turnos_totales = turnos_totales
+            self._planificacionAnterior = planificacionAnterior
       
       
       def on_solution_callback(self):
@@ -40,7 +41,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                   for num_semana in range(len(self._cont_semana)):
                         for i in range(self._cont_semana[num_semana]):
                               #if self._mes[num_semana][i][2] == "Domingo":
-                                    if self._mes[num_semana][i][0] == self._meses_anio[self._month_prev-1]:
+                                    if self._mes[num_semana][i][0] == self._meses_anio[self._month_prev-1] and self._planificacionAnterior == None:
                                           dia = {}
                                           dia["comodin"] = 0
                                           dia["dia_semana"] = self._mes[num_semana][i][2]

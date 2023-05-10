@@ -156,6 +156,41 @@ class Planificacion {
             const sql = `SELECT * FROM planificacion`;
             return await conexion.query(sql);
       }
+
+      static Estadistica = async() =>{
+            const sql = `
+            SELECT planificacion.month, empleado.rut, empleado.nombre_paterno, 
+                  empleado.apellido_paterno, empleado.imagen,
+                  SUM(CASE WHEN dia.feriado = 1 THEN 1 ELSE 0 END) feriado,
+                  SUM(CASE WHEN turno.turno = 0 THEN 1 ELSE 0 END) libre,
+                  SUM(CASE WHEN turno.turno = 1 THEN 1 ELSE 0 END) turno1,
+                  SUM(CASE WHEN turno.turno = 2 THEN 1 ELSE 0 END) turno2,
+                  SUM(CASE WHEN turno.turno = 3 THEN 1 ELSE 0 END) turno3
+            FROM planificacion
+                  INNER JOIN dia AS dia ON planificacion.planificacion_id = dia.planificacion_id
+                  INNER JOIN turno AS turno ON dia.id = turno.dia_id
+                  INNER JOIN turno_dia AS turno_dia ON turno.id = turno_dia.turno_id
+                  INNER JOIN empleado AS empleado ON turno_dia.empleado_rut = empleado.rut
+            WHERE planificacion.year = 2015
+            GROUP BY empleado.rut, planificacion.planificacion_id
+            ORDER BY year DESC,
+            CASE month
+                  WHEN 'enero' THEN 1
+                  WHEN 'febrero' THEN 2
+                  WHEN 'marzo' THEN 3
+                  WHEN 'abril' THEN 4
+                  WHEN 'mayo' THEN 5
+                  WHEN 'junio' THEN 6
+                  WHEN 'julio' THEN 7
+                  WHEN 'agosto' THEN 8
+                  WHEN 'septiembre' THEN 9
+                  WHEN 'octubre' THEN 10
+                  WHEN 'noviembre' THEN 11
+                  WHEN 'diciembre' THEN 12
+            END ASC;`;
+
+            return await conexion.query(sql);
+      }
 }
 
 module.exports = Planificacion;
