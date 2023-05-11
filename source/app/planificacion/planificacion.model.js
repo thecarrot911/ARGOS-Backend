@@ -41,22 +41,32 @@ const UltimaPlanificacion = async() =>{
       return data;
 };
 
-const MostrarPlanificacion = async(year) =>{
+const MostrarPlanificaciones = async(year) =>{
       const DatosPlanificacionAnual = await Planificacion.Anual(year);
       const ListaPlanificacionAnual = await planificacionHelper.GenerarListaPlanificacionAnual(DatosPlanificacionAnual);
+      
+      const DatosEstadisticasPlanificacion = await Planificacion.Estadistica(year);
+      const ListaEstadistica = await planificacionHelper.GenerarPlanificacionesAnual(DatosEstadisticasPlanificacion);
+
+      for(let i=0;i<ListaPlanificacionAnual.length;i++){
+            for(let j=0;j<ListaEstadistica.length;j++){
+                  if(ListaEstadistica[j].month == ListaPlanificacionAnual[i].mes){
+                        ListaPlanificacionAnual[i]["estadistica"] = ListaEstadistica[j]
+                  }
+            }
+      }
+
       return ListaPlanificacionAnual;
 };
 
-const PlanificacionesAnuales = async() =>{
+const AniosPlanificacion = async() =>{
       const DatosPlanificacionesAnuales = await Planificacion.Anuales();
-      const DatosEstadisticasPlanificacion = await Planificacion.Estadistica();
-      const ListaPlanificacionAnual = await planificacionHelper.GenerarPlanificacionesAnuales(DatosPlanificacionesAnuales,DatosEstadisticasPlanificacion)
-      return ListaPlanificacionAnual;
+      return await planificacionHelper.GenerarPlanificacionesAnuales(DatosPlanificacionesAnuales);
 };
 
 module.exports.planificacionModel = {
       GenerarPlanificacion,
       UltimaPlanificacion,
-      PlanificacionesAnuales,
-      MostrarPlanificacion
+      MostrarPlanificaciones,
+      AniosPlanificacion
 };

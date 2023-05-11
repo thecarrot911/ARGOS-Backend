@@ -157,7 +157,7 @@ class Planificacion {
             return await conexion.query(sql);
       }
 
-      static Estadistica = async() =>{
+      static Estadistica = async(year) =>{
             const sql = `
             SELECT planificacion.month, empleado.rut, empleado.nombre_paterno, 
                   empleado.apellido_paterno, empleado.imagen,
@@ -171,7 +171,7 @@ class Planificacion {
                   INNER JOIN turno AS turno ON dia.id = turno.dia_id
                   INNER JOIN turno_dia AS turno_dia ON turno.id = turno_dia.turno_id
                   INNER JOIN empleado AS empleado ON turno_dia.empleado_rut = empleado.rut
-            WHERE planificacion.year = 2015
+            WHERE planificacion.year = ${year}
             GROUP BY empleado.rut, planificacion.planificacion_id
             ORDER BY year DESC,
             CASE month

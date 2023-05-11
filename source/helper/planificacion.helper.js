@@ -19,7 +19,30 @@ const GenerarListaPlanificacion = async(datosPlanificacion) => {
       return Object.values(planificacion);
 };
 
-const GenerarPlanificacionesAnuales = async (datosPlanificacionesAnuales, datosEstadisticasPlanificacion) => {
+const GenerarPlanificacionesAnual = async(datosEstadisticasPlanificacion) => {
+      let estadistica = datosEstadisticasPlanificacion.reduce((mes, actual) =>{
+            mes[actual.month] = mes[actual.month] || {
+                  month: actual.month,
+                  empleados: []
+            }
+
+            mes[actual.month].empleados.push({
+                  rut: actual.rut,
+                  nombre_paterno: actual.nombre_paterno,
+                  apellido_paterno: actual.apellido_paterno,
+                  imagen: actual.imagen,
+                  feriado: actual.feriado,
+                  libre: actual.libre,
+                  turno1: actual.turno1,
+                  turno2: actual.turno2,
+                  turno3: actual.turno3
+            });
+            return mes
+      },[]);
+      return Object.values(estadistica)
+};
+
+const GenerarPlanificacionesAnuales = async (datosPlanificacionesAnuales) => {
       let planificacion = datosPlanificacionesAnuales.reduce((anio, actual) => {
             anio[actual.year] = anio[actual.year] || {
                   year: actual.year,
@@ -28,9 +51,6 @@ const GenerarPlanificacionesAnuales = async (datosPlanificacionesAnuales, datosE
             anio[actual.year].months.push({
                   month: actual.month,
                   id: actual.planificacion_id,
-                  estadistica: datosEstadisticasPlanificacion.filter( 
-                        planificacion => planificacion.month == actual.month)
-
             });
             return anio;
       },[]);
@@ -138,5 +158,6 @@ module.exports.planificacionHelper = {
       GenerarPlanificacionesAnuales,
       ObtenerMes,
       OrdenarLista,
-      GenerarListaPlanificacionAnual
+      GenerarListaPlanificacionAnual,
+      GenerarPlanificacionesAnual
 };
