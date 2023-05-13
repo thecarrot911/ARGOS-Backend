@@ -3,12 +3,13 @@ const conexion = require("../database");
 const { planificacionHelper } = require("../helper/planificacion.helper")
 
 class Planificacion {
-      constructor({ anio, mes, empleados, mes_planificacion, itinerario }) {
+      constructor({ anio, mes, empleados, itinerario, comodin }) {
             this.anio = parseInt(anio),
             this.mes = parseInt(mes),
             this.cantidad_empleado = empleados.length,
             this.empleados = empleados,
-            this.itinerario = JSON.stringify(itinerario)
+            this.itinerario = itinerario,
+            this.comodin = comodin
       }
 
       PlanificacionDelMesAnterior = async() =>{
@@ -43,9 +44,10 @@ class Planificacion {
                         this.anio,
                         this.mes,
                         this.cantidad_empleado,
-                        this.itinerario,
+                        JSON.stringify(this.itinerario),
                         JSON.stringify(planificacionAnterior),
-                        ...empleadosPlanificacion,
+                        this.comodin['rut'],
+                        ...empleadosPlanificacion
                   ]);
 
                   command.stdout.on("data", function (data) {
@@ -58,8 +60,8 @@ class Planificacion {
                   });
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
-                        //let json = planificacionMensual[0]
-                        const json = JSON.parse(planificacionMensual[0]);
+                        let json = planificacionMensual[0]
+                        //const json = JSON.parse(planificacionMensual[0]);
                         resolve(json);
                   });
                   command.on("error", function (err) {

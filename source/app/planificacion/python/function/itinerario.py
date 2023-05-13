@@ -30,16 +30,17 @@ def ListaEmpleadoParaCadaTurno(
                   if mes[semana][dia][0] == meses_anio[month-1]: 
                         
                         # Corresponde al mes actual
-                        itinerario_dia = [dia for dia in itinerario if dia["dia"] == mes[semana][dia][1] ]
+                        itinerario_dia = [iti for iti in itinerario if iti["dia"] == mes[semana][dia][1] ]
                         if itinerario_dia:
+                              print(itinerario_dia)
                               suma_itinerario = []
                               for _itinerario in itinerario_dia:
-
                                     suma_itinerario.append(_itinerario["aviones"])
                                     dia_trabajo = []
 
                                     if sum(suma_itinerario) + turno <= num_empleado and trabajo_extra - (_itinerario["aviones"] - 1) >= 0:
-                                          Condicion_1(modelo, _itinerario, cant_turno, dia_trabajo, num_empleado, semana_trabajo)
+                                          print()
+                                          #Condicion_1(modelo, _itinerario, cant_turno, dia_trabajo, num_empleado, semana_trabajo)
 
                                     elif sum(suma_itinerario) + turno <= num_empleado and trabajo_extra - (_itinerario["aviones"] - 1) < 0:
                                           Condicion_2()
@@ -97,7 +98,7 @@ def AgregandoTurnosTotales(turnos_totales: list[int], cant_turno: int):
       for t in range(cant_turno):
             turnos_totales[t] = turnos_totales[t] + 1
 
-def Condicion_1(modelo: cp_model.CpModel, _itinerario: object, cant_turno: int, dia_trabajo: list, num_empleado: int, semana_trabajo: list):
+def Condicion_1(modelo: cp_model.CpModel, _itinerario: object, cant_turno: int, dia_trabajo: list, num_empleado: int, semana_trabajo: list, trabajo):
       """ Se controla que el [itinerario] más los [turnos] no pida más de los empleados que hay y
       que el [itinerario] no exceda los dias extras de la semana [trabajo extra]"""
       

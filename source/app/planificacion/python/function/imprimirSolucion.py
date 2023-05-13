@@ -7,12 +7,13 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
 
       def __init__(self,solution_number: int, solution_limit: int, mes: list[list], all_empleado: range, 
             cont_semana: list, meses_anio: list[str], month: int, cant_turno: int,
-            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales, all_empleadoAnterior: range,planificacionAnterior: None ): 
+            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales, all_empleadoAnterior: range,planificacionAnterior: None, lista_comodin: list[list], comodin: object): 
 
             cp_model.CpSolverSolutionCallback.__init__(self)
             self._lista_alarma_turno = []  #lista_alarma_turno
-            self._lista_comodin_turno = [] #lista_comodin_turno
+            self._lista_comodin = lista_comodin
             self._solution_number = solution_number
+            self._comodin = comodin
             self._list_itinerario = [] #list_itinerario
             self._mes = mes
             self._cont_semana = cont_semana
@@ -93,23 +94,21 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                             emp_turn["turno"] = 0
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
                                                       empleados.append(emp_turn)
-                                          dia["empleados"] = empleados
+
+                                          for lista in self._lista_comodin:
+                                                domingo, turno = lista
+                                                if self._mes[num_semana][i][1] == domingo:
+                                                      dia["comodin"] = turno
+                                                      emp = {}
+                                                      emp["turno"] = turno
+                                                      emp["nombre"] = self._comodin
+                                                      empleados.append(emp)
+                                                      break
                                           
-                                          """if i == self._cont_semana[num_semana]-1 or self._mes[num_semana][i+1][0] == self._meses_anio[self._month-1]:
-                                                result = {}
-                                                result["total_mes"] = self._turnos_totales
+                                          dia["empleados"] = empleados
 
-                                                result["mañana"] = 0
-                                                result["tarde"] = 0
-                                                result["noche"] = 0
-                                                for e in self._all_empleado:
-                                                      result["mañana"] = result["mañana"] + contador[e][0]
-                                                      result["tarde"] = result["tarde"] + contador[e][1]
-                                                      result["noche"] = result["noche"] + contador[e][2]
-                                                      
-                                                      result["emp_"+str(e+1)] = contador[e]
+                                          #itinerario_dia = [dia for dia in itinerario if dia["dia"] == mes[semana][dia][1] ]
 
-                                                dia["resultado"] = result"""
                                           json_v.append(dia)
                   print(json.dumps(json_v))
             

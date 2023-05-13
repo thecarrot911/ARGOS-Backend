@@ -13,9 +13,11 @@ month = int(sys.argv[2])
 num_empleado = int(sys.argv[3])
 itinerario = json.loads(sys.argv[4]) # Si no hay devuevlve un []
 planificacionAnterior = json.loads(sys.argv[5]) # Si no hay devuelve un None
-empPlan = sys.argv[6:]
+comodin = sys.argv[6]
+empPlan = sys.argv[7:]
 
-#print(itinerario)
+for dia in itinerario:
+    dia["turno"] = int(dia["turno"])
 
 empleadoPlanificacionAnterior = []
 if planificacionAnterior != None:
@@ -112,7 +114,7 @@ lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales = ListaE
 modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior) #Modificada para 5 y 7 empleados
 #print(turnos_totales)
 
-turnos_totales, domingos_asignacion = ContabilizandoTurnosDomingo(mes,domingos,cant_turno,turnos_totales, num_empleado) # Modificada sin itinerario
+turnos_totales, domingos_asignacion, lista_comodin = ContabilizandoTurnosDomingo(mes,domingos,cant_turno,turnos_totales, num_empleado) # Modificada sin itinerario
 #print(turnos_totales)
 
 
@@ -137,8 +139,8 @@ solver.parameters.enumerate_all_solutions = True
 solution_limit = 1
 solution_number = random.randint(1,solution_limit)
 solution_printer = SolutionPrinter(solution_number,solution_limit, mes, 
-    all_empleado, cont_semana, meses_anio, month, cant_turno, month_prev, all_dias, empleadoPlanificacion, turnos_totales,all_empleadoAnterior, planificacionAnterior)
-solver.Solve(modelo, solution_printer)
+    all_empleado, cont_semana, meses_anio, month, cant_turno, month_prev, all_dias, empleadoPlanificacion, turnos_totales,all_empleadoAnterior, planificacionAnterior, lista_comodin, comodin)
+#solver.Solve(modelo, solution_printer)
 
 # Statistics.
 #print('\nStatistics')

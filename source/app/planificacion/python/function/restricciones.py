@@ -224,6 +224,8 @@ def ContabilizandoTurnosDomingo(mes: list[list], domingos: list[list], cant_turn
       
       ArrayDeDomingo = [[0]*cant_turno for _ in range(len(domingos))]
 
+      lista_comodin = []
+
       for domingo in ArrayDeDomingo:
             indice = 0
             for _ in range(cantidadMinimaDomingo):
@@ -243,7 +245,8 @@ def ContabilizandoTurnosDomingo(mes: list[list], domingos: list[list], cant_turn
             aux = ArrayDeDomingo.pop()
             domingos_asignacion.append(aux)
             for t in range(cant_turno):
-                  turnos_totales[t] = turnos_totales[t] + aux[t]
+                  if aux[t] == 0: lista_comodin.append([mes[num_semana][domingo][1],t+1])
+                  else: turnos_totales[t] = turnos_totales[t] + aux[t]
 
       """for domingo, num_semana in domingos:
             if len(domingos)==5:
@@ -260,7 +263,7 @@ def ContabilizandoTurnosDomingo(mes: list[list], domingos: list[list], cant_turn
                               if aux[t] == 0: comodin.append([mes[num_semana][domingo][1],t+1,1])
                               else: turnos_totales[t] = turnos_totales[t] + 1"""
 
-      return turnos_totales, domingos_asignacion
+      return turnos_totales, domingos_asignacion, lista_comodin
 
 
 

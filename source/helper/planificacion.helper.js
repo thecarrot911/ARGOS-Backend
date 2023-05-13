@@ -70,6 +70,7 @@ const GenerarListaPlanificacionAnual = async (datosPlanificacionAnual) => {
                   dia_numero: actual.dia_numero,
                   dia_semana: actual.dia_semana,
                   feriado: actual.feriado,
+                  comodin: parseInt(actual.comodin),
                   dia_id: actual.dia_id,
                   turno: actual.turno,
                   turno_id: actual.turno_id,
@@ -88,6 +89,7 @@ const GenerarListaPlanificacionAnual = async (datosPlanificacionAnual) => {
                         dia_semana: actual.dia_semana,
                         feriado: actual.feriado,
                         dia_id: actual.dia_id,
+                        comodin: actual.comodin,
                         empleados: []
                   };
                   dias[actual.dia_id].empleados.push({
