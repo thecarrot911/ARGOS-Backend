@@ -110,6 +110,7 @@ modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, nu
 lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales, lista_alarma = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev,lista_alarma)
 print(turnos_totales)
 print(lista_turno_extra)
+print(lista_alarma)
 
 modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior) #Modificada para 5 y 7 empleados
 #print(turnos_totales)

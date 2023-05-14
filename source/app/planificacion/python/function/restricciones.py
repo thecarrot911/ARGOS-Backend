@@ -283,7 +283,7 @@ def ListaAsignacionTurnoSobrantes(modelo: cp_model.CpModel, mes: list[list], con
                         # Hay itinerario y turno extra
                         if itinerario_dia and cantidad_turno_extra >= 1:
                               # Hay itinerario
-                              print("")
+                              print("")# FALA AQUI NPMÁS CREO
                         # No hay itinerario pero si turno extra
                         elif cantidad_turno_extra >= 1:
                               if diaSemana <= LunesASabado:
