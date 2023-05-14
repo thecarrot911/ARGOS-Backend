@@ -24,7 +24,6 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
       const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
       await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
       return planificacionMensual;*/
-      console.log(planificacionMensual)
       return planificacionMensual;
 };
 
