@@ -19,11 +19,11 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
       }
       
       //Guardar Planificación
-      /*const planificacion_id = await planificacion.GuardarPlanificacion();
+      const planificacion_id = await planificacion.GuardarPlanificacion();
       const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
       const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
+      await planificacion.GuardarItinerario(planificacionMensual, dia_id);
       await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
-      return planificacionMensual;*/
       return planificacionMensual;
 };
 
@@ -43,21 +43,27 @@ const UltimaPlanificacion = async() =>{
 };
 
 const MostrarPlanificaciones = async(year) =>{
+      // Planificación
       const DatosPlanificacionAnual = await Planificacion.Anual(year);
       const ListaPlanificacionAnual = await planificacionHelper.GenerarListaPlanificacionAnual(DatosPlanificacionAnual);
       
+      // Itinerario
+      const DatosItinerarioAnual = await Planificacion.Itinerario(year);
+      const ListaPlanificacionAnualItinerario = await planificacionHelper.AgregarItinerarioAnual(DatosItinerarioAnual, ListaPlanificacionAnual)
+
+      // Estadistica
       const DatosEstadisticasPlanificacion = await Planificacion.Estadistica(year);
       const ListaEstadistica = await planificacionHelper.GenerarPlanificacionesAnual(DatosEstadisticasPlanificacion);
 
-      for(let i=0;i<ListaPlanificacionAnual.length;i++){
+      for(let i=0;i<ListaPlanificacionAnualItinerario.length;i++){
             for(let j=0;j<ListaEstadistica.length;j++){
-                  if(ListaEstadistica[j].month == ListaPlanificacionAnual[i].mes){
-                        ListaPlanificacionAnual[i]["estadistica"] = ListaEstadistica[j]
+                  if(ListaEstadistica[j].month == ListaPlanificacionAnualItinerario[i].mes){
+                        ListaPlanificacionAnualItinerario[i]["estadistica"] = ListaEstadistica[j]
                   }
             }
       }
 
-      return ListaPlanificacionAnual;
+      return ListaPlanificacionAnualItinerario;
 };
 
 const AniosPlanificacion = async() =>{

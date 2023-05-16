@@ -60,8 +60,8 @@ class Planificacion {
                   });
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
-                        let json = planificacionMensual[0]
-                        //const json = JSON.parse(planificacionMensual[0]);
+                        //let json = planificacionMensual[0]
+                        const json = JSON.parse(planificacionMensual[0]);
                         resolve(json);
                   });
                   command.on("error", function (err) {
@@ -89,7 +89,25 @@ class Planificacion {
             const IngresarTurnoDia = await conexion.query(sql_IngresarTurnoDia,[turno_diaData])
             return IngresarTurnoDia.insertId;
       };
-      
+      GuardarItinerario = async(planificacion,dia_id)=>{
+            const itinerarioData = [];
+            let j = 0;
+            for (const p of planificacion){
+                  for(const iti of p.itinerario){
+                        const itinerario = [
+                              dia_id+j,
+                              iti.turno,
+                              iti.falta
+                        ];
+                        itinerarioData.push(itinerario)
+                  }
+                  j++;
+            }
+            const sql_IngresarItinerario = `INSERT INTO itinerario(dia_id, turno, empleado_faltante) VALUES ?`;
+            const IngresarItinerario = await conexion.query(sql_IngresarItinerario, [itinerarioData]);
+            return IngresarItinerario.insertId;
+      };
+
       GuardarTurno = async (planificacion,dia_id) => {
             const turnoData = []
             let j = 0
@@ -157,7 +175,16 @@ class Planificacion {
       static Anuales = async() =>{
             const sql = `SELECT * FROM planificacion`;
             return await conexion.query(sql);
-      }
+      };
+
+      static Itinerario = async(year) =>{
+            const sql = `
+            SELECT * FROM planificacion 
+                  INNER JOIN dia ON planificacion.planificacion_id = dia.planificacion_id
+                  INNER JOIN itinerario ON dia.id = itinerario.dia_id
+            WHERE planificacion.year = ${year};`;
+            return await conexion.query(sql)
+      };
 
       static Estadistica = async(year) =>{
             const sql = `

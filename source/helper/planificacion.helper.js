@@ -42,6 +42,46 @@ const GenerarPlanificacionesAnual = async(datosEstadisticasPlanificacion) => {
       return Object.values(estadistica)
 };
 
+const AgregarItinerarioAnual = async (DatosItinerarioAnual, ListaPlanificacionAnual) => {
+      let itinerario = DatosItinerarioAnual.reduce((mes, actual) => {
+            mes[actual.month] = mes[actual.month] || {
+                  mes: actual.month,
+                  itinerario: []
+            };
+            
+            mes[actual.month].itinerario.push({
+                  dia_semana: actual.dia_semana,
+                  dia_numero: actual.dia_numero,
+                  turno: actual.turno,
+                  falta: actual.empleado_faltante
+            });
+            return mes
+      },[]);
+
+      itinerario = Object.values(itinerario);
+      //console.log(itinerario[0])
+
+      for(const mes of ListaPlanificacionAnual){
+            for(const iti of itinerario){
+                  if(iti.mes == mes.mes){
+                        for(const dia of mes.planificacion){
+                              dia.itinerario = []
+                              for(const diaIti of iti.itinerario){
+                                    if(dia.dia_semana == diaIti.dia_semana && dia.dia_numero == diaIti.dia_numero){
+                                          dia.itinerario.push({
+                                                "turno": diaIti.turno,
+                                                "falta": diaIti.falta
+                                          });
+                                    };
+                              };
+                        };
+                  };
+            };
+      };
+
+      return ListaPlanificacionAnual;
+};
+
 const GenerarPlanificacionesAnuales = async (datosPlanificacionesAnuales) => {
       let planificacion = datosPlanificacionesAnuales.reduce((anio, actual) => {
             anio[actual.year] = anio[actual.year] || {
@@ -161,5 +201,6 @@ module.exports.planificacionHelper = {
       ObtenerMes,
       OrdenarLista,
       GenerarListaPlanificacionAnual,
-      GenerarPlanificacionesAnual
+      GenerarPlanificacionesAnual,
+      AgregarItinerarioAnual
 };

@@ -7,10 +7,10 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
 
       def __init__(self,solution_number: int, solution_limit: int, mes: list[list], all_empleado: range, 
             cont_semana: list, meses_anio: list[str], month: int, cant_turno: int,
-            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales, all_empleadoAnterior: range,planificacionAnterior: None, lista_comodin: list[list], comodin: object): 
+            month_prev: int, all_dias: range, empleadoPlanificacion: list[str], turnos_totales, all_empleadoAnterior: range,planificacionAnterior: None, lista_comodin: list[list], comodin: object, lista_alarma:list[list]): 
 
             cp_model.CpSolverSolutionCallback.__init__(self)
-            self._lista_alarma_turno = []  #lista_alarma_turno
+            self._lista_alarma = lista_alarma  #lista_alarma_turno
             self._lista_comodin = lista_comodin
             self._solution_number = solution_number
             self._comodin = comodin
@@ -71,6 +71,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
                                                       empleados.append(emp_turn)
                                           dia["empleados"] = empleados
+                                          dia["itinerario"] = []
                                           json_v.append(dia)
 
                                     elif self._mes[num_semana][i][0] == self._meses_anio[self._month-1]:
@@ -107,7 +108,17 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                           
                                           dia["empleados"] = empleados
 
-                                          #itinerario_dia = [dia for dia in itinerario if dia["dia"] == mes[semana][dia][1] ]
+                                          alarma = [alarma for alarma in self._lista_alarma if alarma[0] == self._mes[num_semana][i][1]]
+                                          
+                                          itinerario_array = []
+                                          if alarma:
+                                                for turno in alarma:
+                                                      itinerario = {}
+                                                      itinerario["turno"] = turno[1]
+                                                      itinerario["falta"] = turno[2]
+                                                      itinerario_array.append(itinerario)
+
+                                          dia["itinerario"] = itinerario_array
 
                                           json_v.append(dia)
                   print(json.dumps(json_v))
