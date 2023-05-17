@@ -30,34 +30,31 @@ class Actualizacion{
             return await conexion.query(sql)
       };
 
+      Permiso = async(planificacion, id) =>{
+            const fechaInicio = new Date(this.fecha_inicio).getDate();
+            const fechaTermino = new Date(this.fecha_termino).getDate();
+            
+            const indiceFilter = planificacion.filter( dia => dia.dia_numero == fechaInicio)
+            const indiceInicio = planificacion.indexOf(indiceFilter[0]);
 
-      CambioTurno = async(planificacion, empleado) =>{
-            let valuesTurnoDia = []
-            planificacion.forEach(dia => {
-                  const indice = dia.empleados.findIndex(emp => emp.rut == this.rut)
-                  if(indice !== -1){
-                        valuesTurnoDia.push([dia.empleados[indice].turno_id, empleado[0].rut ])
-                  }
-            });
+            let CambiosPlanificacion = []
 
-            return valuesTurnoDia;
+            // Acumulando los dias para modificar
+            for(let i = indiceInicio; i<planificacion.length; i++){
+                  CambiosPlanificacion.push(planificacion[i].empleados.filter(empleado => this.rut == empleado.rut)[0])
+                  if(planificacion[i].dia_numero == parseInt(fechaTermino)) break;
+            }
+            
+            // Cambiando a permiso
+            for(const turno of CambiosPlanificacion) turno.turno=id;
+            
+            for(const dia of CambiosPlanificacion){
+                  const sql = `UPDATE turno SET turno = ? WHERE id = ?`;
+                  await conexion.query(sql, [dia.turno, dia.id]);
+            }
+            return;
       };
 
-      Permiso = async() =>{
-
-      };
-
-      ModificarPlanificacion = async(valuesTurnoDia)=>{
-            const sql = `
-                  UPDATE turno_dia
-                  SET empleado_rut = CASE turno_id
-                        ${valuesTurnoDia.map(([turno_id, empleado_rut])=> `WHEN ${turno_id} THEN '${empleado_rut}'`).join(' ')}
-                        ELSE empleado_rut
-                  END
-                  WHERE turno_id IN (${valuesTurnoDia.map(([turno_id])=> turno_id).join(', ')})`;
-            return await conexion.query(sql)
-      }
-      
       static MostrarTipo = async() =>{
             const sql_MostrarTipo = `SELECT * FROM tipo`;
             return await conexion.query(sql_MostrarTipo);

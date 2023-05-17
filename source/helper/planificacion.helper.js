@@ -11,6 +11,7 @@ const GenerarListaPlanificacion = async(datosPlanificacion) => {
                   rut: actual.rut,
                   nombre: actual.nombre_paterno,
                   apellido: actual.apellido_paterno,
+                  id: actual.id,
                   turno: actual.turno,
                   turno_id: actual.turno_id
             });

@@ -96,16 +96,19 @@ class Planificacion {
                   for(const iti of p.itinerario){
                         const itinerario = [
                               dia_id+j,
-                              iti.turno,
+                              iti.turno.toString(),
                               iti.falta
                         ];
                         itinerarioData.push(itinerario)
                   }
                   j++;
             }
-            const sql_IngresarItinerario = `INSERT INTO itinerario(dia_id, turno, empleado_faltante) VALUES ?`;
-            const IngresarItinerario = await conexion.query(sql_IngresarItinerario, [itinerarioData]);
-            return IngresarItinerario.insertId;
+            if (itinerarioData.length != 0){
+                  const sql_IngresarItinerario = `INSERT INTO itinerario(dia_id, turno, empleado_faltante) VALUES ?`;
+                  const IngresarItinerario = await conexion.query(sql_IngresarItinerario, [itinerarioData]);
+                  return IngresarItinerario.insertId;
+            }
+            else return;
       };
 
       GuardarTurno = async (planificacion,dia_id) => {

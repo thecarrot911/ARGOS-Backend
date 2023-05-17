@@ -1,5 +1,5 @@
 const Actualizacion = require("../../class/actualizacion.class");
-const Empleado = require("../../class/empleado.class")
+const Empleado = require("../../class/empleado.class");
 const { empleadoHelper } = require("../../helper/empleado.helper");
 const { planificacionHelper } = require("../../helper/planificacion.helper");
 
@@ -17,24 +17,24 @@ const Registrar = async(actualizacion) =>{
             const DatosPlanificacion = await nuevaActualizacion.ObtenerPlanificacion();
             const ListaPlanificacion = await planificacionHelper.GenerarListaPlanificacion(DatosPlanificacion);
             let ListaOrdenadaPlanificacion = await planificacionHelper.OrdenarLista(ListaPlanificacion)
-            let valuesTurnoDia;
-            let updatePlanificacion
+            
+            const fechaInicio = new Date(nuevaActualizacion.fecha_inicio);
+            fechaInicio.setUTCHours(0, 0, 0, 0);
+            const diaInicio = fechaInicio.getUTCDate();
 
-            if(nuevaActualizacion.tipo_id == 1){
-                  // Cambio de turno
-                  valuesTurnoDia = await nuevaActualizacion.CambioTurno(ListaOrdenadaPlanificacion, empleado);
-                  if(valuesTurnoDia.length == 0){
-                        throw new TypeError("No hay cambios en la planificacion al realizar esta actualizacion.")
-                  }     
-                  updatePlanificacion = await nuevaActualizacion.ModificarPlanificacion(valuesTurnoDia);
-                  await nuevaActualizacion.Registrar();
+            const fechaTermino = new Date(nuevaActualizacion.fecha_termino);
+            fechaTermino.setUTCHours(0, 0, 0, 0);
+            const diaTermino = fechaTermino.getUTCDate();
 
-            }else if (nuevaActualizacion.tipo_id == 2){
-                  // Permiso
-            }else{
-                  new TypeError("No existe este tipo de permiso")
-            }
-            return updatePlanificacion;
+
+            console.log(diaInicio);
+            console.log(diaTermino);
+            /*if(nuevaActualizacion.tipo_id == 1) await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,4)
+            else if(nuevaActualizacion.tipo_id == 2) await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,5)
+            else await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,6)
+
+            return await nuevaActualizacion.Registrar() ;*/
+            return;
       }
 };
 
