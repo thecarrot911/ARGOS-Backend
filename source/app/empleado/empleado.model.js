@@ -2,7 +2,7 @@ const { validateRUT } = require("validar-rut");
 const { empleadoHelper } = require("../../helper/empleado.helper");
 const Empleado = require("../../class/empleado.class");
 const conexion = require("../../database");
-
+const fs = require("fs");
 
 const Registrar = async (empleado, file) => {
       
@@ -20,8 +20,8 @@ const Registrar = async (empleado, file) => {
             throw new TypeError("El usuario ya existe");
       }
 
-      if (file == undefined) {
-            nuevoEmpleado.imagen = "https://i.imgur.com/EBH7aDM.png";
+      if (file == undefined || file.filename == null) {
+            nuevoEmpleado.imagen = null;
       } else {
             nuevoEmpleado.imagen = `${process.env.HOST}/public/empleados/${file.filename}`;
       }

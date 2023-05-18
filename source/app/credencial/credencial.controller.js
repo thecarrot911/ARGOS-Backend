@@ -18,7 +18,6 @@ const registrar_credencial = async (req,res) => {
 
 const renovar_credencial = async (req, res) => {
     try{
-        console.log(req.body);
         let consulta_renovacion = await credencial_model.renovar(req.body);
         return res.json({
             error: false,

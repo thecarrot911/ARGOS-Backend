@@ -60,7 +60,6 @@ const AgregarItinerarioAnual = async (DatosItinerarioAnual, ListaPlanificacionAn
       },[]);
 
       itinerario = Object.values(itinerario);
-      //console.log(itinerario[0])
 
       for(const mes of ListaPlanificacionAnual){
             for(const iti of itinerario){

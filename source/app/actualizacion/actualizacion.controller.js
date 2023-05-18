@@ -35,7 +35,25 @@ const FormularioActualizacion = async(req, res) =>{
     }
 };
 
+const EliminarActualizacion = async(req,res) => {
+    try{
+        const consulta_EliminarActualizacion = await actualizacionModel.Eliminar(req.query.id)
+        return res.status(200).json({
+            error: false,
+            msg: "Se ha eliminado la actualización",
+            data: consulta_EliminarActualizacion
+        });
+    }catch(error){
+        console.error(error);
+        return res.status(400).json({
+            error: true,
+            msg: error.message
+        });
+    }
+};
+
 module.exports.actualizacion_controller = {
     RegistrarActualizacion,
-    FormularioActualizacion
+    FormularioActualizacion,
+    EliminarActualizacion
 }

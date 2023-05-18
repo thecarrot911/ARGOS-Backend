@@ -11,30 +11,26 @@ const Registrar = async(actualizacion) =>{
             throw new TypeError("El usuario reemplazante no existe.")
       }else if(!existe && empleado[0].activo == 0){
             // Hay empleado pero esta desactivado
-            throw new TypeError("El usuario fue eliminando")
+            throw new TypeError("El usuario fue eliminado")
       }else{
             // Hay empleado
+            console.log(nuevaActualizacion);
             const DatosPlanificacion = await nuevaActualizacion.ObtenerPlanificacion();
             const ListaPlanificacion = await planificacionHelper.GenerarListaPlanificacion(DatosPlanificacion);
             let ListaOrdenadaPlanificacion = await planificacionHelper.OrdenarLista(ListaPlanificacion)
             
-            const fechaInicio = new Date(nuevaActualizacion.fecha_inicio);
-            fechaInicio.setUTCHours(0, 0, 0, 0);
-            const diaInicio = fechaInicio.getUTCDate();
+            const vacaciones = 4;
+            const permiso = 5;
+            const otro = 6
 
-            const fechaTermino = new Date(nuevaActualizacion.fecha_termino);
-            fechaTermino.setUTCHours(0, 0, 0, 0);
-            const diaTermino = fechaTermino.getUTCDate();
-
-
-            console.log(diaInicio);
-            console.log(diaTermino);
-            /*if(nuevaActualizacion.tipo_id == 1) await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,4)
-            else if(nuevaActualizacion.tipo_id == 2) await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,5)
-            else await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,6)
-
-            return await nuevaActualizacion.Registrar() ;*/
-            return;
+            // Permiso
+            if(nuevaActualizacion.tipo_id == 1) return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,permiso)
+            // Vacaciones
+            else if(nuevaActualizacion.tipo_id == 2) return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,vacaciones)
+            // Observación
+            else if(nuevaActualizacion.tipo_id == 4) return await nuevaActualizacion.Observacion();
+            // Otro
+            else return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,otro)
       }
 };
 
@@ -53,7 +49,17 @@ const MostrarFormulario = async(planificacion_id) =>{
       return data;
 };
 
+const Eliminar = async(id) =>{
+      const CambiosAnterior = await Actualizacion.MostrarCambioAnterior(id);
+      await Actualizacion.RestablecerTurnoAnterior(CambiosAnterior);
+      await Actualizacion.EliminarCambioTurno(CambiosAnterior);
+      await Actualizacion.Eliminar(id);
+      return;
+}
+
 module.exports.actualizacionModel = {
       Registrar,
-      MostrarFormulario
+      MostrarFormulario,
+      Eliminar
+      
 }

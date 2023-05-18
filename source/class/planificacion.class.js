@@ -193,7 +193,7 @@ class Planificacion {
             const sql = `
             SELECT planificacion.month, empleado.rut, empleado.nombre_paterno, 
                   empleado.apellido_paterno, empleado.imagen,
-                  SUM(CASE WHEN dia.feriado = 1 THEN 1 ELSE 0 END) feriado,
+                  SUM(CASE WHEN dia.feriado = 1 and (turno.turno = 1 or turno.turno = 2 or turno.turno = 3) THEN 1 ELSE 0 END) feriado,
                   SUM(CASE WHEN turno.turno = 0 THEN 1 ELSE 0 END) libre,
                   SUM(CASE WHEN turno.turno = 1 THEN 1 ELSE 0 END) turno1,
                   SUM(CASE WHEN turno.turno = 2 THEN 1 ELSE 0 END) turno2,

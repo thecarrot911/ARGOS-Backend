@@ -1,5 +1,6 @@
 const Actualizacion = require("../../class/actualizacion.class");
 const Planificacion = require("../../class/planificacion.class");
+const { actualizacionHelper } = require("../../helper/actualizacion.helper");
 const { planificacionHelper } = require("../../helper/planificacion.helper");
 
 const GenerarPlanificacion = async(DatosPlanificacion) =>{
@@ -55,10 +56,23 @@ const MostrarPlanificaciones = async(year) =>{
       const DatosEstadisticasPlanificacion = await Planificacion.Estadistica(year);
       const ListaEstadistica = await planificacionHelper.GenerarPlanificacionesAnual(DatosEstadisticasPlanificacion);
 
+      //Actualización
+      const DatosActualizacionAnual = await Actualizacion.MostrarActualizacionAnual(year);
+      const ListaActualizacion = await actualizacionHelper.GenerarListaActualizacion(DatosActualizacionAnual);
+
+
       for(let i=0;i<ListaPlanificacionAnualItinerario.length;i++){
             for(let j=0;j<ListaEstadistica.length;j++){
                   if(ListaEstadistica[j].month == ListaPlanificacionAnualItinerario[i].mes){
                         ListaPlanificacionAnualItinerario[i]["estadistica"] = ListaEstadistica[j]
+                  }
+            }
+      }
+
+      for(let i=0;i<ListaPlanificacionAnualItinerario.length;i++){
+            for(let j=0;j<ListaActualizacion.length;j++){
+                  if(ListaActualizacion[j].mes == ListaPlanificacionAnualItinerario[i].mes){
+                        ListaPlanificacionAnualItinerario[i]["actualizacion"] = ListaActualizacion[j].actualizacion
                   }
             }
       }

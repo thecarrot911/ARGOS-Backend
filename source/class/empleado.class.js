@@ -68,7 +68,7 @@ class Empleado{
             const sql = `
             SELECT empleado.rut, nombre_paterno, nombre_materno, apellido_paterno, apellido_materno,
                   activo, imagen, planificacion.planificacion_id, planificacion.month, planificacion.year,
-                  SUM(CASE WHEN dia.feriado = 1 THEN 1 ELSE 0 END) feriado,
+                  SUM(CASE WHEN dia.feriado = 1 and (turno.turno = 1 or turno.turno = 2 or turno.turno = 3) THEN 1 ELSE 0 END) feriado,
                   SUM(CASE WHEN turno.turno = 0 THEN 1 ELSE 0 END) libre,
                   SUM(CASE WHEN turno.turno = 1 THEN 1 ELSE 0 END) turno1,
                   SUM(CASE WHEN turno.turno = 2 THEN 1 ELSE 0 END) turno2,
