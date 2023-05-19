@@ -52,7 +52,7 @@ const PerfilEmpleado = async (req,res) =>{
 
 const modificar_empleado = async(req,res)=>{
     try{
-        await empleado_model.Modificar(req.body)
+        await empleadoModel.Modificar(req.body, req.file)
         return res.json({
             error: false,
             msg: "Los datos del empleado han sido modificado",

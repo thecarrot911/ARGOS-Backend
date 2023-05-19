@@ -35,6 +35,18 @@ class Empleado{
             return await conexion.query(stringSQLEmpleado);
       }
 
+      Modificar = async () =>{
+            const sql = `
+            UPDATE empleado
+            SET   nombre_paterno = '${this.nombre_paterno}',
+                  nombre_materno = '${this.nombre_materno}',
+                  apellido_paterno = '${this.apellido_paterno}',
+                  apellido_materno = '${this.apellido_materno}',
+                  imagen = '${this.imagen}'
+            WHERE rut = '${this.rut}'`;
+            return await conexion.query(sql);
+      };
+
       static Buscar = async(rut)=>{
             const sql = `SELECT * FROM empleado WHERE rut = '${rut}';`;
             const empleado = await conexion.query(sql);

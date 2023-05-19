@@ -2,15 +2,10 @@ const { validateRUT } = require("validar-rut");
 const { empleadoHelper } = require("../../helper/empleado.helper");
 const Empleado = require("../../class/empleado.class");
 const conexion = require("../../database");
-const fs = require("fs");
 
 const Registrar = async (empleado, file) => {
       
       nuevoEmpleado = new Empleado(empleado, file);
-      
-      /*if (!validateRUT(nuevoEmpleado.rut)) {
-            throw new TypeError("El RUT ingresado no es válido");
-      }*/
       
       const { existe , BuscarEmpleado } = await nuevoEmpleado.Buscar();
       
@@ -27,6 +22,18 @@ const Registrar = async (empleado, file) => {
       }
       
       return await nuevoEmpleado.Registrar();
+};
+
+const Modificar = async(empleado, file) =>{
+      modificarEmpleado = new Empleado(empleado,file);
+
+      if (file == undefined || file.filename == null) {
+            modificarEmpleado.imagen = null;
+      } else {
+            modificarEmpleado.imagen = `${process.env.HOST}/public/empleados/${file.filename}`;
+      }
+
+      return await modificarEmpleado.Modificar();
 };
 
 const MostrarAll = async () => {
@@ -58,6 +65,7 @@ const Perfil = async() =>{
 
 module.exports.empleadoModel = {
       Registrar,
+      Modificar,
       MostrarAll,
       Eliminar,
       Perfil
