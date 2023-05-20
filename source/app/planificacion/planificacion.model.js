@@ -5,6 +5,7 @@ const { planificacionHelper } = require("../../helper/planificacion.helper");
 
 const GenerarPlanificacion = async(DatosPlanificacion) =>{
       const planificacion = new Planificacion(DatosPlanificacion);
+
       let planificacionAnterior = await planificacion.PlanificacionDelMesAnterior();
       planificacionAnterior = await planificacionHelper.GenerarListaPlanificacion(planificacionAnterior);
       
@@ -21,6 +22,7 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
       
       //Guardar Planificación
       const planificacion_id = await planificacion.GuardarPlanificacion();
+      await planificacion.GuardarHorario(planificacion_id);
       const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
       const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
       await planificacion.GuardarItinerario(planificacionMensual, dia_id);
@@ -60,6 +62,8 @@ const MostrarPlanificaciones = async(year) =>{
       const DatosActualizacionAnual = await Actualizacion.MostrarActualizacionAnual(year);
       const ListaActualizacion = await actualizacionHelper.GenerarListaActualizacion(DatosActualizacionAnual);
 
+      //Horario
+      const DatosHorariosAnual = await Planificacion.Horario(year);
 
       for(let i=0;i<ListaPlanificacionAnualItinerario.length;i++){
             for(let j=0;j<ListaEstadistica.length;j++){
@@ -77,6 +81,14 @@ const MostrarPlanificaciones = async(year) =>{
             }
       }
 
+      for(let i=0;i<ListaPlanificacionAnualItinerario.length;i++){
+            for (let j = 0; j < DatosHorariosAnual.length; j++) {
+                  if(ListaPlanificacionAnualItinerario[i].mes == DatosHorariosAnual[j].month){
+                        ListaPlanificacionAnualItinerario[i]["horario"] = DatosHorariosAnual[j]
+                  }
+            }
+      }
+
       return ListaPlanificacionAnualItinerario;
 };
 
@@ -85,9 +97,17 @@ const AniosPlanificacion = async() =>{
       return await planificacionHelper.GenerarPlanificacionesAnuales(DatosPlanificacionesAnuales);
 };
 
+const EliminarPlanificacion = async(planificacion) =>{
+
+      await Planificacion.EliminarActualizacion(planificacion.actualizacion)
+      await Planificacion.EliminarHorario(planificacion.planificacion_id)
+      return await Planificacion.EliminarPlanificacion(planificacion);
+};
+
 module.exports.planificacionModel = {
       GenerarPlanificacion,
       UltimaPlanificacion,
       MostrarPlanificaciones,
-      AniosPlanificacion
+      AniosPlanificacion,
+      EliminarPlanificacion
 };

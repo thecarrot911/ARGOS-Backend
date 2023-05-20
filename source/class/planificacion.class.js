@@ -3,13 +3,15 @@ const conexion = require("../database");
 const { planificacionHelper } = require("../helper/planificacion.helper")
 
 class Planificacion {
-      constructor({ anio, mes, empleados, itinerario, comodin }) {
+      constructor({ anio, mes, empleados, itinerario, comodin, turnos }) {
             this.anio = parseInt(anio),
             this.mes = parseInt(mes),
             this.cantidad_empleado = empleados.length,
             this.empleados = empleados,
             this.itinerario = itinerario,
-            this.comodin = comodin
+            this.comodin = comodin,
+            this.turnos = turnos
+
       }
 
       PlanificacionDelMesAnterior = async() =>{
@@ -146,6 +148,12 @@ class Planificacion {
             return IngresarDia.insertId;
       };
 
+      GuardarHorario = async(planificacion_id) =>{
+            const sql = `INSERT INTO horario(planificacion_id, turno1, turno2, turno3)
+            VALUES(${planificacion_id},'${this.turnos.turno1}','${this.turnos.turno2}','${this.turnos.turno3}');`;
+            return await conexion.query(sql);
+      }
+
       GuardarPlanificacion = async () => {
             const sql = `INSERT INTO planificacion(month, year) VALUES('${await planificacionHelper.ObtenerMes(this.mes)}','${this.anio}');`;
             const IngresarPlanificacion = await conexion.query(sql);
@@ -223,6 +231,55 @@ class Planificacion {
 
             return await conexion.query(sql);
       }
+
+      static Horario = async(year) =>{
+            const sql = `
+            SELECT * FROM horario 
+                  INNER JOIN planificacion ON planificacion.planificacion_id = horario.planificacion_id
+            WHERE planificacion.year = ${year};`;
+            return await conexion.query(sql)
+      }
+
+      static EliminarHorario = async(planificacion_id) =>{
+            const sql = `
+            DELETE FROM horario
+            WHERE planificacion_id = ${planificacion_id};`;
+            return await conexion.query(sql)
+      };
+      
+      static EliminarActualizacion = async(actualizacion) => {
+            if(actualizacion != undefined){
+                  for(const actua of actualizacion){
+                        let sql_cambioTurno = `
+                        DELETE FROM cambioturno
+                        WHERE actualizacion_id = ${actua.id};`;
+                        await conexion.query(sql_cambioTurno)
+
+                        let sql_actualizacion = `
+                        DELETE FROM actualizacion
+                        WHERE planificacion_id = ${actua.planificacion_id};`;
+                        await conexion.query(sql_actualizacion);
+                  }
+            }
+            return;
+      };
+
+      static EliminarPlanificacion = async(planificacion) => {
+          
+
+            for(const dia of planificacion.planificacion){
+                  for(const empleado of dia.empleados){
+                        await conexion.query(`DELETE FROM turno_dia WHERE empleado_rut = '${empleado.rut}' and turno_id = ${empleado.turno_id};`);
+                  };
+
+                  await conexion.query(`DELETE FROM turno WHERE dia_id = ${dia.dia_id};`);
+                  await conexion.query(`DELETE FROM itinerario WHERE dia_id = ${dia.dia_id};`);
+                  await conexion.query(`DELETE FROM dia WHERE id = ${dia.dia_id};`);
+            }
+            return await conexion.query(`DELETE FROM planificacion WHERE planificacion_id = ${planificacion.planificacion_id};`);
+
+
+      };
 }
 
 module.exports = Planificacion;
