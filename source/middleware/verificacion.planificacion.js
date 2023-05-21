@@ -28,26 +28,8 @@ const ExistenciaPlanificacion = async(req, res, next) =>{
       }
 };
 
-const CalculoMensualJornadaLaboral = async (req, res, next) => {
-      try{
-            const cantidad_turno = 3;
-            const anio = req.body.anio;
-            const cantidad_empleado = req.body.empleados.length
-
-            if(cantidad_turno >= cantidad_empleado){ 
-                  throw new TypeError("DE KLA F")
-            }
-            next();
-      }catch(error){
-            return res.status(400).json({
-                  error: true,
-                  msg: "" + error.message,
-            });
-      }
-};
 
 
 module.exports.verificadorPlanificacion = {
-      CalculoMensualJornadaLaboral,
       ExistenciaPlanificacion
 }

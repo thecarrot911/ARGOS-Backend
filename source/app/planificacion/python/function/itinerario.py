@@ -128,7 +128,6 @@ def ListaEmpleadoParaCadaTurno(
                                     #print(mes[semana][dia][1], mes[semana][dia][0])
                   
                   elif mes[semana][dia][0] == meses_anio[month_prev-1]: 
-                        
                         # Corresponde al mes pasado
                         if planificacionAnterior != None:
                               contador = 0

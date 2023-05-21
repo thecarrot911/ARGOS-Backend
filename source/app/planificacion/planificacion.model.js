@@ -8,11 +8,12 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
 
       let planificacionAnterior = await planificacion.PlanificacionDelMesAnterior();
       planificacionAnterior = await planificacionHelper.GenerarListaPlanificacion(planificacionAnterior);
-      
+
       let planificacionMensual
 
       if (planificacionAnterior.length != 0){
             const UltimaSemanaAnterior = await planificacionHelper.ObtenerUltimaSemanaDelMes(planificacionAnterior)
+
             planificacionMensual =  await planificacion.GenerarPlanificacion(UltimaSemanaAnterior);
 
       }else{
@@ -49,7 +50,7 @@ const MostrarPlanificaciones = async(year) =>{
       // Planificación
       const DatosPlanificacionAnual = await Planificacion.Anual(year);
       const ListaPlanificacionAnual = await planificacionHelper.GenerarListaPlanificacionAnual(DatosPlanificacionAnual);
-      
+
       // Itinerario
       const DatosItinerarioAnual = await Planificacion.Itinerario(year);
       const ListaPlanificacionAnualItinerario = await planificacionHelper.AgregarItinerarioAnual(DatosItinerarioAnual, ListaPlanificacionAnual)

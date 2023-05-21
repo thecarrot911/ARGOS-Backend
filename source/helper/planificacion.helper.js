@@ -122,6 +122,17 @@ const GenerarListaPlanificacionAnual = async (datosPlanificacionAnual) => {
             return mes;
       }, []);
 
+      // Definir el orden de los meses
+      const ordenMeses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio',
+                        'Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+      // Ordenar por mes utilizando la función de comparación personalizada
+      planificacionAnual.sort((a, b) => {
+      const indexA = ordenMeses.findIndex((mes) => mes.toLowerCase() === a.mes.toLowerCase());
+      const indexB = ordenMeses.findIndex((mes) => mes.toLowerCase() === b.mes.toLowerCase());
+      return indexA - indexB;
+      });
+
       Object.values(planificacionAnual).forEach((planificacion) => {
             const diasAgrupados = planificacion.planificacion.reduce((dias, actual) => {
                   dias[actual.dia_id] = dias[actual.dia_id] || {

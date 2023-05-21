@@ -27,12 +27,14 @@ class Planificacion {
                   anioAnterior =  this.anio; 
                   mesAnterior = await planificacionHelper.ObtenerMes(this.mes-1)
             }
+
             const sql = `
             SELECT * FROM planificacion
-            INNER JOIN dia ON planificacion.planificacion_id = (SELECT planificacion_id FROM planificacion WHERE planificacion.year = ${anioAnterior} and planificacion.month = '${mesAnterior}')
+            INNER JOIN dia ON dia.planificacion_id = planificacion.planificacion_id
             INNER JOIN turno ON dia.id = turno.dia_id
             INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
             INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
+            WHERE planificacion.year = ${anioAnterior} and planificacion.month = '${mesAnterior}';
             `;
             return await conexion.query(sql);
       };
@@ -62,9 +64,15 @@ class Planificacion {
                   });
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
+                        try{
+                              const json = JSON.parse(planificacionMensual[0]);
+                              resolve(json);
+
+                        }catch(error){
+                              console.error(error)
+                              resolve(error.message)
+                        }
                         //let json = planificacionMensual[0]
-                        const json = JSON.parse(planificacionMensual[0]);
-                        resolve(json);
                   });
                   command.on("error", function (err) {
                         console.log("child process error");
@@ -178,8 +186,21 @@ class Planificacion {
             INNER JOIN turno ON dia.id = turno.dia_id
             INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
             INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
-            WHERE planificacion.year = ${year};
-            `;
+            WHERE planificacion.year = ${year}
+            ORDER BY CASE month
+                  WHEN 'enero' THEN 1
+                  WHEN 'febrero' THEN 2
+                  WHEN 'marzo' THEN 3
+                  WHEN 'abril' THEN 4
+                  WHEN 'mayo' THEN 5
+                  WHEN 'junio' THEN 6
+                  WHEN 'julio' THEN 7
+                  WHEN 'agosto' THEN 8
+                  WHEN 'septiembre' THEN 9
+                  WHEN 'octubre' THEN 10
+                  WHEN 'noviembre' THEN 11
+                  WHEN 'diciembre' THEN 12
+            END ASC,dia_id ASC;`;
             return await conexion.query(sql)
       };
 
