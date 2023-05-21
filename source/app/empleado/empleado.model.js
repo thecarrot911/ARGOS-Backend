@@ -27,12 +27,15 @@ const Registrar = async (empleado, file) => {
 const Modificar = async(empleado, file) =>{
       modificarEmpleado = new Empleado(empleado,file);
 
-      if (file == undefined || file.filename == null) {
-            modificarEmpleado.imagen = null;
-      } else {
-            modificarEmpleado.imagen = `${process.env.HOST}/public/empleados/${file.filename}`;
+      if(empleado.imagenURL != undefined){
+            modificarEmpleado.imagen = empleado.imagenURL;
+      }else{
+            if (file == undefined || file.filename == null) {
+                  modificarEmpleado.imagen = null;
+            } else {
+                  modificarEmpleado.imagen = `${process.env.HOST}/public/empleados/${file.filename}`;
+            }
       }
-
       return await modificarEmpleado.Modificar();
 };
 
