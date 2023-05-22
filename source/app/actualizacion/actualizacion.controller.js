@@ -37,7 +37,7 @@ const FormularioActualizacion = async(req, res) =>{
 
 const EliminarActualizacion = async(req,res) => {
     try{
-        const consulta_EliminarActualizacion = await actualizacionModel.Eliminar(req.query.id)
+        const consulta_EliminarActualizacion = await actualizacionModel.Eliminar(req.query.id, req.query.tipo)
         return res.status(200).json({
             error: false,
             msg: "Se ha eliminado la actualización",

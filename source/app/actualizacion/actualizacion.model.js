@@ -14,7 +14,6 @@ const Registrar = async(actualizacion) =>{
             throw new TypeError("El usuario fue eliminado")
       }else{
             // Hay empleado
-            console.log(nuevaActualizacion);
             const DatosPlanificacion = await nuevaActualizacion.ObtenerPlanificacion();
             const ListaPlanificacion = await planificacionHelper.GenerarListaPlanificacion(DatosPlanificacion);
             let ListaOrdenadaPlanificacion = await planificacionHelper.OrdenarLista(ListaPlanificacion)
@@ -49,10 +48,13 @@ const MostrarFormulario = async(planificacion_id) =>{
       return data;
 };
 
-const Eliminar = async(id) =>{
-      const CambiosAnterior = await Actualizacion.MostrarCambioAnterior(id);
-      await Actualizacion.RestablecerTurnoAnterior(CambiosAnterior);
-      await Actualizacion.EliminarCambioTurno(CambiosAnterior);
+const Eliminar = async(id, tipo) =>{
+
+      if (tipo != "Observación") {
+            const CambiosAnterior = await Actualizacion.MostrarCambioAnterior(id);
+            await Actualizacion.RestablecerTurnoAnterior(CambiosAnterior);
+            await Actualizacion.EliminarCambioTurno(CambiosAnterior);
+      }
       await Actualizacion.Eliminar(id);
       return;
 }
