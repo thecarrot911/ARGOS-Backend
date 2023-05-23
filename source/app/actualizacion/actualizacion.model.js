@@ -47,7 +47,7 @@ const MostrarFormulario = async(planificacion_id) =>{
       }
       return data;
 };
-
+      
 const Eliminar = async(id, tipo) =>{
 
       if (tipo != "Observación") {

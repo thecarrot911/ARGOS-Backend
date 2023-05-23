@@ -1,4 +1,3 @@
-const { validateRUT } = require("validar-rut");
 const { empleadoHelper } = require("../../helper/empleado.helper");
 const Empleado = require("../../class/empleado.class");
 const conexion = require("../../database");
@@ -6,7 +5,7 @@ const conexion = require("../../database");
 const Registrar = async (empleado, file) => {
       
       nuevoEmpleado = new Empleado(empleado, file);
-      
+
       const { existe , BuscarEmpleado } = await nuevoEmpleado.Buscar();
       
       if(BuscarEmpleado.length != 0 && BuscarEmpleado[0].activo == 0){

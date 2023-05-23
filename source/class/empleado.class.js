@@ -30,7 +30,12 @@ class Empleado{
 
       Reactivar = async () =>{
             const stringSQLEmpleado = `
-            UPDATE empleado SET activo = 1 
+            UPDATE empleado 
+                  SET   activo = 1,
+                        nombre_paterno = '${this.nombre_paterno}',
+                        nombre_materno = '${this.nombre_materno}',
+                        apellido_paterno = '${this.apellido_paterno}',
+                        apellido_materno = '${this.apellido_materno}'
             WHERE rut='${this.rut}';`;
             return await conexion.query(stringSQLEmpleado);
       }
