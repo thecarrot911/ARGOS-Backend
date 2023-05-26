@@ -36,7 +36,6 @@ const Registrar = async(actualizacion) =>{
 const MostrarFormulario = async(planificacion_id) =>{
       const empleados = await Empleado.MostrarTodos();
       const ListaEmpleado = await empleadoHelper.GenerandoListaEmpleado(empleados);
-
       const Solicitante = await Actualizacion.MostrarSolicitante(planificacion_id);
       const TipoActualizacion = await Actualizacion.MostrarTipo();
       

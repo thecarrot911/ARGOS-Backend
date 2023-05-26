@@ -18,7 +18,7 @@ empPlan = sys.argv[7:]
 
 for dia in itinerario:
     dia["turno"] = int(dia["turno"])
-
+    
 empleadoPlanificacionAnterior = []
 if planificacionAnterior != None:
     for dia in planificacionAnterior:

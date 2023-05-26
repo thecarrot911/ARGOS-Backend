@@ -63,17 +63,25 @@ class Empleado{
       static MostrarTodos = async() =>{
             const sql_MostrarEmpleados = `
             SELECT
-                  e.rut,
-                  e.nombre_paterno,
-                  e.nombre_materno,
-                  e.apellido_paterno,
-                  e.apellido_materno,
-                  e.imagen,
-                  c.credencial_id,
-                  DATE_FORMAT(c.fecha_emision, '%Y-%m-%d') fecha_emision,
-                  DATE_FORMAT(c.fecha_vencimiento, '%Y-%m-%d') fecha_vencimiento,
-                  c.tipo,
-                  c.numero
+            e.rut,
+            e.nombre_paterno,
+            e.nombre_materno,
+            e.apellido_paterno,
+            e.apellido_materno,
+            e.imagen,
+            c.credencial_id,
+            DATE_FORMAT(c.fecha_vencimiento, '%d-%m-%Y') fecha_vencimiento,
+            c.tipo,
+            c.numero,
+            (SELECT 
+            CASE
+                  WHEN DATEDIFF(c.fecha_vencimiento, CURDATE()) < 0 THEN 1
+                  WHEN c.fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 1 MONTH) THEN 1
+                  ELSE 0
+            END
+            FROM credencial
+            WHERE e.rut = empleado_rut
+            LIMIT 1) AS vence
             FROM empleado e
             LEFT JOIN credencial c ON e.rut = c.empleado_rut
             WHERE e.activo = 1;
@@ -89,9 +97,13 @@ class Empleado{
                   SUM(CASE WHEN turno.turno = 0 THEN 1 ELSE 0 END) libre,
                   SUM(CASE WHEN turno.turno = 1 THEN 1 ELSE 0 END) turno1,
                   SUM(CASE WHEN turno.turno = 2 THEN 1 ELSE 0 END) turno2,
-                  SUM(CASE WHEN turno.turno = 3 THEN 1 ELSE 0 END) turno3
+                  SUM(CASE WHEN turno.turno = 3 THEN 1 ELSE 0 END) turno3,
+                  horario.turno1 horario1,
+                  horario.turno2 horario2,
+                  horario.turno3 horario3
             FROM planificacion
                   INNER JOIN dia ON planificacion.planificacion_id = dia.planificacion_id
+                  INNER JOIN horario ON horario.planificacion_id = planificacion.planificacion_id
                   INNER JOIN turno ON dia.id = turno.dia_id
                   INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
                   INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut

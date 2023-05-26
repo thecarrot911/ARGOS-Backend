@@ -87,9 +87,9 @@ class Actualizacion{
                   actualizacion.planificacion_id planificacion_id,
                   tipo.nombre tipo,
                   actualizacion.descripcion descripcion,
-                  DATE_FORMAT(actualizacion.fecha, '%Y-%m-%d') fecha,
-                  DATE_FORMAT(actualizacion.fecha_inicio, '%Y-%m-%d') fecha_inicio,
-                  DATE_FORMAT(actualizacion.fecha_termino, '%Y-%m-%d') fecha_termino
+                  DATE_FORMAT(actualizacion.fecha, '%d-%m-%Y') fecha,
+                  DATE_FORMAT(actualizacion.fecha_inicio, '%d-%m-%Y') fecha_inicio,
+                  DATE_FORMAT(actualizacion.fecha_termino, '%d-%m-%Y') fecha_termino
             FROM actualizacion
                   INNER JOIN planificacion ON planificacion.planificacion_id = actualizacion.planificacion_id
                   INNER JOIN tipo ON tipo.id = actualizacion.tipo_id
@@ -109,7 +109,7 @@ class Actualizacion{
                   actualizacion.planificacion_id AS planificacion_id,
                   tipo.nombre tipo,
                   actualizacion.descripcion descripcion,
-                  DATE_FORMAT(actualizacion.fecha, '%Y-%m-%d') fecha,
+                  DATE_FORMAT(actualizacion.fecha, '%d-%m-%Y') fecha,
                   NULL AS fecha_inicio,
                   NULL AS fecha_termino
             FROM actualizacion 
@@ -132,8 +132,8 @@ class Actualizacion{
             rut,
             planificacion_id,
             descripcion,
-            DATE_FORMAT(fecha_inicio, '%Y-%m-%d') fecha_inicio,
-            DATE_FORMAT(fecha_termino, '%Y-%m-%d') fecha_termino,
+            DATE_FORMAT(fecha_inicio, '%d-%m-%Y') fecha_inicio,
+            DATE_FORMAT(fecha_termino, '%d-%m-%Y') fecha_termino,
             tipo_id,
             reemplazo
             FROM actualizacion  WHERE planificacion_id = ${planificacion_id};`;
