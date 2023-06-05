@@ -48,7 +48,6 @@ def ListaEmpleadoParaCadaTurno(
                                                       suma_itinerario.append(_itinerario["aviones"])
                                                       # Alcanza y hay empleados disponible
                                                       if sum(suma_itinerario) + cant_turno <= num_empleado and acumulador > 0 and trabajo_extra - _itinerario["aviones"] >= 0:
-                                                            #print(1,'if')
                                                             trabajo_extra = trabajo_extra - _itinerario["aviones"]
                                                             acumulador = acumulador - _itinerario["aviones"]
                                                             dia_trabajo.append(
@@ -107,6 +106,9 @@ def ListaEmpleadoParaCadaTurno(
                                                             modelo.NewIntVar(1,num_empleado - cant_turno +1,"turno %i" % (turno+1))
                                                       )
                                                       turnos_totales[turno] = turnos_totales[turno] + 1
+                                    # Se ordena los turnos de 1 a 3
+                                    dia_trabajo = sorted(dia_trabajo, key=ObtenerNumeroDeTurno)
+                                    #print(dia_trabajo)
                                     semana_trabajo.append(dia_trabajo)
                               else:
                                     semana_trabajo.append([
@@ -116,6 +118,7 @@ def ListaEmpleadoParaCadaTurno(
                                     ])
                         
                         else: #En caso de que el día no tenga itinerario
+                              #if semana == 0: print(mes[semana][dia][2],mes[semana][dia][1],trabajo_extra)
                               semana_trabajo.append([
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 1"),
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 2"),
@@ -163,3 +166,6 @@ def AgregandoTurnosTotales(turnos_totales: list[int], cant_turno: int):
       """ """
       for t in range(cant_turno):
             turnos_totales[t] = turnos_totales[t] + 1
+
+def ObtenerNumeroDeTurno(variable):
+    return int(variable.Name().split()[1])

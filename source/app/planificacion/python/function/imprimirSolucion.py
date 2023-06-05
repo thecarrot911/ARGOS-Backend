@@ -38,7 +38,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
             if(self._solution_count == self._solution_number):
                   json_v = []
 
-                  contador = [[0 for j in range(self._cant_turno)] for i in self._all_empleado]
+                  #contador = [[0 for j in range(self._cant_turno)] for i in self._all_empleado]
                   for num_semana in range(len(self._cont_semana)):
                         for i in range(self._cont_semana[num_semana]):
                               #if self._mes[num_semana][i][2] == "Domingo":
@@ -90,7 +90,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                                   is_working = True
                                                                   emp_turn["turno"] = t+1
                                                                   emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
-                                                                  contador[j][t] = contador[j][t] + 1 
+                                                                  #contador[j][t] = contador[j][t] + 1 
                                                       if not is_working:
                                                             emp_turn["turno"] = 0
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()

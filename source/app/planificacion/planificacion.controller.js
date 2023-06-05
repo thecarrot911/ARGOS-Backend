@@ -74,7 +74,7 @@ const EliminarPlanificacion = async(req,res) =>{
         await planificacionModel.EliminarPlanificacion(req.body)
         return res.status(200).json({
             error: true,
-            msg: `Planificación Eliminada.`,
+            msg: `Se ha eliminado la planificación.`,
         });
     }catch(error){
         console.error(error);
