@@ -95,22 +95,19 @@ mes, all_dias, cont_semana, month_prev = DefiniendoModelo(modelo, empleadoPlanif
 
 # Restricciones
 
-#Funciona sin planificación anterior
 modelo, mes = EmpleadoTrabajoPorDia(all_empleado, cont_semana, modelo, mes, cant_turno,meses_anio,month,month_prev,all_empleadoAnterior)
-#Funciona sin planificación anterior
+
 modelo, mes = DiaLibrePorSemana(all_empleado,cont_semana, mes, cant_turno, modelo, num_empleado, meses_anio,month, all_empleadoAnterior,month_prev, empleadoPlanificacion, empleadoPlanificacionAnterior)
-#Funciona sin planificación anterior
+
 modelo, domingos = DomingosLibres(modelo, domingos,cont_semana,mes, meses_anio,all_empleado,num_empleado,cant_turno,month)
-#Funciona sin planificación anterior
+
 modelo = CantidadMinimaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, num_empleado ,cant_turno) # Modificada
-#Funciona sin planificación anterior
+
 modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, num_empleado ,cant_turno) # Modificada
 
-#Funciona sin planificaoicn anterior, sin verificar
 lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales, lista_alarma = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev,lista_alarma)
 #print(1,turnos_totales)
 #print(1,lista_turno_extra)
-
 #print(lista_alarma)
 
 modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior,lista_alarma) #Modificada para 5 y 7 empleados
@@ -119,15 +116,12 @@ modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,
 turnos_totales, domingos_asignacion, lista_comodin = ContabilizandoTurnosDomingo(mes,domingos,cant_turno,turnos_totales, num_empleado, itinerario, lista_alarma) # Modificada sin itinerario
 #print(turnos_totales)
 
-# Falta para las demás planificaciones
 modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo, mes, meses_anio,month_prev, month,cont_semana,cant_turno,lista_itinerario, num_empleado,num_empleadoAnterior, lista_turno_extra, turnos_extra) # Modificada [ARREGLANDO]
 
-# Candidato
 modelo = AsignacionTurnos(modelo,mes,planificacionAnterior,empleadoPlanificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion) # Modificar [Funciona]
 
 modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos,meses_anio, month, month_prev, all_empleadoAnterior, empleadoPlanificacion) # Modificar
 
-# Funciona?
 modelo, mes = NoAdmitenTurnosSeguidos(all_empleado,all_empleadoAnterior , cont_semana, mes, modelo, meses_anio, month, month_prev, empleadoPlanificacion) # Modificar [PROBAR]
 
 

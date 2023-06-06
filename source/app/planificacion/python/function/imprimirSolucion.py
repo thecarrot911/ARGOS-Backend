@@ -65,7 +65,7 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
                                                                   is_working = True
                                                                   emp_turn["turno"] = t+1
                                                                   emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()
-                                                                  if self._all_empleadoAnterior == range(0): contador[j][t] = contador[j][t] + 1 
+                                                                  #if self._all_empleadoAnterior == range(0): contador[j][t] = contador[j][t] + 1 
                                                       if not is_working:
                                                             emp_turn["turno"] = 0
                                                             emp_turn["nombre"] = self._mes[num_semana][i][3][j][t].Name()

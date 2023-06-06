@@ -48,6 +48,7 @@ def ListaEmpleadoParaCadaTurno(
                                                       suma_itinerario.append(_itinerario["aviones"])
                                                       # Alcanza y hay empleados disponible
                                                       if sum(suma_itinerario) + cant_turno <= num_empleado and acumulador > 0 and trabajo_extra - _itinerario["aviones"] >= 0:
+                                                            #print(1,'if')
                                                             trabajo_extra = trabajo_extra - _itinerario["aviones"]
                                                             acumulador = acumulador - _itinerario["aviones"]
                                                             dia_trabajo.append(

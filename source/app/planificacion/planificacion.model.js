@@ -13,7 +13,6 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
 
       if (planificacionAnterior.length != 0){
             const UltimaSemanaAnterior = await planificacionHelper.ObtenerUltimaSemanaDelMes(planificacionAnterior)
-
             planificacionMensual =  await planificacion.GenerarPlanificacion(UltimaSemanaAnterior);
 
       }else{
