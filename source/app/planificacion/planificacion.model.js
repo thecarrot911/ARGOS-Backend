@@ -7,6 +7,7 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
       const planificacion = new Planificacion(DatosPlanificacion);
 
       let planificacionAnterior = await planificacion.PlanificacionDelMesAnterior();
+
       planificacionAnterior = await planificacionHelper.GenerarListaPlanificacion(planificacionAnterior);
 
       let planificacionMensual
@@ -76,7 +77,23 @@ const MostrarPlanificaciones = async(year) =>{
       for(let i=0;i<ListaPlanificacionAnualItinerario.length;i++){
             for(let j=0;j<ListaActualizacion.length;j++){
                   if(ListaActualizacion[j].mes == ListaPlanificacionAnualItinerario[i].mes){
+
                         ListaPlanificacionAnualItinerario[i]["actualizacion"] = ListaActualizacion[j].actualizacion
+                        let values = ListaActualizacion[j].actualizacion.filter( actualizacion => actualizacion.tipo != "Observación" )
+                        if(values.length > 0){
+                              for (const actualizacion of values){
+                                    let cambioPlanificacion = await Actualizacion.ObtenerCambioTurno(actualizacion.id)
+                                    for(const dia of ListaPlanificacionAnualItinerario[i]["planificacion"]){
+                                          for (const cambio of cambioPlanificacion) {
+                                                for (const empleado of dia.empleados) {
+                                                      if(cambio.id_turno == empleado.turno_id){
+                                                            empleado.turno = cambio.turno
+                                                      }
+                                                }
+                                          }
+                                    }
+                              }
+                        }
                   }
             }
       }

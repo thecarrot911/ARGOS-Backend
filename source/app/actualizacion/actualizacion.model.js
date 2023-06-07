@@ -23,13 +23,24 @@ const Registrar = async(actualizacion) =>{
             const otro = 6
 
             // Permiso
-            if(nuevaActualizacion.tipo_id == 1) return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,permiso)
+            if(nuevaActualizacion.tipo_id == 1){
+                  //return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,permiso)
+                  return await nuevaActualizacion.PedirPermiso(ListaOrdenadaPlanificacion, permiso);
+            }
             // Vacaciones
-            else if(nuevaActualizacion.tipo_id == 2) return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,vacaciones)
+            else if(nuevaActualizacion.tipo_id == 2){
+                  //return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,vacaciones)
+                  return await nuevaActualizacion.PedirPermiso(ListaOrdenadaPlanificacion,vacaciones);
+            }
             // Observación
-            else if(nuevaActualizacion.tipo_id == 4) return await nuevaActualizacion.Observacion();
+            else if(nuevaActualizacion.tipo_id == 4){
+                  return await nuevaActualizacion.Observacion();
+            }
             // Otro
-            else return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,otro)
+            else{
+                  //return await nuevaActualizacion.Permiso(ListaOrdenadaPlanificacion,otro)
+                  return await nuevaActualizacion.PerdirPermiso(ListaOrdenadaPlanificacion,otro);
+            }
       }
 };
 
@@ -51,7 +62,6 @@ const Eliminar = async(id, tipo) =>{
 
       if (tipo != "Observación") {
             const CambiosAnterior = await Actualizacion.MostrarCambioAnterior(id);
-            await Actualizacion.RestablecerTurnoAnterior(CambiosAnterior);
             await Actualizacion.EliminarCambioTurno(CambiosAnterior);
       }
       await Actualizacion.Eliminar(id);

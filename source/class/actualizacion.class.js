@@ -73,6 +73,43 @@ class Actualizacion{
             return;
       };
 
+      PedirPermiso = async(planificacion, id)=>{
+            
+            const fechaInicio = new Date(this.fecha_inicio);
+            fechaInicio.setUTCHours(0, 0, 0, 0);
+            const diaInicio = fechaInicio.getUTCDate();
+
+            const fechaTermino = new Date(this.fecha_termino);
+            fechaTermino.setUTCHours(0, 0, 0, 0);
+            const diaTermino = fechaTermino.getUTCDate();
+
+            const indiceFilter = planificacion.filter(
+                  (dia) => dia.dia_numero == parseInt(diaInicio)
+            );
+            const indiceInicio = planificacion.indexOf(indiceFilter[0]);
+
+            let CambiosPlanificacion = [];
+
+            // Acumulando los dias para modificar
+            for(let i = indiceInicio; i<planificacion.length; i++){
+                  CambiosPlanificacion.push(planificacion[i].empleados.filter(empleado => this.rut == empleado.rut)[0])
+                  if(planificacion[i].dia_numero == parseInt(diaTermino)) break;
+            }
+            
+            const registrarActualizacion = await this.Registrar();
+            const actualizacionId = registrarActualizacion.insertId
+            
+            // Cambiando al tipo de actualización
+            for(const turno of CambiosPlanificacion) turno.turno=id;
+
+            // Ingresando los cambio de turno
+            const values = CambiosPlanificacion.map(dia => [dia.id, dia.turno, actualizacionId]);
+            const sql = `INSERT INTO cambioturno(id_turno, turno, actualizacion_id) VALUES ?`;
+            await conexion.query(sql, [values]);
+
+            return;
+      };
+
       static MostrarActualizacionAnual = async(year) =>{
             const sql = `
             SELECT
@@ -164,13 +201,14 @@ class Actualizacion{
             return await conexion.query(sql)
       };
 
-      static RestablecerTurnoAnterior = async(CambiosAnterior) =>{
+      // Ya no funca
+      /*static RestablecerTurnoAnterior = async(CambiosAnterior) =>{
             for(const dia of CambiosAnterior){
                   const sql = `UPDATE turno SET turno = ? WHERE id = ?;`;
                   await conexion.query(sql, [dia.turno, dia.id_turno]);
             }
             return;
-      };
+      };*/
 
       static EliminarCambioTurno = async(CambiosAnterior) =>{
             for(const dia of CambiosAnterior){
@@ -191,6 +229,12 @@ class Actualizacion{
             VALUES('${this.reemplazo}',${this.planificacion_id},${this.tipo_id},'${this.descripcion}','${this.fecha}');`;
             return await conexion.query(sql);
       };
+
+      static ObtenerCambioTurno = async(id) => {
+            const sql = `SELECT * FROM cambioturno WHERE actualizacion_id = ${id}`;
+            return await conexion.query(sql)
+      }
+
 }
 
 module.exports = Actualizacion;

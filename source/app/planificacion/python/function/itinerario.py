@@ -58,18 +58,30 @@ def ListaEmpleadoParaCadaTurno(
                                                       # No Alcanza pero hay empleados disponible [SE REPARTE]
                                                       elif sum(suma_itinerario) + cant_turno > num_empleado and acumulador > 0 and trabajo_extra - _itinerario["aviones"] >= 0:
                                                             #print(2,'if')
+                                                            EnterFor = False
+
                                                             for numero in range(1,_itinerario["aviones"]):
                                                                   if num_empleado - cant_turno == numero:
                                                                         # RECORDAR QUE TRABAJO EXTRA YA INCLUSE EL 1 POR DEFECTO
                                                                         trabajo_extra = trabajo_extra - numero
+                                                                        EnterFor = True
                                                                         break
                                                             
-                                                            dia_trabajo.append(
-                                                                  modelo.NewIntVar(numero+1, numero+1,"turno %i" % (turno+1))
-                                                            )
-                                                            turnos_totales[turno] = turnos_totales[turno] + numero + 1 # Se suma el 1, obligatorio
-                                                            acumulador = acumulador - numero
-                                                            lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]-numero])
+                                                            if not EnterFor:
+                                                                  numero = 1
+                                                                  dia_trabajo.append(
+                                                                        modelo.NewIntVar(numero+1, numero+1,"turno %i" % (turno+1))
+                                                                  )
+                                                                  turnos_totales[turno] = turnos_totales[turno] + numero + 1 # Se suma el 1, obligatorio
+                                                                  acumulador = acumulador - numero
+                                                            else:
+                                                                  dia_trabajo.append(
+                                                                        modelo.NewIntVar(numero+1, numero+1,"turno %i" % (turno+1))
+                                                                  )
+                                                                  turnos_totales[turno] = turnos_totales[turno] + numero + 1 # Se suma el 1, obligatorio
+                                                                  acumulador = acumulador - numero
+                                                                  lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]-numero])
+                                                            
                                                             #print(t,'if'urnos_totales)
                                                             #print(t,'if'rabajo_extra)
 
@@ -96,7 +108,6 @@ def ListaEmpleadoParaCadaTurno(
                                                             turnos_totales[turno] = turnos_totales[turno] + 1
                                                             lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]])
 
-                                                      
                                                       Lista_turnos.append(turno+1)
                                                       break
                                     #print(turnos_totales)
