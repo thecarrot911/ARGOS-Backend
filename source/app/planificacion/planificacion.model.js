@@ -87,6 +87,17 @@ const MostrarPlanificaciones = async(year) =>{
                                           for (const cambio of cambioPlanificacion) {
                                                 for (const empleado of dia.empleados) {
                                                       if(cambio.id_turno == empleado.turno_id){
+                                                            for(const emp of ListaPlanificacionAnualItinerario[i]["estadistica"].empleados){
+                                                                  if(emp.rut == empleado.rut){
+                                                                        if(empleado.turno == 1){
+                                                                              emp.turno1 = emp.turno1 - 1
+                                                                        }else if(empleado.turno == 2){
+                                                                              emp.turno2 = emp.turno2 - 1
+                                                                        }else{
+                                                                              emp.turno3 = emp.turno3 - 1
+                                                                        }
+                                                                  }
+                                                            }
                                                             empleado.turno = cambio.turno
                                                       }
                                                 }
