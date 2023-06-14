@@ -74,9 +74,15 @@ cont_semana = []
 # Lista de todos los domingos
 domingos = []
 
+# Turnos extras en una semana compartida
+dias_libre_semana_compartida = num_empleadoAnterior
+turnos_extra_semana_compartida = (6*num_empleadoAnterior)-dias_libre_semana_compartida-(6*cant_turno)
+#print(turnos_extra_semana_compartida)
+
 # Turnos extras en una semana (30 - 5 - 18 = 7)
 dias_libre_semana = num_empleado
 turnos_extra = (6*num_empleado)-dias_libre_semana-(6*cant_turno) 
+#print(turnos_extra)
 
 # Lista alarma 
 lista_alarma = []
@@ -107,7 +113,8 @@ modelo = CantidadMinimaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, nu
 
 modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, num_empleado ,cant_turno) # Modificada
 
-lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales, lista_alarma = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev,lista_alarma)
+lista_itinerario, lista_turno_extra, modelo, itinerario, turnos_totales, lista_alarma = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev,lista_alarma, all_empleado)
+#print(lista_turno_extra)
 
 modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior,lista_alarma) #Modificada para 5 y 7 empleados
 

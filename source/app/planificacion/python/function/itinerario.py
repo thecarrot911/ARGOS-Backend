@@ -9,7 +9,7 @@ from ortools.sat.python import cp_model
 
 def ListaEmpleadoParaCadaTurno(
       modelo: cp_model.CpModel, empleadoPlanificacionAnterior:list[list] ,planificacionAnterior: None ,turnos_totales: list[int], itinerario: list[object], lista_itinerario: list, lista_turno_extra: list , cant_turno: int, num_empleado: int,
-      mes: list[list], cont_semana: list, turnos_extra: int, meses_anio: list[str], month:int, month_prev:int, lista_alarma: list):
+      mes: list[list], cont_semana: list, turnos_extra: int, meses_anio: list[str], month:int, month_prev:int, lista_alarma: list, all_empleado: range):
       """
       Se genera una lista con la cantidad de empleados para cada turno.
       """
@@ -29,13 +29,14 @@ def ListaEmpleadoParaCadaTurno(
             trabajo_extra = turnos_extra
             for dia in range(cont_semana[semana]):
                   if mes[semana][dia][0] == meses_anio[month-1]: 
-                        
+                        if planificacionAnterior != None and num_empleado < len(empleadoPlanificacionAnterior) and semana == 0:
+                              diasRestante = 6 - len(planificacionAnterior)
+                              nuevo_turno_extra = diasRestante * (num_empleado-cant_turno)
+
                         # Corresponde al mes actual
                         itinerario_dia = [iti for iti in itinerario if iti["dia"] == mes[semana][dia][1] ]
                         
                         if itinerario_dia:
-                              #print(trabajo_extra)
-                              #print(itinerario_dia)
                               if dia != Domingo:
                                     suma_itinerario = []
                                     dia_trabajo = []
@@ -136,6 +137,11 @@ def ListaEmpleadoParaCadaTurno(
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 2"),
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 3")
                               ])
+
+                              for empleado in all_empleado:
+                                    modelo.Add(mes[semana][dia][3][empleado][turno] <= num_empleado - cant_turno + 1)
+                                    modelo.Add(mes[semana][dia][3][empleado][turno] >= 1)
+
                               if dia != Domingo: 
                                     AgregandoTurnosTotales(turnos_totales, cant_turno)
                                     #print(mes[semana][dia][1], mes[semana][dia][0])
@@ -157,7 +163,6 @@ def ListaEmpleadoParaCadaTurno(
                         
                         if dia != Domingo and planificacionAnterior == None: # Solo cuenta cuando no hay planificación anterior
                               AgregandoTurnosTotales(turnos_totales, cant_turno)
-                              #print(mes[semana][dia][1], mes[semana][dia][0])
 
                   else: 
                         
