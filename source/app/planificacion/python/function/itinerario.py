@@ -13,7 +13,6 @@ def ListaEmpleadoParaCadaTurno(
       """
       Se genera una lista con la cantidad de empleados para cada turno.
       """
-      #itinerario["dia"] - itineario["aviones"] - itineario["turno"]
       
       # Ordena el itineario por dia y Después por turno
       itinerario.sort(key=lambda itinerario: (itinerario["dia"], itinerario["turno"]))
@@ -34,8 +33,6 @@ def ListaEmpleadoParaCadaTurno(
                         itinerario_dia = [iti for iti in itinerario if iti["dia"] == mes[semana][dia][1] ]
                         
                         if itinerario_dia:
-                              #print(trabajo_extra)
-                              #print(itinerario_dia)
                               if dia != Domingo:
                                     suma_itinerario = []
                                     dia_trabajo = []
@@ -54,6 +51,8 @@ def ListaEmpleadoParaCadaTurno(
                                                             dia_trabajo.append(
                                                                   modelo.NewIntVar(1 + _itinerario["aviones"], 1 + _itinerario["aviones"],"turno %i" % (turno+1))
                                                             )
+                                                            
+
                                                             turnos_totales[turno] = turnos_totales[turno] + _itinerario["aviones"] + 1
                                                       # No Alcanza pero hay empleados disponible [SE REPARTE]
                                                       elif sum(suma_itinerario) + cant_turno > num_empleado and acumulador > 0 and trabajo_extra - _itinerario["aviones"] >= 0:
@@ -82,10 +81,8 @@ def ListaEmpleadoParaCadaTurno(
                                                                   acumulador = acumulador - numero
                                                                   lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]-numero])
                                                             
-                                                            #print(t,'if'urnos_totales)
-                                                            #print(t,'if'rabajo_extra)
 
-                                                      # Alcanza y no hay empleados disponible [SE REPARTE LOS QUE ALCANZAN Y LOS QUE NO A LA LISTA?]
+                                                      # Alcanza y no hay empleados disponible [SE REPARTE LOS QUE ALCANZAN Y LOS QUE NO A LA LISTA]
                                                       elif sum(suma_itinerario) + cant_turno <= num_empleado and acumulador > 0 and trabajo_extra < 0:
                                                             #print(3,'if')
                                                             for numero in range(1,_itinerario["aviones"]):
@@ -100,7 +97,7 @@ def ListaEmpleadoParaCadaTurno(
                                                             acumulador = acumulador - numero
                                                             lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]-numero])
                                                       
-                                                      else: # No alacanza ?
+                                                      else: # No alacanza 
                                                             #print(4,'if')
                                                             dia_trabajo.append(
                                                                   modelo.NewIntVar(1,1,"turno %i" % (turno+1))
@@ -110,7 +107,7 @@ def ListaEmpleadoParaCadaTurno(
 
                                                       Lista_turnos.append(turno+1)
                                                       break
-                                    #print(turnos_totales)
+
                                     if sum(Lista_turnos) != 6:
                                           for turno in range(cant_turno):
                                                 if (turno+1) not in Lista_turnos:
@@ -120,7 +117,6 @@ def ListaEmpleadoParaCadaTurno(
                                                       turnos_totales[turno] = turnos_totales[turno] + 1
                                     # Se ordena los turnos de 1 a 3
                                     dia_trabajo = sorted(dia_trabajo, key=ObtenerNumeroDeTurno)
-                                    #print(dia_trabajo)
                                     semana_trabajo.append(dia_trabajo)
                               else:
                                     semana_trabajo.append([
@@ -130,7 +126,6 @@ def ListaEmpleadoParaCadaTurno(
                                     ])
                         
                         else: #En caso de que el día no tenga itinerario
-                              #if semana == 0: print(mes[semana][dia][2],mes[semana][dia][1],trabajo_extra)
                               semana_trabajo.append([
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 1"),
                                     modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 2"),
@@ -138,7 +133,6 @@ def ListaEmpleadoParaCadaTurno(
                               ])
                               if dia != Domingo: 
                                     AgregandoTurnosTotales(turnos_totales, cant_turno)
-                                    #print(mes[semana][dia][1], mes[semana][dia][0])
                   
                   elif mes[semana][dia][0] == meses_anio[month_prev-1]: 
                         # Corresponde al mes pasado
@@ -157,18 +151,15 @@ def ListaEmpleadoParaCadaTurno(
                         
                         if dia != Domingo and planificacionAnterior == None: # Solo cuenta cuando no hay planificación anterior
                               AgregandoTurnosTotales(turnos_totales, cant_turno)
-                              #print(mes[semana][dia][1], mes[semana][dia][0])
 
                   else: 
                         
                         # Corresponde al mes del futuro
-                        #print((mes[semana][dia][0],mes[semana][dia][1]))
                         semana_trabajo.append([
                               modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 1"),
                               modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 2"),
                               modelo.NewIntVar(1, num_empleado - cant_turno + 1, "turno 3")
                         ])
-                        #if i!=6: AgregandoTurnosTotales(turnos_totales, cant_turno)
 
             lista_itinerario.append(semana_trabajo)
             lista_turno_extra.append(trabajo_extra)

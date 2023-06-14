@@ -53,7 +53,6 @@ class Planificacion {
                         this.comodin['rut'],
                         ...empleadosPlanificacion
                   ]);
-
                   command.stdout.on("data", function (data) {
                         console.log("Child process ON");
                         planificacionMensual.push(data.toString().trim());
@@ -65,10 +64,8 @@ class Planificacion {
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
                         try{
-                              //let json = planificacionMensual[0]
                               const json = JSON.parse(planificacionMensual[0]);
                               resolve(json);
-
                         }catch(error){
                               console.error(error)
                               resolve(error.message)

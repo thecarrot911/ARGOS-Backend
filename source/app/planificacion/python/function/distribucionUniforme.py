@@ -16,9 +16,6 @@ def CalculoMinimaCantidadTurno(modelo: cp_model.CpModel,turnos_totales: list, me
             min_turno.append(turnos_totales[turno] // num_empleado)
             max_turno.append(min_turno[turno] + (turnos_totales[turno] % num_empleado != 0))
 
-      #print(turnos_totales)
-      #print(min_turno,max_turno)
-
       # Si no hay planificacion anterior entonces..
       if all_empleadoAnterior == range(0):
             
