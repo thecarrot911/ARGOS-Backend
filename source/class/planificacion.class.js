@@ -65,10 +65,7 @@ class Planificacion {
                   command.on("close", function (code) {
                         console.log("Child process CLOSE");
                         try{
-                              //let json = planificacionMensual[0]
-                              const json = JSON.parse(planificacionMensual[0]);
-                              resolve(json);
-
+                              resolve(planificacionMensual[0]);
                         }catch(error){
                               console.error(error)
                               resolve(error.message)

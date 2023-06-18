@@ -37,18 +37,29 @@ def ListaEmpleadoParaCadaTurno(
                                     for turno in range(cant_turno):
                                           if _itinerario["turno"] == (turno+1):
                                                 suma_itinerario.append(_itinerario["aviones"])
+                                                # Alcanza y asigna esa cantidad a los empleados
                                                 if sum(suma_itinerario) + cant_turno <= num_empleado and acumulador > 0 and trabajo_extra >= _itinerario["aviones"]:
-                                                      trabajo_extra = trabajo_extra - _itinerario["aviones"]
-                                                      acumulador = acumulador - _itinerario["aviones"]
-                                                      turnos_totales[turno] = turnos_totales[turno] + _itinerario["aviones"] + 1
+                                                      #print("f1")
+                                                      trabajo_extra -= _itinerario["aviones"]
+                                                      acumulador -= _itinerario["aviones"]
+                                                      turnos_totales[turno] += _itinerario["aviones"]
                                                       for empleado in all_empleado:
                                                             modelo.Add(mes[semana][dia][3][empleado][turno] >= _itinerario["aviones"] + 1)
-                                                
+                                                # No alcanza pero es posible asignar algunos empleados al turno
                                                 elif sum(suma_itinerario) + cant_turno > num_empleado and acumulador > 0 and trabajo_extra >= _itinerario["aviones"]:
-                                                      print()
-                                                elif sum(suma_itinerario) + cant_turno <= num_empleado and acumulador > 0 and trabajo_extra == 0:
-                                                      print()
+                                                      #print("f2")
+                                                      for cantidad in range(_itinerario["aviones"]):
+                                                            if (num_empleado - cant_turno == cantidad) or (trabajo_extra == cantidad):
+                                                                  trabajo_extra-=cantidad
+                                                                  break
+                                                      acumulador-=cantidad
+                                                      turnos_totales[turno]+=cantidad
+                                                      for empleado in all_empleado:
+                                                            modelo.Add(mes[semana][dia][3][empleado][turno] >= _itinerario["aviones"] + 1)
+                                                      lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]-cantidad])
+                                                # No alcanza y los manda como alarma
                                                 else:
+                                                      #print("f3")
                                                       lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]])
 
                   elif mes[semana][dia][0] == meses_anio[month_prev-1] and planificacionAnterior != None:
@@ -59,11 +70,3 @@ def ListaEmpleadoParaCadaTurno(
                         trabajo_extra = trabajo_extra - contador + cant_turno
             lista_turno_extra.append(trabajo_extra)
       return modelo, lista_turno_extra, turnos_totales, lista_alarma
-
-def AgregandoTurnosTotales(turnos_totales: list[int], cant_turno: int):
-      """ """
-      for t in range(cant_turno):
-            turnos_totales[t] = turnos_totales[t] + 1
-
-def ObtenerNumeroDeTurno(variable):
-    return int(variable.Name().split()[1])
