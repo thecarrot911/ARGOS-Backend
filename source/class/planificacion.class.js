@@ -53,7 +53,6 @@ class Planificacion {
                         this.comodin['rut'],
                         ...empleadosPlanificacion
                   ]);
-
                   command.stdout.on("data", function (data) {
                         console.log("Child process ON");
                         planificacionMensual.push(data.toString().trim());
