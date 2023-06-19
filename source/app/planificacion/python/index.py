@@ -69,10 +69,6 @@ cont_semana = []
 # Lista de todos los domingos
 domingos = []
 
-# Turnos extras en una semana compartida (opcional?)
-#dias_libre_semana_compartida = num_empleadoAnterior
-#turnos_extra_semana_compartida = (6*num_empleadoAnterior)-dias_libre_semana_compartida-(6*cant_turno)
-
 # Turnos extras en una semana (30 - 5 - 18 = 7)
 dias_libre_semana = num_empleado
 turnos_extra = (6*num_empleado)-dias_libre_semana-(6*cant_turno) 
@@ -108,11 +104,10 @@ modelo, mes = NoAdmitenTurnosSeguidos(all_empleado,all_empleadoAnterior , cont_s
 modelo, mes, turnos_totales = CadaTurnoTieneAsignadoComoMinimoUnEmpleado(modelo, mes, cont_semana, cant_turno, turnos_totales,all_empleado, all_empleadoAnterior, meses_anio, month_prev,month)
 
 modelo, lista_turno_extra, turnos_totales, lista_alarma = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev,lista_alarma, all_empleado)
-#print(turnos_totales)
 
 modelo, turnos_totales, domingos_asignacion, lista_comodin = ContabilizandoTurnosDomingo(modelo,mes,domingos,all_empleado,cant_turno,turnos_totales, num_empleado, itinerario, lista_alarma) # Modificada sin itinerario
 
-modelo, turnos_totales = ListaAsignacionTurnoSobrantes(modelo,mes,domingos_asignacion,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior,lista_alarma, all_empleado, empleadoPlanificacionAnterior, cant_turno) #Modificada para 5 y 7 empleados
+modelo, turnos_totales = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior,lista_alarma, all_empleado, empleadoPlanificacionAnterior, cant_turno,num_empleado) #Modificada para 5 y 7 empleados
 
 modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos,meses_anio, month, month_prev, all_empleadoAnterior, empleadoPlanificacion) # Modificar
 
