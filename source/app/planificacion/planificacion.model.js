@@ -19,7 +19,6 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
             planificacionMensual = await planificacion.GenerarPlanificacion(null);
       }
       try{
-            console.log(planificacionMensual);
             planificacionMensual = JSON.parse(planificacionMensual);
             //Guardar Planificación
             const planificacion_id = await planificacion.GuardarPlanificacion();
