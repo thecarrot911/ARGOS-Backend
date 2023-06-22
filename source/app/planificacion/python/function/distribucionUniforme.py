@@ -36,7 +36,6 @@ def CalculoMinimaCantidadTurno(modelo: cp_model.CpModel,turnos_totales: list, me
       else: 
             # Recordar que no se cuenta el mes pasado
             for empleado in all_empleado:
-
                   jornada = [[] for _ in range(cant_turno)]
                   for semana in range(len(cont_semana)):
                         for dia in range(cont_semana[semana]):
@@ -44,10 +43,9 @@ def CalculoMinimaCantidadTurno(modelo: cp_model.CpModel,turnos_totales: list, me
                                     for turno in range(cant_turno):
                                           if mes[semana][dia][3][empleado][turno].Name() != '0' :
                                                 jornada[turno].append(mes[semana][dia][3][empleado][turno])
-                  
+
                   for turno in range(cant_turno):
                         if jornada[turno]:
                               modelo.Add(min_turno[turno] <= sum(jornada[turno]))
                               modelo.Add(sum(jornada[turno]) <= max_turno[turno])
-
       return modelo

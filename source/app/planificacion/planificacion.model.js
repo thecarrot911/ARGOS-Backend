@@ -18,15 +18,21 @@ const GenerarPlanificacion = async(DatosPlanificacion) =>{
             // NO HAY PLANIFICACION ANTERIOR
             planificacionMensual = await planificacion.GenerarPlanificacion(null);
       }
-      
-      //Guardar Planificación
-      const planificacion_id = await planificacion.GuardarPlanificacion();
-      await planificacion.GuardarHorario(planificacion_id);
-      const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
-      const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
-      await planificacion.GuardarItinerario(planificacionMensual, dia_id);
-      await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
-      return planificacionMensual;
+      try{
+            console.log(planificacionMensual);
+            planificacionMensual = JSON.parse(planificacionMensual);
+            //Guardar Planificación
+            const planificacion_id = await planificacion.GuardarPlanificacion();
+            await planificacion.GuardarHorario(planificacion_id);
+            const dia_id = await planificacion.GuardarDia(planificacionMensual, planificacion_id);
+            const turno_id = await planificacion.GuardarTurno(planificacionMensual, dia_id);
+            await planificacion.GuardarItinerario(planificacionMensual, dia_id);
+            await planificacion.GuardarTurnoDia(planificacionMensual, turno_id);
+            return planificacionMensual;
+
+      }catch(error){
+            throw new TypeError('' + error.message)
+      }
 };
 
 const UltimaPlanificacion = async() =>{
