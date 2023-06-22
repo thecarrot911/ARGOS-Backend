@@ -48,14 +48,14 @@ def DefiniendoVariable(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str
             if(dias_semana[indice_semana] == "Lunes" and dia != 1):
                   mes.append(semana)
                   semana = []
-                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
+                  array_empleado = VariablesTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
                   if(dia == cantidad_dias): 
                         semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
                         mes.append(semana)
                   else: 
                         semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
             else: 
-                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
+                  array_empleado = VariablesTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
                   if(dia == cantidad_dias):
                         semana.append([meses_anio[month-1],dia, dias_semana[indice_semana], array_empleado, FeriadoMes(year,month,dia)])
                         mes.append(semana)
@@ -84,7 +84,7 @@ def AgregandoDiasPrimeraSemana(mes: list[list],empleadoPlanificacion: list[str],
             indice_semana = dias_mes_actual[0]
             for j in range(indice_semana):
                   
-                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
+                  array_empleado = VariablesTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
                   
                   mes[0].insert(0,[meses_anio[month_prev-1],cantidad_dias_prev,dias_semana[indice_semana-1],array_empleado, FeriadoMes(year,month_prev,cantidad_dias_prev)])
                   cantidad_dias_prev = cantidad_dias_prev-1
@@ -109,7 +109,7 @@ def FeriadoMes(anio: int, mes: int, dia: int):
 
       return feriado["feriado"]
 
-def ModeloTurnoDeEmpleados(modelo: cp_model.CpModel, empleadoPlanificacion:list[str], all_empleado: range, cant_turno: int):
+def VariablesTurnoDeEmpleados(modelo: cp_model.CpModel, empleadoPlanificacion:list[str], all_empleado: range, cant_turno: int):
       
       array_empleado = []
       for empleado in empleadoPlanificacion:
@@ -134,7 +134,7 @@ def AgregandoDiasUltimaSemana(
       """
       if(len(mes[len(mes)-1])!=7):
             for k in range(7-indice_semana_next):
-                  array_empleado = ModeloTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
+                  array_empleado = VariablesTurnoDeEmpleados(modelo, empleadoPlanificacion, all_empleado, cant_turno)
                   mes[len(mes)-1].insert(indice_semana_next,[meses_anio[month_next-1],k+1,dias_semana[indice_semana_next],array_empleado, FeriadoMes(year,month_next,k+1)])
                   indice_semana_next = indice_semana_next + 1
 
