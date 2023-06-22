@@ -13,18 +13,18 @@ const app = express();
 app.set("port", process.env.PORT_SERVER || 5000);
 
 /**Middlewares */
-app.use(morgan("dev")) 
+app.use(morgan("dev"));
 app.use(cors());
-app.use(express.json()); 
+app.use(express.json());
 app.use(bodyParser.json({ limit: "2mb" }));
 app.use(bodyParser.urlencoded({ limit: "2mb", extended: true }));
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-/**Rutas*/ 
+/**Rutas*/
 app.use(require("./routes"));
 
 /**Levantar el servidor */
 app.listen(app.get("port"), () => {
-    console.log("Sistema de gestion de turno");
-    console.log("Escuchando el servidor desde el puerto: ", app.get("port"));
-  });
+  console.log("Sistema de gestion de turno");
+  console.log("Escuchando el servidor desde el puerto: ", app.get("port"));
+});
