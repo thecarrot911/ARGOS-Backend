@@ -3,7 +3,7 @@ from ortools.sat.python import cp_model
 import holidays
 
 
-def DefiniendoModelo(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str],planificacionAnterior: None , empleadoPlanificacionAnterior: list[str], year: int, month: int, 
+def DefiniendoVariable(modelo: cp_model.CpModel ,empleadoPlanificacion: list[str],planificacionAnterior: None , empleadoPlanificacionAnterior: list[str], year: int, month: int, 
       all_empleado: range, cant_turno: int , meses_anio: list[str], cont_semana: list):
       
       if(month==12):

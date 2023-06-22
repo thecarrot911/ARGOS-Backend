@@ -2,11 +2,11 @@ import json
 import sys
 import random
 from ortools.sat.python import cp_model
-from function.definicionModelo import *
 from function.imprimirSolucion import SolutionPrinter
 from function.restricciones import *
 from function.itinerario import *
 from function.distribucionUniforme import *
+from function.definicionVariables import *
 
 year = int(sys.argv[1]) 
 month = int(sys.argv[2])
@@ -88,7 +88,7 @@ lista_turno_extra = []
 ## DEFINICIÓN DEL MODELO
 modelo = cp_model.CpModel()
 
-mes, all_dias, cont_semana, month_prev = DefiniendoModelo(modelo, empleadoPlanificacion, planificacionAnterior , empleadoPlanificacionAnterior, year, month, all_empleado, cant_turno , meses_anio, cont_semana)
+mes, all_dias, cont_semana, month_prev = DefiniendoVariable(modelo, empleadoPlanificacion, planificacionAnterior , empleadoPlanificacionAnterior, year, month, all_empleado, cant_turno , meses_anio, cont_semana)
 
 # Restricciones
 
@@ -96,42 +96,20 @@ modelo, mes = EmpleadoTrabajoPorDia(all_empleado, cont_semana, modelo, mes, cant
 
 modelo, mes = DiaLibrePorSemana(all_empleado,cont_semana, mes, cant_turno, modelo, meses_anio,month, all_empleadoAnterior,month_prev, empleadoPlanificacion)
 
-<<<<<<< HEAD
 modelo, domingos = DomingosLibres(modelo, domingos,cont_semana,mes, meses_anio,all_empleado,cant_turno,month)
 
 modelo, mes = NoAdmitenTurnosSeguidos(all_empleado,all_empleadoAnterior , cont_semana, mes, modelo, meses_anio, month, month_prev)
-=======
-modelo = CantidadMinimaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, num_empleado ,cant_turno) 
-
-modelo = CantidadMaximaDeEmpleadoDomingo(modelo, mes, all_empleado, domingos, num_empleado ,cant_turno) 
->>>>>>> 681e9c23ecb8c145583867cf6ffe8359b46c5f27
 
 modelo, mes, turnos_totales = CadaTurnoTieneAsignadoComoMinimoUnEmpleado(modelo, mes, cont_semana, cant_turno, turnos_totales,all_empleado, all_empleadoAnterior, meses_anio, month_prev,month)
 
-<<<<<<< HEAD
 modelo, lista_turno_extra, turnos_totales, lista_alarma = ListaEmpleadoParaCadaTurno(modelo,empleadoPlanificacionAnterior,planificacionAnterior , turnos_totales ,itinerario,lista_itinerario,lista_turno_extra,cant_turno,num_empleado,mes,cont_semana,turnos_extra,meses_anio,month,month_prev,lista_alarma, all_empleado)
 
 modelo, turnos_totales, domingos_asignacion, lista_comodin = ContabilizandoTurnosDomingo(modelo,mes,domingos,all_empleado,cant_turno,turnos_totales, num_empleado, itinerario, lista_alarma) # Modificada sin itinerario
 
 modelo, turnos_totales = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior,lista_alarma, all_empleado, empleadoPlanificacionAnterior, cant_turno,num_empleado) #Modificada para 5 y 7 empleados
-=======
-modelo, turnos_totales, lista_itinerario = ListaAsignacionTurnoSobrantes(modelo,mes,cont_semana,lista_turno_extra, meses_anio, month, month_prev, lista_itinerario, itinerario, turnos_totales, planificacionAnterior,lista_alarma) 
-
-turnos_totales, domingos_asignacion, lista_comodin = ContabilizandoTurnosDomingo(mes,domingos,cant_turno,turnos_totales, num_empleado, itinerario, lista_alarma)
-
-modelo = CantidadEmpleadoTrabajandoXSemanaYDia(modelo, mes, meses_anio,month_prev, month,cont_semana,cant_turno,lista_itinerario, num_empleado,num_empleadoAnterior, lista_turno_extra, turnos_extra) 
-
-modelo = AsignacionTurnos(modelo,mes,planificacionAnterior,empleadoPlanificacionAnterior, lista_itinerario,cont_semana,cant_turno,domingos,month,month_prev,meses_anio,all_empleado,domingos_asignacion)
->>>>>>> 681e9c23ecb8c145583867cf6ffe8359b46c5f27
 
 modelo = CalculoMinimaCantidadTurno(modelo,turnos_totales,mes, num_empleado,all_empleado, cont_semana, cant_turno, domingos,meses_anio, month, month_prev, all_empleadoAnterior, empleadoPlanificacion) 
 
-<<<<<<< HEAD
-=======
-modelo, mes = NoAdmitenTurnosSeguidos(all_empleado,all_empleadoAnterior , cont_semana, mes, modelo, meses_anio, month, month_prev, empleadoPlanificacion) 
-
-
->>>>>>> 681e9c23ecb8c145583867cf6ffe8359b46c5f27
 # Crea el solver y la solución
 solver = cp_model.CpSolver()
 solver.parameters.linearization_level = 0

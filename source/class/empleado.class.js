@@ -93,35 +93,38 @@ class Empleado{
             const sql = `
             SELECT empleado.rut, nombre_paterno, nombre_materno, apellido_paterno, apellido_materno,
                   activo, imagen, planificacion.planificacion_id, planificacion.month, planificacion.year,
-                  SUM(CASE WHEN dia.feriado = 1 and (turno.turno = 1 or turno.turno = 2 or turno.turno = 3) THEN 1 ELSE 0 END) feriado,
-                  SUM(CASE WHEN turno.turno = 0 THEN 1 ELSE 0 END) libre,
-                  SUM(CASE WHEN turno.turno = 1 THEN 1 ELSE 0 END) turno1,
-                  SUM(CASE WHEN turno.turno = 2 THEN 1 ELSE 0 END) turno2,
-                  SUM(CASE WHEN turno.turno = 3 THEN 1 ELSE 0 END) turno3,
-                  horario.turno1 horario1,
-                  horario.turno2 horario2,
-                  horario.turno3 horario3
+                  SUM(CASE WHEN dia.feriado = 1 AND (turno.turno = 1 OR turno.turno = 2 OR turno.turno = 3) THEN 1 ELSE 0 END) AS feriado,
+                  SUM(CASE WHEN turno.turno = 0 THEN 1 ELSE 0 END) AS libre,
+                  SUM(CASE WHEN turno.turno = 1 THEN 1 ELSE 0 END) AS turno1,
+                  SUM(CASE WHEN turno.turno = 2 THEN 1 ELSE 0 END) AS turno2,
+                  SUM(CASE WHEN turno.turno = 3 THEN 1 ELSE 0 END) AS turno3,
+                  horario.turno1 AS horario1,
+                  horario.turno2 AS horario2,
+                  horario.turno3 AS horario3
             FROM planificacion
                   INNER JOIN dia ON planificacion.planificacion_id = dia.planificacion_id
                   INNER JOIN horario ON horario.planificacion_id = planificacion.planificacion_id
                   INNER JOIN turno ON dia.id = turno.dia_id
                   INNER JOIN turno_dia ON turno.id = turno_dia.turno_id
                   INNER JOIN empleado ON turno_dia.empleado_rut = empleado.rut
-            GROUP BY empleado.rut, planificacion.planificacion_id
-            ORDER BY year DESC,  CASE month
-                  WHEN 'enero' THEN 1
-                  WHEN 'febrero' THEN 2
-                  WHEN 'marzo' THEN 3
-                  WHEN 'abril' THEN 4
-                  WHEN 'mayo' THEN 5
-                  WHEN 'junio' THEN 6
-                  WHEN 'julio' THEN 7
-                  WHEN 'agosto' THEN 8
-                  WHEN 'septiembre' THEN 9
-                  WHEN 'octubre' THEN 10
-                  WHEN 'noviembre' THEN 11
-                  WHEN 'diciembre' THEN 12
-            END ASC;
+            GROUP BY empleado.rut, nombre_paterno, nombre_materno, apellido_paterno, apellido_materno,
+                  activo, imagen, planificacion.planificacion_id, planificacion.month, planificacion.year,
+                  horario.turno1, horario.turno2, horario.turno3
+            ORDER BY planificacion.year DESC,
+                  CASE planificacion.month
+                        WHEN 'enero' THEN 1
+                        WHEN 'febrero' THEN 2
+                        WHEN 'marzo' THEN 3
+                        WHEN 'abril' THEN 4
+                        WHEN 'mayo' THEN 5
+                        WHEN 'junio' THEN 6
+                        WHEN 'julio' THEN 7
+                        WHEN 'agosto' THEN 8
+                        WHEN 'septiembre' THEN 9
+                        WHEN 'octubre' THEN 10
+                        WHEN 'noviembre' THEN 11
+                        WHEN 'diciembre' THEN 12
+                  END ASC;
             `;
             return await conexion.query(sql);
       };
