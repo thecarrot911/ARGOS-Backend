@@ -1,3 +1,5 @@
+Pseudocódigo de programa en Or-Tools
+
 DEFINICIÓN DE VARIABLES DE ENTRADA
 
 year = 2023                                    			// Año de la planificación

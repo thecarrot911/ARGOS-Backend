@@ -1,3 +1,4 @@
+public/empleados/
 input-json/
 output-json/
 node_modules/
@@ -8,3 +9,5 @@ source/app/planificacion/python/diames.py
 source/app/planificacion/python/test2.py
 .gitignore
 .vercel
+source/app/planificacion/python/test.py
+source/app/planificacion/python/function/imprimirTest.py
