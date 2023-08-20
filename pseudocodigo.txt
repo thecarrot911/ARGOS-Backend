@@ -1,0 +1,394 @@
+DEFINICIÓN DE VARIABLES DE ENTRADA
+
+year = 2023                                    			// Año de la planificación
+month = 1                                      			// Mes de la planificación
+num_empleado = 5                               			// Cantidad de empleados
+itinerario = []                                			// Lista de los itinerarios
+planificacionAnterior = Nulo                   			// Lista de la planificación anterior
+comodin = 'rut_comodin'                        			// Rut del comodín
+empleadoPlanificacion = ['rut1','rut2','rut3','rut4','rut5'] 	// Lista con los ruts de los empleados
+
+// Inicialización de variables
+cantidad_turno = 3	// Cantidad de turnos que hay por día
+mes = []						
+semana = []						
+
+// Definición de estructura de la lista mes
+Para cada [día] del mes:
+    Si el [día] es "lunes":
+        //Se agrega a la lista "Mes" la lista "semana" y se inicializa la lista "semana" como vacía.
+        mes.append(semana)
+        semana = []
+         
+        //Se ejecuta el método “FeriadoDelMes”, el cual retorna un booleano si el día es feriado o no.
+        feriado = FeriadoDelMes        
+    
+        //Se crea la lista "array_empleado" con el método "VariablesTurnoDeEmpleados”, que crea las variables del modelo.
+        array_empleado = VariablesTurnoDempleados
+    
+        //Se agrega a la lista semana las siguientes variables: mes, número día, día de semana, array_empleado,  
+        semana.append([mes, número del dia, días de semana, array_empleado, feriado])
+    
+        Si es el último [día] del mes, entonces:
+            //Se agregar la lista "semana" a la lista "mes"
+            mes.append(semana)
+    
+    Sino:
+    
+        //Se ejecuta el método “FeriadoDelMes”, el cual retorna un booleano si el día es feriado o no.
+        feriado = FeriadoDelMes        
+    
+        //Se crea la lista "array_empleado" con el método "VariablesTurnoDeEmpleados”, que crea las variables del modelo.
+        array_empleado = VariablesTurnoDempleados
+    
+        //Se agrega a la lista semana las siguientes variables: mes, número día, día de semana, array_empleado,  
+        semana.append([mes, número del dia, días de semana, array_empleado, feriado])
+    
+        Si es el último [día] del mes, entonces:
+            //Se agregar la lista "semana" a la lista "mes"
+            mes.append(semana)
+    
+Fin del bucle
+
+Función VariablesTurnoDeEmpleados(empleadoPlanificacion):
+    array_empleado = []     //Definir una lista vacía llamada array_empleado
+    
+    Para cada [empleado] en empleadoPlanificacion:
+        turnos = []     //Definir una lista vacía llamada turnos
+        
+        Para cada turno de la cantidad_turno:
+            //Se agrega una nueva variable booleana con el nombre del rut del empleado a la lista de turnos
+            turnos.append(modelo.NewBoolVar(empleado))        
+        Fin del bucle
+        
+        //Se agrega la lista de turnos a la lista array_empleado
+        array_empleado.append(turnos)
+    Fin del bucle
+    Retornar array_empleado
+Fin de la función
+
+RESTRICCIONES
+
+1. Cada empleado trabaja como máximo un turno por día. 
+
+Para cada [empleado] de la planificacion:
+    Para cada [semana] del mes:
+        Para cada [dia] de la [semana]
+            Para cada [turno] del [dia]
+                //Restricción al modelo: la suma de los [turno] del [día] de cada [empleado] debe ser a lo más 1
+                modelo.AddAtMostOne(mes[semana][dia][3][empleado][turno] for turno in range(cant_turno))
+            Fin del bucle
+        Fin del bucle
+    Fin del bucle
+Fin del bucle
+2. Un empleado que es asignado en el turno de las 23:00 a 07:00 no puede ser asignado al día siguiente en el turno 07:00 a 15:00, ya que trabajaría 16 horas seguidas
+
+diaSiguiente = 1
+
+Para cada [empleado] de la planificación:
+    Para cada [semana] del mes:
+        Para cada [dia] de la [semana]:
+            lista = []      //Se Define una lista vacía llamada 
+            Si el dia siguiente a [dia] no es Domingo, entonces:
+                
+                // La variable mes[semana][dia][3][empleado][2] representa el último turno de un empleado en un día específico
+                dentro de una semana, la cual se guarda en la lista
+                lista.append(mes[semana][dia][3][empleado][2])
+                
+                // La variable mes[semana][dia+diaSiguiente][3][empleado][0] representa primer turno del día siguiente
+                lista.append(mes[semana][dia+diaSiguiente][3][empleado][0])
+
+            // Si es domingo
+            Sino:   
+                 //Se agrega la variable mes[semana][dia][3][empleado][2] a la lista 
+                 lista.append(mes[semana][dia][3][empleado][2])
+
+                 //Se agrega la variable mes[semana+1][0][3][empleado][0] a la lista 
+                 lista.append(mes[semana+1][0][3][empleado][0])
+
+            //Restricción al modelo: la suma de los turnos guardados en la lista debe ser menor o igual a 1 
+            modelo.Add(sum(lista) <= 1)
+
+        Fin del bucle
+    Fin del bucle
+Fin del bucle
+
+3. Cada turno debe tener como mínimo un empleado al día.
+//La variable turnos_totales, es una lista que contiene la cantidad de empleados que se van asignando para cada turno.
+Para cada [semana] en del mes:
+    Para cada [día] de la [semana]:
+        Si el [día] no es Domingo, entonces:
+            Para cada [turno] del [día]:
+                lista = []      //Se Define una lista vacía                  
+               
+                Si la variable mes[semana][dia][0] es igual al mes actual, entonces:
+                    //Incrementar en uno la variable turnos_totales[turno] 
+                    turnos_totales[turno]+=1                
+
+                Para cada [empleado] de la planificacion:
+                    //Se agrega la variable mes[semana][dia][3][empleado][turno] a lista
+                    lista.append(mes[semana][dia][3][empleado][turno])
+                Fin del bucle
+
+                //Restricción al modelo: la suma de los turnos del empleado para un día de la semana debe ser mayor o igual a 1
+                modelo.Add(sum(lista) >= 1)
+            
+            Fin del bucle
+    Fin del bucle
+Fin del bucle
+
+4. Cada empleado tiene un día libre a la semana (la semana no incluye los domingos)
+
+cantidadDiaSemana = 6 # lunes a sábado 
+diasLibreCadaEmpleadoPorSemana = 1 
+
+Para cada [empleado] de la planificacion:
+    Para cada [semana] del mes
+        lista_semana = [ ]   //Se Define una lista vacía 
+        
+        Para cada [día] de la [semana]:
+            Si [dia] no es Domingo, entonces:
+                Para cada [turno] del [dia]:
+                    //Se agrega la variable mes[semana][dia][3][empleado][turno] a la lista "lista_semana"
+                    lista_semana.append(mes[semana][dia][3][empleado][turno])
+                Fin del bucle
+        Fin del bucle
+        
+        //Restricción al modelo: la suma de los turnos del empleado en la semana debe ser igual a 5
+        modelo.Add(sum(lista_semana) == cantidadDiaSemana - diasLibreCadaEmpleadoPorSemana)
+
+    Fin del bucle
+Fin del bucle
+
+5. Cada empleado tiene dos domingos libres al mes.
+
+DomingosLibresAlMes = 2 
+
+Para cada [semana] del mes:
+    Para cada [día] de la [semana]:
+        Si el [día] es igual a 'Domingo':
+            //Se agrega las variables [dia] y [semana] a la lista domingos
+            domingos.append([dia, semana])
+
+Para cada [empleado] de la planificacion:
+    lista_domingo = [ ]      //Se Define una lista vacía 
+    Para cada [domingo] de la lista domingos:
+        Para cada [turno] de [domingo]:
+            //Se agrega la variable mes[semana][domingo][3][empleado][turno] a la lista "lista_domingo"
+            lista_domingo.append(mes[semana][domingo][3][empleado][turno])
+        Fin del bucle
+    Fin del bucle
+
+    //Restricción al modelo: la suma de los turnos que hay en los domingos debe ser igual a la resta de domingos
+    totales en el mes menos 2
+    modelo.Add(sum(lista_domingo) == len(domingos) - DomingosLibresAlMes) 
+
+Fin del bucle
+
+6. Se asignará una cantidad determinada de empleados a un turno específico en un día, según lo que indique el itinerario
+// La variable “turno_extra” nos indica la cantidad de empleados que por día de la semana no se han asignado, considerando la restricción número 3, que cada turno debe tener como mínimo un empleado (6*cant_turno) y los días libre que deben tener en la semana (dias_libre_semana).
+// La variable “lista_turno_extra” nos indica la cantidad de empleados que no han sido asignados en cada semana.
+
+turnos_extra = (6 * num_empleado) - dias_libre_semana - (6 * cant_turno)
+
+Para cada [semana] del mes:
+    trabajo_extra = turnos_extra
+    Para cada [día] de la [semana]:
+        Si la variable mes[semana][dia][0] es igual al mes actual, entonces:
+            // Se ejecuta el método “ItinerarioPorDía”, el cual retorna una lista con los itinerarios del día.
+            [itinerario_dia] = ItinerarioPorDia
+
+            Si [itinerario_dia] no está vacío y el [día] no es igual a un Domingo, entonces:
+                // suma_itinerario es la suma de todos los empleados que se necesitan en el itinerario del día.
+                suma_itinerario = 0    
+
+                // acumulador es la cantidad de empleados que disponible que hay en el día, sin considerar los empleados que
+                están asignados estrictamente asignados a un turno por la restricción 3.               
+                acumulador = num_empleado - cant_turno  
+                
+                Para cada [_itinerario] en el [itinerario_dia]:
+                    Para cada [turno] del [_itinerario]:
+                        Si _itinerario["turno"] es igual a [turno]:
+                            //Se suma la cantidad de empleados que se van asignar a la variable “suma_itinerario”
+                            suma_itinerario = suma_itinerario + _itinerario["aviones"])                           
+
+                            Si se alcanza asignar empleados al itinerario, entonces:                                         
+                                lista = []		// Se Define una lista vacía  
+                                Para cada [empleado] de la planificación:
+                                    //Se agrega la variable mes[semana][dia][3][empleado][turno] a lista
+                                    lista.append(mes[semana][dia][3][empleado][turno])
+
+                                Si lista no está vacía: 
+                                    //Restricción al modelo: la suma de lista debe ser mayor o igual a _itinerario["aviones"]+1.
+                                    modelo.Add( sum(lista) >= _itinerario["aviones "] + 1)
+                                    trabajo_extra -= _itinerario["aviones "]
+               		                acumulador -= _itinerario["aviones "]
+                                    turnos_totales[turno] += _itinerario["aviones "]
+                            
+                            Si no alcanza, pero es posible asignar algunos empleados del itinerario, entonces:
+                                Para cada [cantidad] de _itinerario["aviones"]:
+                                    // Se comprueba cuantos empleados es posible asignar del itinerario
+                                    Si (num_empleado - cant_turno es igual a [cantidad]) o (trabajo_extra es igual a [cantidad]):
+                                        trabajo_extra-=cantidad
+                                        Salir del bucle
+                                    lista = []  //Se Define una lista vacía                                     
+                                    
+                                    Para cada [empleado] de la planificación:
+                                        //Se agrega la variable mes[semana][dia][3][empleado][turno] a lista
+                                        lista.append(mes[semana][dia][3][empleado][turno])
+                                    
+                                    Si lista no está vacía: 
+                                        //Restricción al modelo: la suma de lista debe ser mayor o igual a [cantidad] + 1
+                                        modelo.Add( sum(lista) >= cantidad + 1)
+                                        acumulador-=cantidad
+                                        turnos_totales[turno]+=cantidad
+                 
+                                    //Se guarda la información del itinerario en la variable lista_alarma, la cual obtiene el día, turno y cantidad de empleados que no se asignaron
+                                    lista_alarma.append([_itinerario["dia"],_itinerario["turno"],_itinerario["aviones"]-cantidad])
+
+                            Si no alcanza, entonces:
+		                        // Se guarda la información del itinerario en la variable “lista_alarma”
+                                lista_alarma.append([_itinerario["dia"],_itinerario["turno"], cantidad])
+
+    //Se agrega la variable trabajo_extra a "lista_turno_extra"
+    lista_turno_extra.append(trabajo_extra)
+
+7. Los empleados restantes que no hayan sido asignados a un turno se distribuirán equitativamente desde el primer turno como prioridad, ya que hay más tráfico de aviones, seguido del segundo turno hasta el tercer turno.
+
+empleadoRequerido = 1			// Representa el empleado que como mínimo debe estar en un turno
+
+Para cada [semana] del mes:
+    cantidad_turno_extra = lista_turno_extra[semana] 	// cantidad de empleados que no han sido asignados
+    turnoAsignar = 0    				// 0 indica el turno1, 1 el turno2, 2 el turno3
+    empleadoAdicionales = 1				// Representa los empleados restantes
+    
+    Para [dia] en un ciclo infinito:
+        Si la cantidad_turno_extra es igual a 0, entonces: romper el ciclo infinito
+        
+        Si [día] el día no es igual Domingo, entonces:
+	    // El método ItinerarioPorDiayTurno encuentra si hay un itinerario en un día y turno especifico, teniendo como entrada el [día] y el “turnoAsignar”.
+
+            [itinerario_dia] = ItinerarioPorDiayTurno([día], turnoAsignar)
+
+            Si itinerario_dia está vacío, entonces:
+                lista = []	// Se Define una lista vacía  
+                Para cada [empleado] de la planificación:
+                    //Se agrega la variable mes[semana][dia][3][empleado][turnoAsignar] a la lista
+                    lista.append(mes[semana][dia][3][empleado][turnoAsignar])
+
+                Si lista no está vacía:
+                    //Restricción al Modelo: la suma de todos los turnos para un día en especifico para cada empleado no debe superar la suma de empleadoRequerido + empleadoAdicionales
+
+                    modelo.Add(sum(lista) >= empleadoRequerido + empleadoAdicionales)
+                    turnos_totales[turnoAsignar]+=1
+                    cantidad_turno_extra-=1                    
+
+            Sino:
+                Si turnoAsignar es igual a 2:
+                    turnoAsignar = 0
+                    empleadoAdicionales+=1
+                Sino:
+                    turnoAsignar+=1
+
+8. Los meses que tengan cuatro domingos deberán asignar a un empleado especial adicional (distinto de los cinco empleados) para trabajar en dos domingos en cualquier turno, a este último se le denominará como “comodín”
+
+// La variable “domingos”, viene de la restricción 5.
+// ArrayDeDomingo es una lista que contiene listas, donde cada lista tiene la cantidad de empleados que hay por turno
+// ejemplo con 5 empleados y 4 domingos en el mes: ArrayDeDomingo = [[1, 1, 0], [1, 1, 0], [1, 1, 1], [1, 1, 1]]
+// ejemplo con 5 empleados y 5 domingos en el mes: ArrayDeDomingo = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
+// Algunos elementos de las listas son 0 debido, ya que se debe respetar la restricción “Cada empleado tiene 2 domingos libres al mes” y matemáticamente es imposible tener cada empleado en cada turno los días domingos (si son 4 domingos), es por eso que existe el comodín, el cual trabaja los turnos que son 0. 
+// domingos_asignación es una lista, donde guardan la cantidad de empleados
+
+Shuffle(ArrayDeDomingo)			// Mezcla aleatoriamente cada lista que esta en la lista ArrayDeDomingo 
+Para cada [lista] de ArrayDeDomingo:		// Se mezcla cada elemento de cada lista que está en ArrayDeDomingo
+    Shuffle(domingo)
+
+Para cada [domingo], [semana] en “domingos”:
+    itinerario_dia = ItinerarioPorDomingo([domingo])  	//encuentra si hay un itinerario en el domingo 
+    aux = ArrayDeDomingo.pop()			                // Se saca una lista de ArrayDeDomingo
+    domingos_asignacion.append(aux)			            // Se guarda en la lista domingos_asignacion
+
+    Si “itinerario_dia” no está vacío, entonces:
+        Para [turno] del [domingo]:
+            _itinerario = itinerarioporDomingoTurno		//encuentra si hay un itinerario en el turno de un domingo 
+            
+            Si “_itinerario” no está vacío, entonces:
+                Si alcanza la cantidad de empleados para el itinerario, entonces:
+                    turnos_totales[turno] = turnos_totales[turno] + aux[turno]	// Se realiza el conteo de la asignación 
+                Sino alcanza, entonces:
+                        // Si el elemento es 0,” entonces se guarda el “domingo” y el “turno” en la variable “lista_comodin”
+                    Si aux[turno] == 0:
+                        lista_comodin.append([mes[num_semana][domingo][1], turno + 1])
+
+	                    // Se calcula cuando empleados no fueron asignados del itinerario y se guardan en la variable “lista_alarma” 
+                        empleadosFaltante = _itinerario[0]["aviones"]
+                        lista_alarma.append([_itinerario[0]["dia"], _itinerario[0]["turno"], empleadosFaltante])
+	
+	                    // Se realiza el conteo de la asignación que se va realizar
+                        turnos_totales[turno] = turnos_totales[turno] + aux[turno]
+                    Sino:
+	                    // Se calcula cuando empleados no fueron asignados del itinerario y se guardan en la variable “lista_alarma” 
+                        empleadosFaltante = _itinerario[0][" aviones"] - (aux[turno] - 1) 
+                        lista_alarma.append([_itinerario[0]["dia"], _itinerario[0]["turno"], empleadosFaltante])
+
+                        // Se realiza el conteo de la asignación que se va realizar
+                        turnos_totales[turno] = turnos_totales[turno] + aux[turno]
+            Sino:	
+
+                //  Si no hay itinerario se verifica si algún elemento es 0 para asignar al comodín
+                Si aux[turno] == 0:
+                    lista_comodin.append([mes[semana][domingo][1], turno])
+                Sino:
+                    // Se realiza el conteo de la asignación que se va realizar
+                    turnos_totales[turno] = turnos_totales[turno] + aux[turno]	  
+    Sino:
+        Para cada [turno] de un domingo
+            Si aux[turno] == 0:	
+
+                // Si el elemento es 0, entonces se guarda el “domingo” y el “turno” en la variable “lista_comodin” 
+                lista_comodin.append([mes[num_semana][domingo][1], turno)
+            Sino:
+	            // Se realiza el conteo de la asignación que se va realizar
+                turnos_totales[turno] = turnos_totales[turno] + aux[turno]
+
+Para cada [domingo], [semana] en “domingos”:
+    Para cada [turno] de un domingo:
+        lista = []	// Se define la lista vacia
+        
+        Para cada [empleado] de la planificacion:
+	        // Se guarda en la lista vacia la variable mes[semana][domingo][3][empleado][turno]
+            lista.append(mes[semana][domingo][3][empleado][turno])
+        
+        // Restricción del modelo, donde nos indica la cantidad de empleados que debe haber en dicho turno en un domingo
+        modelo.Add(sum(lista) == domingos_asignacion[semana][turno]) 
+
+
+9. La carga de trabajo de los empleados debe estar distribuida equitativamente para cada turno.
+
+min_turno = []	// Lista con la cantidad mínima de empleado que debe haber para cada turno
+max_turno = []	// Lista con la cantidad máxima de empleado que debe haber para cada turno
+
+// Se calcula la cantidad mínima y máxima de empleados por turno
+Para cada [turno] de la cantidad_turno:
+    //Calculo de la cantidad mínima de empleado en un turno
+    min_turno.append(turnos_totales[turno] // num_empleado)
+ 
+    //Calculo de la cantidad máxima de empleado en un turno
+    max_turno.append(min_turno[turno] + (turnos_totales[turno] % num_empleado != 0))
+
+Para cada [empleado] de la planificación:
+    jornada = una lista de listas vacías, una para cada turno
+    
+    Para cada [semana] del mes:
+        Para cada [día] de la [semana]:
+                Para cada [turno] del [día]:
+                    //Se agrega la variable mes[semana][dia][3][empleado][turno] a la lista jornada[turno]
+    jornada[turno].append(mes[semana][dia][3][empleado][turno])
+
+    Para cada [turno] de la cantidad _turno:
+        //Restricción del modelo: min_turno[turno] debe ser menor o igual a la suma de jornada[turno]
+        modelo.Add(min_turno[turno] <= sum(jornada[turno]))
+        
+        //Restricción del modelo: la suma de jornada[turno] debe ser menor o igual a max_turno[turno]
+        modelo.Add(sum(jornada[turno]) <= max_turno[turno])
+
