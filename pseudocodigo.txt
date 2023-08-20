@@ -298,7 +298,7 @@ Para cada [semana] del mes:
 // ArrayDeDomingo es una lista que contiene listas, donde cada lista tiene la cantidad de empleados que hay por turno
 // ejemplo con 5 empleados y 4 domingos en el mes: ArrayDeDomingo = [[1, 1, 0], [1, 1, 0], [1, 1, 1], [1, 1, 1]]
 // ejemplo con 5 empleados y 5 domingos en el mes: ArrayDeDomingo = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
-// Algunos elementos de las listas son 0 debido, ya que se debe respetar la restricción “Cada empleado tiene 2 domingos libres al mes” y matemáticamente es imposible tener cada empleado en cada turno los días domingos (si son 4 domingos), es por eso que existe el comodín, el cual trabaja los turnos que son 0. 
+// Algunos elementos de las listas son 0, ya que se debe respetar la restricción “Cada empleado tiene 2 domingos libres al mes” y matemáticamente es imposible tener cada empleado en cada turno los días domingos (si son 4 domingos), es por eso que existe el comodín, el cual trabaja los turnos que son 0. 
 // domingos_asignación es una lista, donde guardan la cantidad de empleados
 
 Shuffle(ArrayDeDomingo)			// Mezcla aleatoriamente cada lista que esta en la lista ArrayDeDomingo 
