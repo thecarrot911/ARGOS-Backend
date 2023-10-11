@@ -19,5 +19,12 @@ Este sistema fue desarrollado bajo el marco operativo de una empresa real que se
 8. Los meses que tengan cuatro domingos deben asignar a un empleado adicional (distinto de los cinco empleados) para trabajar en dos domingos en cualquier turno, a este último se le denominará como "comodín".
 9. La carga de trabajo de los empleados debe ser distribuida lo más equitativamente posible para cada turno.
 
+Para el cumpliento de la restricción (6), el sistema cuenta con un formulario donde el usuario debe especificar la cantidad de empleados que quiere para un día y turno en especifico. 
+
+## Requerimientos
+* Node.js
+* Python 3.9^
+* OR-Tools
+
 
 
