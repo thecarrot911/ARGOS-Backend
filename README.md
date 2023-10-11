@@ -4,11 +4,11 @@ El subsistema que se encarga de generar las planificaciones de turno utiliza el 
 
 Este sistema fue desarrollado bajo el marco operativo de una empresa real que se encarga de suministrar combustible a los aviones, por lo tanto existen ciertas condiciones y restricciones que el sistema cumple para generar las planificaciones de turno, estas son:
 
-<u>**Condiciones**</u>
+**Condiciones:**
 * Son 3 turnos al día.
 * Son 5 empleados para distribución de los turnos.
 
-<u>**Restricciones**</u>
+**Restricciones:**
 1. Cada empleado trabaja como máximo un turno al día.
 2. Un empleado que sea asignado en el turno de las 23:00 a 07:00 no puede ser asignado al día siguiente en el turno 07:00 a 15:00.
 3. Cada turno debe tener como mínimo un empleado al día.
