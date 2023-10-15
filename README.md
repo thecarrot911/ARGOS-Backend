@@ -25,6 +25,7 @@ Para el cumpliento de la restricción (6), el sistema cuenta con un formulario d
 * Node.js
 * Python 3.9^
 * OR-Tools
+* MySQL
 
 
 
